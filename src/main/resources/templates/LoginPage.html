@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+        <meta charset="utf-8">
+        <link th:href="@{/images/favicon.ico}" rel="icon">
+        <meta content="width=device-width, initial-scale=1" name="viewport">
+        <meta content="#38003C" name="theme-color">
+        <meta content="For all the latest Premier League news, visit the official website of the Premier League."
+                name="description">
+        <link th:href="@{/css/pluser.css}" rel="stylesheet">
+        <link th:href="@{/css/ism.css}" rel="stylesheet">
+        <title>premierleague.com User Portal</title>
+</head>
+
+<body>
+        
+        <main class="ism" id="mainContent" tabindex="0">
+                <header class="pageHero">
+                        <div class="wrapper col-12">
+                                <h1 class="pageTitle">Your Account</h1>
+                        </div>
+                </header>
+
+                <div class="ism-container">
+                        <div class="wrapper">
+                                <div id="ismr-content">
+                                        <form th:action="@{/auth/login}" method="post" class="ism-form__login-box">
+                                                <!-- CSRF Token -->
+                                                <th:block th:if="${_csrf != null}">
+                                                        <input type="hidden" th:name="${_csrf.parameterName}"
+                                                                th:value="${_csrf.token}" />
+                                                </th:block>
+
+
+                                                <div class="wrapper">
+                                                        <div class="col-6">
+                                                                <h1>Sign In</h1>
+
+                                                                <div class="ism-form__group">
+                                                                        <label for="ism-email">Username</label>
+                                                                        <div class="ism-input-holder">
+                                                                                <input type="text" name="username"
+                                                                                        id="ism-email"
+                                                                                        placeholder="username">
+                                                                        </div>
+                                                                </div>
+
+                                                                <div class="ism-form__group">
+                                                                        <label for="ism-password">Password</label>
+                                                                        <div class="ism-input-holder">
+                                                                                <input type="password" name="password"
+                                                                                        id="ism-password"
+                                                                                        placeholder="Password">
+                                                                                <button type="button"
+                                                                                        class="btn ism-show-password"
+                                                                                        id="ismjs-show-password">
+                                                                                        <span
+                                                                                                id="ismjs-show-hide-text">Show</span>
+                                                                                        <span
+                                                                                                class="visuallyHidden">password</span>
+                                                                                </button>
+                                                                        </div>
+                                                                </div>
+
+                                                                <div class="ism-form__group">
+                                                                        <a th:href="@{/auth/forgot-password-form}"
+                                                                                class="ism-arrow-link ism-arrow-link__login">Forgot
+                                                                                login details?</a>
+                                                                        <button type="submit"
+                                                                                class="btn btn-primary">Sign in</button>
+                                                                </div>
+
+                                                                <div class="ism-or"><span>or login with</span></div>
+
+                                                                <div class="ism-social-login">
+                                                                        <a href="http://localhost:8080/oauth2/authorization/google"
+                                                                                class="btn ism-google-button">
+                                                                                <img th:src="@{/images/icon-google.svg}"
+                                                                                        alt=""> Login with Google
+                                                                        </a>
+                                                                        <!-- Thêm các social khác nếu cần -->
+                                                                </div>
+                                                        </div>
+
+                                                        <div class="col-6">
+                                                                <h1 class="ism-hide--mobile">Register</h1>
+                                                                <div class="ism-well ism-well__reg-spacer">
+                                                                        <h2>Don't have a Premier League account?</h2>
+                                                                        <p>In that case, you are missing out on:</p>
+                                                                        <ul>
+                                                                                <li>Fantasy Premier League football game
+                                                                                </li>
+                                                                                <li>Exclusive fan services</li>
+                                                                                <li>Customised site content</li>
+                                                                                <li>Favourite Club information and
+                                                                                        notifications</li>
+                                                                        </ul>
+                                                                        <a th:href="@{/auth/signup}"
+                                                                                class="btn-highlight btn ism-button--full">Register</a>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        </form>
+                                </div>
+                        </div>
+                </div>
+        </main>
+
+        <script th:src="@{/component/jquery-3.4.1.slim.js}"></script>
+        <script th:src="@{/component/header.js}"></script>
+        <script th:src="@{/component/load-components.js}"></script>
+</body>
+
+</html>
