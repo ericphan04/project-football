@@ -61,7 +61,11 @@
 </head>
 
 <body>
-    
+    <div class="mb-3 ms-3">
+        <a href="http://localhost:8080/home" class="btn btn-outline-light btn-sm">
+            ← Quay về trang chủ
+        </a>
+    </div>
     <div class="container">
         <h2 class="text-center">Your Profile</h2>
 
@@ -97,7 +101,8 @@
             </div>
 
             <div class="text-end mt-4">
-                <button type="submit" id="saveBtn" class="btn btn-primary btn-sm" style="display: none;">Lưu thay đổi</button>
+                <button type="submit" id="saveBtn" class="btn btn-primary btn-sm" style="display: none;">Lưu thay
+                    đổi</button>
             </div>
         </form>
 
@@ -116,17 +121,17 @@
 
     <script>
         function toggleEditMode() {
-            const form = document.getElementById('profileForm');
-            const inputs = form.querySelectorAll('input[type="text"], input[type="email"]');
+            const fullnameInput = document.querySelector('input[name="fullname"]');
             const saveBtn = document.getElementById('saveBtn');
 
-            inputs.forEach(input => {
-                input.readOnly = !input.readOnly;
-            });
+            if (fullnameInput) {
+                fullnameInput.readOnly = !fullnameInput.readOnly;
+            }
 
-            saveBtn.style.display = saveBtn.style.display === 'none' ? 'inline-block' : 'none';
+            saveBtn.style.display = fullnameInput.readOnly ? 'none' : 'inline-block';
         }
     </script>
+
 </body>
 
 </html>
