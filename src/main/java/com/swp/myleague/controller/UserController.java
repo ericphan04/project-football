@@ -49,6 +49,9 @@ public class UserController {
     // Tạo mới user (nếu dùng form)
     @PostMapping("")
     public String postUser(@ModelAttribute User entity, Model model) {
+        if (userService.getUserById(entity.getUserId().toString()) != null) {
+            entity.setImgPath(userService.getUserById(entity.getUserId().toString()).getImgPath());
+        }
         userService.save(entity);
         model.addAttribute("message", "User created successfully");
         return "redirect:/user/profile"; 
@@ -63,7 +66,7 @@ public class UserController {
         String username = principal.getName();
         User user = userService.findByUsername(username);
         userService.saveFile(multipartFile, user.getUserId().toString());
-
+        
         model.addAttribute("message", "Upload thành công!");
         return "redirect:/user/profile"; // quay lại trang profile sau khi upload
     }
