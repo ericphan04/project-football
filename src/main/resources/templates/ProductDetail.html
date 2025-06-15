@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${product.productName}">Product Detail</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .breadcrumb {
+      font-size: 0.875rem;
+    }
+
+    .product-img {
+      max-width: 100%;
+      border-radius: 12px;
+      background-color: #fff;
+      padding: 20px;
+    }
+
+    .features-box {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .product-price {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .size-button {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin: 4px;
+    }
+
+    .recommend-card img {
+      height: 150px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      background-color: #f1f1f1;
+      padding: 40px 0;
+    }
+
+    .footer h6 {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .partner-logos img {
+      max-height: 30px;
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Hoodies & Tops</a></li>
+        <li class="breadcrumb-item active" aria-current="page" th:text="${product.productName}">Product</li>
+      </ol>
+    </nav>
+
+    <div class="row g-4">
+      <!-- Images -->
+      <div class="col-md-6">
+        <div class="d-flex gap-3">
+          <img th:src="@{${product.productImgPath}}" class="product-img w-50" alt="Front" />
+          <img th:src="@{${product.productImgPath}}" class="product-img w-50" alt="Back" />
+          <!-- <img th:src="@{${product.backImgPath}}" class="product-img w-50" alt="Back" /> -->
+        </div>
+      </div>
+
+      <!-- Product Info + Add to Cart Form -->
+      <div class="col-md-6">
+        <form th:action="@{/cart/add}" method="post">
+          <input type="hidden" name="productId" th:value="${product.productId}" />
+          <input type="hidden" name="url" th:value="${null}" />
+          <input type="hidden" name="productAmount" th:value="1" />
+
+          <h5 class="text-muted">Premier League</h5>
+          <h3 th:text="${product.productName}"></h3>
+          <p class="product-price" th:text="'£' + ${product.productPrice}"></p>
+
+          <p class="mt-2">Color: <span>black</span></p>
+          <div class="d-flex align-items-center mb-2">
+            <img th:src="@{${product.productImgPath}}" class="img-thumbnail me-2"
+              style="width: 50px; height: 50px; object-fit: contain;" />
+            <span>Black</span>
+          </div>
+
+          <div class="mb-2">Sizes:</div>
+          <div class="mb-3 d-flex flex-wrap">
+            <div class="me-2" th:each="size : ${productSizes}">
+              <input type="radio" class="btn-check" name="size" th:id="${size.name()}" th:value="${size.name()}" />
+              <label class="btn btn-outline-dark size-button" th:for="${size.name()}" th:text="${size.name()}"></label>
+            </div>
+          </div>
+
+
+          <button type="submit" class="btn btn-dark w-100">Add to Cart</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="row mt-5">
+      <div class="col-md-4">
+        <p th:text="${product.productDescription}" class="lead">
+          Bring the Premier League to your training sessions with this PUMA top...
+        </p>
+      </div>
+
+      <div class="col-md-4">
+        <div class="features-box">
+          <h6>Technical features</h6>
+          <ul class="small">
+            <li>Official PUMA Premier League product</li>
+            <li>Printed PUMA and Premier League logos</li>
+            <li>Shoulder/sleeve 'Brilliance' detail</li>
+            <li>Slim fit</li>
+            <li>dryCELL sweat wicking technology</li>
+            <li>1/4 zip collar</li>
+            <li>Long sleeve</li>
+            <li>Material: 100% polyester</li>
+            <li>Made with recycled material</li>
+            <li>Made in Indonesia</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="features-box">
+          <h6>Shipping</h6>
+          <ul class="small">
+            <li>UPS Standard: 3–5 days £4.50</li>
+            <li>FREE on orders over £90</li>
+            <li>DHL Standard: 3–5 days £13.50</li>
+            <li>£8.95 on orders over £90</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="mt-5">
+      <h5 class="mb-3">You may also like</h5>
+      <div class="row row-cols-2 row-cols-md-4 g-4 mt-2">
+        <div class="col" th:each="item : ${relatedProducts}">
+          <div class="card h-100 recommend-card p-3 text-center">
+            <img th:src="@{${item.productImgPath}}" class="img-fluid" />
+            <div class="fw-bold" th:text="${item.productName}">Training Jersey</div>
+            <div class="text-muted small">1 Colour</div>
+            <div class="fw-bold" th:text="'£' + ${item.productPrice}">£30.00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer mt-5">
+    <div class="container">
+      <div class="row text-center text-md-start">
+        <div class="col-md-3">
+          <h6>Shop</h6>
+          <ul class="list-unstyled small">
+            <li><a href="#">T-shirts</a></li>
+            <li><a href="#">Hoodies</a></li>
+            <li><a href="#">Accessories</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h6>Support</h6>
+          <ul class="list-unstyled small">
+            <li><a href="#">Shipping</a></li>
+            <li><a href="#">Returns</a></li>
+            <li><a href="#">Track Order</a></li>
+          </ul>
+        </div>
+        <div class="col-md-6 text-center text-md-start partner-logos">
+          <h6>Partners</h6>
+          <img src="/images/logos/puma.png" />
+          <img src="/images/logos/barclays.png" />
+          <img src="/images/logos/coke.png" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+</script>
+</body>
+
+</html>
