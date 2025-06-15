@@ -39,7 +39,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> userOptional = userRepository.findByEmail(email);
         User user = new User();
         if (userOptional.isEmpty()) {
-            user = new User();
             user.setUsername(email.split("@")[0]);
             user.setEmail(email);
             user.setPassword(encoder.encode(UUID.randomUUID().toString())); // hoặc một chuỗi ngẫu nhiên
