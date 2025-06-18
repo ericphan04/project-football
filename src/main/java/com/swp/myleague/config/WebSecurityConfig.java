@@ -64,10 +64,12 @@ public class WebSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .sessionManagement(session -> session
+            .sessionFixation().none() // <== NGĂN đổi session ID
+        )
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/home", "/auth/**", "/login/**", "/oauth2/**", "/product/**").permitAll()
-            .requestMatchers( "/css/**", "/images/**", "/component/**", "/fonts/**").permitAll()
+            .requestMatchers("/css/**", "/images/**", "/component/**", "/fonts/**").permitAll()
             .anyRequest().authenticated())
         .oauth2Login(oauth2 -> oauth2
             .userInfoEndpoint(userInfo -> userInfo

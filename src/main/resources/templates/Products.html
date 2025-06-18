@@ -169,7 +169,7 @@
                         <div>
                             <small class="text-muted" th:text="'x' + ${item.value.productAmount}">x00</small>
                         </div>
-
+                        <a class="btn btn-primary" href="http://localhost:8080/payment/checkout">Checkout</a>
                     </div>
                 </div>
             </div>
@@ -287,14 +287,16 @@
     <script th:inline="javascript">
         const currentURL = encodeURIComponent(window.location.href);
         function addToCart(productId) {
-            fetch(`/cart/add?productId=${productId}&productAmount=1&url=${currentURL}&size=${null}`, {
+            fetch(`/cart?productId=${productId}&productAmount=1&url=${currentURL}&size=${null}`, {
                 method: 'POST'
             }).then(() => {
                 alert('Added to cart!');
+                
             }).catch(err => {
                 console.error('Error:', err);
                 alert('Failed to add to cart');
             });
+            window.location.reload();
         }
 
         function toggleCart() {

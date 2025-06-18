@@ -12,6 +12,15 @@
       font-family: 'Segoe UI', sans-serif;
     }
 
+    .navbar {
+      background-color: #3a003a;
+    }
+
+    .navbar-brand,
+    .nav-link {
+      color: white !important;
+    }
+
     .breadcrumb {
       font-size: 0.875rem;
     }
@@ -67,6 +76,75 @@
 </head>
 
 <body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="#">⚽ Shop</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon text-white"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#">Footballs</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">T-shirts</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Hoodies & Tops</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Pants & Shorts</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Accessories</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Clubs</a></li>
+        </ul>
+      </div>
+    </div>
+
+  </nav>
+
+  <button class="btn btn-outline-dark position-fixed top-0 end-0 m-3" style="z-index: 1060;" th:onclick="toggleCart()">
+    🛒
+  </button>
+
+  <div class="cart-overlay" id="cartOverlay"
+    style="position: fixed; top: 0; right: 0; width: 400px; height: 100vh; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1050; transform: translateX(100%); transition: transform 0.3s ease-in-out; overflow-y: auto;">
+    <div class="p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Your cart</h5>
+        <button class="btn-close" th:onclick="closeCart()"></button>
+      </div>
+      <p th:if="${#lists.isEmpty(cartProducts)}">Your shopping cart is empty</p>
+
+      <div th:if="${!#lists.isEmpty(cartProducts)}">
+        <div class="mb-3" th:each="item : ${cartProducts}">
+          <div class="d-flex gap-2">
+            <img th:src="@{${item.value.product.productImgPath}}" class="img-fluid rounded"
+              style="width: 60px; height: 60px; object-fit: cover;" />
+            <div>
+              <small th:text="${item.value.product.productName}">Product Name</small><br />
+              <small class="text-muted"
+                th:text="'£' + ${item.value.product.productPrice * item.value.productAmount}">£00.00</small>
+            </div>
+            <div>
+              <small class="text-muted" th:text="'x' + ${item.value.productAmount}">x00</small>
+            </div>
+            <a class="btn btn-primary" href="http://localhost:8080/payment/checkout">Checkout</a>
+          </div>
+        </div>
+      </div>
+      <hr />
+      <h6>Popular categories</h6>
+      <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-outline-secondary btn-sm">Footballs</button>
+        <button class="btn btn-outline-secondary btn-sm">Liga Collection</button>
+        <button class="btn btn-outline-secondary btn-sm">Accessories</button>
+      </div>
+      <h6>Popular products</h6>
+      <div class="d-flex overflow-auto gap-3" th:if="${popularProducts}">
+        <div style="min-width: 150px;" th:each="p : ${popularProducts}">
+          <img th:src="@{${p.productImgPath}}" class="img-fluid rounded mb-1" />
+          <small th:text="${p.productName}">Product Name</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="container py-4">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
@@ -89,7 +167,7 @@
 
       <!-- Product Info + Add to Cart Form -->
       <div class="col-md-6">
-        <form th:action="@{/cart/add}" method="post">
+        <form th:action="@{/cart}" method="post">
           <input type="hidden" name="productId" th:value="${product.productId}" />
           <input type="hidden" name="url" th:value="${null}" />
           <input type="hidden" name="productAmount" th:value="1" />
@@ -205,8 +283,21 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  
-</script>
+
+  <script>
+    function toggleCart() {
+      const cart = document.getElementById('cartOverlay');
+      if (cart.style.transform === 'translateX(0%)') {
+        cart.style.transform = 'translateX(100%)';
+      } else {
+        cart.style.transform = 'translateX(0%)';
+      }
+    }
+
+    function closeCart() {
+      document.getElementById('cartOverlay').style.transform = 'translateX(100%)';
+    }
+  </script>
 </body>
 
 </html>
