@@ -31,12 +31,10 @@ public class ProductController {
     @GetMapping(value = { "", "/" })
     public String getProducts(Model model, HttpSession session) {
         List<Product> products = productService.getAll();
-        model.addAttribute("products", products);
 
         HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
-        if (cart == null)
-            cart = new HashMap<>();
-
+        if (cart == null) cart = new HashMap<>();
+        model.addAttribute("products", products);
         model.addAttribute("cartProducts", cart);
 
         return "Products";
@@ -44,10 +42,16 @@ public class ProductController {
 
     @GetMapping(value = { "/{productId}", "/{productId}/" })
     public String getDetailProduct(@PathVariable(name = "productId") String productId, Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request, HttpSession session) {
         Product product = productService.getById(productId);
         model.addAttribute("productSizes", ProductSize.values());
         model.addAttribute("product", product);
+
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        if (cart == null)
+            cart = new HashMap<>();
+
+        model.addAttribute("cartProducts", cart);
 
         String currentUrl = request.getRequestURL().toString();
         model.addAttribute("url", currentUrl);
