@@ -29,11 +29,9 @@ public class MatchPlayerStat {
     @UuidGenerator
     private UUID matchPlayerStatId;
 
+    private Integer matchPlayerMinutedPlayed;
     private Integer matchPlayerGoal;
-    private Integer matchPlayerShoots;
-    private Integer matchPlayerPass;
-    private Double matchPlayerShootAccuracy;
-    private Double matchPlayerPassAccuracy;
+    private Integer matchPlayerAssist;
 
     private Double rating;
 

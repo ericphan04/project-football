@@ -74,12 +74,12 @@
             <a th:href="@{/}" class="fs-4 fw-bold">Premier League</a>
             <nav class="d-flex gap-3">
                 <a th:href="@{/fixtures}">Fixtures</a>
-                <a th:href="@{/results}">Results</a>
+                <a th:href="@{/match}">Results</a>
                 <a th:href="@{/tables}">Tables</a>
                 <a th:href="@{/news}">News</a>
                 <a th:href="@{/fantasy}">Fantasy</a>
                 <a th:href="@{/clubs}">Clubs</a>
-                <a th:href="@{/players}">Players</a>
+                <a th:href="@{/product}">Product</a>
             </nav>
             <!-- Nếu chưa đăng nhập -->
             <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn btn-primary btn-sm">Sign In</a>
