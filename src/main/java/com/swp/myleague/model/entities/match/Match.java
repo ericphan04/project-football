@@ -1,6 +1,6 @@
 package com.swp.myleague.model.entities.match;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +31,7 @@ public class Match {
     private UUID matchId;
 
     private String matchTitle;
-    private Date matchStartTime;
+    private LocalDateTime matchStartTime;
     private String matchDescription;
     private String matchLinkLivestream;
 
