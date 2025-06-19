@@ -34,6 +34,7 @@ public class MatchClubStat {
     private Integer matchClubStatPass;
     private Integer matchClubStatCorners;
     private Integer matchClubStatBallTimes;
+    private Integer matchClubStatScore;
 
     @ManyToOne
     @JoinColumn(name = "matchId")
