@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import com.swp.myleague.model.entities.blog.Blog;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,8 +32,16 @@ public class Club {
     private String clubName;
     private String clubLogoPath;
     private String clubDescription;
+    private String clubPrimaryColor;
+    private String clubSecondaryColor;
+    private String clubFounded;
+
+    private String clubStadium;
 
     @OneToMany(mappedBy = "club", fetch = FetchType.LAZY)
     private List<Player> players;
+
+    @OneToMany(mappedBy = "club", fetch = FetchType.LAZY)
+    private List<Blog> blogs;
 
 }
