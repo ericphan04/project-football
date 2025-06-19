@@ -26,23 +26,22 @@ public class CartController {
     ProductService productService;
 
     @GetMapping(value = { "/", "" })
-    public String getCart(Model model, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        Object o = session.getAttribute("cart");
-        if (o == null) {
-            session.setAttribute("cart", new HashMap<>());
-        }
+    public String getCart(Model model, HttpServletRequest request, HttpSession session) {
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        if (cart == null)
+            cart = new HashMap<>();
+
+        model.addAttribute("cartProducts", cart);
         return "Cart";
     }
 
-    @PostMapping(value = { "/add", "/add/" })
+    @PostMapping(value = { "", "/" })
     public String addProductToCart(Model model, HttpServletRequest request, @RequestParam("productId") String productId,
             @RequestParam("productAmount") String productAmount,
             @RequestParam("size") String size,
-            @RequestParam("url") String url) {
-        HttpSession session = request.getSession();
+            @RequestParam("url") String url, HttpSession session) {
         Object o = session.getAttribute("cart");
-        
+
         if (o == null) {
             session.setAttribute("cart", new HashMap<>());
         }
@@ -59,9 +58,7 @@ public class CartController {
         ct.setProductAmount(amount);
         cart.put(productId, ct);
         session.setAttribute("cart", cart);
-        return "Products";
+        return "redirect:product";
     }
-
-    
 
 }
