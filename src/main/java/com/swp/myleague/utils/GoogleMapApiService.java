@@ -18,6 +18,7 @@ public class GoogleMapApiService {
                 UriUtils.encode(address, StandardCharsets.UTF_8) +
                 "&key=" + apiKey;
         System.out.println(url);
+        @SuppressWarnings("rawtypes")
         ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
         return response.getBody(); // bạn có thể map lại thành DTO nếu muốn
     }

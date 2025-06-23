@@ -1,6 +1,6 @@
 package com.swp.myleague.model.entities.blog;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,6 +10,8 @@ import com.swp.myleague.model.entities.Comment;
 import com.swp.myleague.model.entities.information.Club;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -34,7 +36,11 @@ public class Blog {
 
     private String blogTitle;
     private String blogContent;
-    private Date blogDateCreated;
+    private LocalDateTime blogDateCreated;
+    private String blogThumnailPath;
+
+    @Enumerated(EnumType.STRING)
+    private BlogCategory blogCategory;
 
     @OneToMany(mappedBy = "blog")
     private List<Comment> comments;
