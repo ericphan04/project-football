@@ -25,10 +25,13 @@ public class ClubService implements IService<Club> {
         return clubRepo.findById(UUID.fromString(id)).orElseThrow();
     }
 
+    public Club getByUserId(UUID userId) {
+        return clubRepo.findByUserId(userId);
+    }
+
     @Override
     public Club save(Club e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        return clubRepo.save(e);
     }
 
     @Override

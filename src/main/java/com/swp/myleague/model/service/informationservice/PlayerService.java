@@ -36,8 +36,7 @@ public class PlayerService implements IService<Player> {
 
     @Override
     public Player save(Player e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'save'");
+        return playerRepo.save(e);
     }
 
     @Override
