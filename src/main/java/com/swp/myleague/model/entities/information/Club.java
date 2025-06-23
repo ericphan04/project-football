@@ -44,4 +44,6 @@ public class Club {
     @OneToMany(mappedBy = "club", fetch = FetchType.LAZY)
     private List<Blog> blogs;
 
+    private UUID userId;
+
 }
