@@ -21,8 +21,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.saleproduct.CartItem;
+import com.swp.myleague.model.entities.saleproduct.Product;
+import com.swp.myleague.model.entities.ticket.Ticket;
 import com.swp.myleague.model.service.EmailService;
 import com.swp.myleague.model.service.UserService;
+import com.swp.myleague.model.service.saleproductservice.ProductService;
+import com.swp.myleague.model.service.ticketservice.TicketService;
 import com.swp.myleague.utils.VNPayUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,6 +54,10 @@ public class PaymentController {
     @Autowired
     EmailService emailService;
 
+    @Autowired ProductService productService;
+
+    @Autowired TicketService ticketService;
+
     @GetMapping("/checkout")
     public String checkout(HttpSession session, Model model) {
 
@@ -62,13 +70,13 @@ public class PaymentController {
     }
 
     @GetMapping("/create-payment")
-    public String createPayment(HttpServletRequest req, @RequestParam("amount") Double amount) throws Exception {
+    public String createPayment(HttpServletRequest req, @RequestParam("amount") Double amount, @RequestParam("orderInfo") String orderInfo) throws Exception {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
         String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
         String vnp_IpAddr = req.getRemoteAddr();
-        String vnp_OrderInfo = "Thanh toan don hang: " + vnp_TxnRef;
+        String vnp_OrderInfo = "Thanh toan don hang: " + vnp_TxnRef + ":" + orderInfo;
         String vnp_TransactionDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
         Map<String, String> vnp_Params = new HashMap<>();
@@ -122,16 +130,28 @@ public class PaymentController {
             }
         }
 
-        // Lấy secure hash để đối chiếu
-        // String secureHash = request.getParameter("vnp_SecureHash");
-        // String hashData = VNPayUtil.hashAllFields(params);
-        // String checkHash;
         try {
-            // checkHash = VNPayUtil.hmacSHA512(vnp_HashSecret, hashData);
             if (params.get("vnp_ResponseCode").equals("00")) {
                 String username = principal.getName();
                 User user = userService.findByUsername(username);
-                emailService.sendMail("chumlu2102@gmail.com", user.getEmail(), "THANH TOAN MYLEAGUE", "MaQR");
+                String subject = "THANH TOAN MYLEAGUE: ";
+                switch (params.get("vnp_OrderInfo").split(":")[2]) {
+                    case "Product":
+                        subject += "BUY PRODUCT";
+                        Product product = productService.getById(params.get("vnp_OrderInfo").split(":")[3]);
+                        product.setProductAmount(product.getProductAmount() - 1);
+                        productService.save(product);
+                        break;
+                    case "Ticket": 
+                        subject += "BUY TICKET";
+                        Ticket ticket = ticketService.getById(params.get("vnp_OrderInfo").split(":")[3]);
+                        ticket.setTicketAmount(ticket.getTicketAmount() - 1);
+                        ticketService.save(ticket);
+                        break;
+                    default:
+                        break;
+                }
+                emailService.sendMail("chumlu2102@gmail.com", user.getEmail(), subject, "MaQR");
                 return "PaymentSuccess";
             }
         } catch (Exception e) {
@@ -140,7 +160,5 @@ public class PaymentController {
         return "PaymentFailure";
 
     }
-
-    
 
 }
