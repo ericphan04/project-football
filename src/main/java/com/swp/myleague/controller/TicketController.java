@@ -69,7 +69,7 @@ public class TicketController {
         Ticket ticket = ticketService.getById(ticketId);
         Double amount = ticket.getTicketPrice();
 
-        return "redirect:/payment/create-payment?amount=" + amount;
+        return "redirect:/payment/create-payment?amount=" + amount + "&orderInfo=Ticket:" + ticketId;
     }
 
 }
