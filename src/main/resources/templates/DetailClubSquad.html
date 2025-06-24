@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manchester United Squad</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .club-header {
+            background: linear-gradient(to right, #c70101, #6c0000);
+            color: white;
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+
+        .club-header img {
+            height: 80px;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            margin-top: 2rem;
+            color: #c70101;
+            border-bottom: 2px solid #c70101;
+            padding-bottom: 4px;
+        }
+
+        .player-card {
+            background-color: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .player-card-inner {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .player-stats {
+            background-color: #f8f6fb;
+            padding: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 0.85rem;
+            color: #4b006e;
+        }
+
+        .player-stats div {
+            margin-bottom: 6px;
+        }
+
+        .player-stats strong {
+            font-size: 1.2rem;
+            display: inline-block;
+            width: 20px;
+            text-align: right;
+            margin-left: 6px;
+        }
+
+        .player-img {
+            background-color: #c70101;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .player-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .player-details {
+            padding: 1rem;
+            text-align: left;
+        }
+
+        .player-details .name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0;
+            color: #2d004d;
+        }
+
+        .player-details .surname {
+            font-weight: 900;
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
+            color: #2d004d;
+        }
+
+        .player-details .role {
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .player-details .nation {
+            font-size: 0.85rem;
+            color: #222;
+            display: flex;
+            align-items: center;
+        }
+
+        .view-profile {
+            color: #4b006e;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+
+    <div class="club-header">
+        <img src="/images/logoclub/club1.png" alt="Logo">
+        <h1 class="mb-1" th:text="${club.clubName}"></h1>
+        <p class="mb-0">1878 • Rach Tray</p>
+    </div>
+
+    <div class="container mt-4">
+        <ul class="nav nav-tabs">
+          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId}">Overview</a></li>
+          <li class="nav-item"><a class="nav-link active" th:href="'/club/' + ${club.clubId} + '/squad'">Squad</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/fixtures'">Fixtures</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/results'">Results</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/stadium'">Stadium</a></li>
+
+        </ul>
+      </div>
+
+    <div class="container">
+        <h4>Goalkeepers</h4>
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+            <div class="col" th:each="player : ${goalkeepers}">
+                <div class="player-card">
+                    <div class="player-card-inner">
+                        <div class="player-stats">
+                            <div>Appearances <strong th:text="${player.playerAppearances}">0</strong></div>
+                            <div>Goals <strong th:text="${player.playerScores}">0</strong></div>
+                            <div>Assists <strong th:text="${player.playerAssist}">0</strong></div>
+                            <div>Clean sheets <strong th:text="${player.playerCleanSheets}">0</strong></div>
+                        </div>
+                        <div class="player-img">
+                            <img th:src="@{{img}(img=${player.playerImgPath})}" alt="player">
+                        </div>
+                    </div>
+                    <div class="player-details">
+                        <div class="name" th:text="${player.playerFullName}">Ayden</div>
+                        <div class="surname" th:text="${player.playerFullName}">Heaven</div>
+                        <div class="role">
+                            <span th:text="${player.playerNumber}">26</span>
+                            <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
+                        </div>
+                        <div class="nation">
+                            <img src="/images/flag_england.png" alt="flag" style="height: 16px; margin-right: 6px;">
+                            <span th:text="${player.playerNationaly}">England</span>
+                        </div>
+                        <a class="view-profile" th:href="'/club/player/' + ${player.playerId}">View Profile →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4>Defenders</h4>
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+            <div class="col" th:each="player : ${defenders}">
+                <div class="player-card">
+                    <div class="player-card-inner">
+                        <div class="player-stats">
+                            <div>Appearances <strong th:text="${player.playerAppearances}">0</strong></div>
+                            <div>Goals <strong th:text="${player.playerScores}">0</strong></div>
+                            <div>Assists <strong th:text="${player.playerAssist}">0</strong></div>
+                            <div>Clean sheets <strong th:text="${player.playerCleanSheets}">0</strong></div>
+                        </div>
+                        <div class="player-img">
+                            <img th:src="@{{img}(img=${player.playerImgPath})}" alt="player">
+                        </div>
+                    </div>
+                    <div class="player-details">
+                        <div class="name" th:text="${player.playerFullName}">Ayden</div>
+                        <div class="surname" th:text="${player.playerFullName}">Heaven</div>
+                        <div class="role">
+                            <span th:text="${player.playerNumber}">26</span>
+                            <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
+                        </div>
+                        <div class="nation">
+                            <img src="/images/flag_england.png" alt="flag" style="height: 16px; margin-right: 6px;">
+                            <span th:text="${player.playerNationaly}">England</span>
+                        </div>
+                        <a class="view-profile" th:href="'/club/player/' + ${player.playerId}">View Profile →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4>Midfielders</h4>
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+            <div class="col" th:each="player : ${midfielders}">
+                <div class="player-card">
+                    <div class="player-card-inner">
+                        <div class="player-stats">
+                            <div>Appearances <strong th:text="${player.playerAppearances}">0</strong></div>
+                            <div>Goals <strong th:text="${player.playerScores}">0</strong></div>
+                            <div>Assists <strong th:text="${player.playerAssist}">0</strong></div>
+                            <div>Clean sheets <strong th:text="${player.playerCleanSheets}">0</strong></div>
+                        </div>
+                        <div class="player-img">
+                            <img th:src="@{{img}(img=${player.playerImgPath})}" alt="player">
+                        </div>
+                    </div>
+                    <div class="player-details">
+                        <div class="name" th:text="${player.playerFullName}">Ayden</div>
+                        <div class="surname" th:text="${player.playerFullName}">Heaven</div>
+                        <div class="role">
+                            <span th:text="${player.playerNumber}">26</span>
+                            <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
+                        </div>
+                        <div class="nation">
+                            <img src="/images/flag_england.png" alt="flag" style="height: 16px; margin-right: 6px;">
+                            <span th:text="${player.playerNationaly}">England</span>
+                        </div>
+                        <a class="view-profile" th:href="'/club/player/' + ${player.playerId}">View Profile →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4>Forwards</h4>
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+            <div class="col" th:each="player : ${forwards}">
+                <div class="player-card">
+                    <div class="player-card-inner">
+                        <div class="player-stats">
+                            <div>Appearances <strong th:text="${player.playerAppearances}">0</strong></div>
+                            <div>Goals <strong th:text="${player.playerScores}">0</strong></div>
+                            <div>Assists <strong th:text="${player.playerAssist}">0</strong></div>
+                            <div>Clean sheets <strong th:text="${player.playerCleanSheets}">0</strong></div>
+                        </div>
+                        <div class="player-img">
+                            <img th:src="@{{img}(img=${player.playerImgPath})}" alt="player">
+                        </div>
+                    </div>
+                    <div class="player-details">
+                        <div class="name" th:text="${player.playerFullName}">Ayden</div>
+                        <div class="surname" th:text="${player.playerFullName}">Heaven</div>
+                        <div class="role">
+                            <span th:text="${player.playerNumber}">26</span>
+                            <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
+                        </div>
+                        <div class="nation">
+                            <img src="/images/flag_england.png" alt="flag" style="height: 16px; margin-right: 6px;">
+                            <span th:text="${player.playerNationaly}">England</span>
+                        </div>
+                        <a class="view-profile" th:href="'/club/player/' + ${player.playerId}">View Profile →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

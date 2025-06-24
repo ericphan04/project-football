@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Manchester United</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', sans-serif;
+      }
+      .club-header {
+        background: linear-gradient(to right, #c70101, #6c0000);
+        color: white;
+        padding: 3rem 1rem;
+        text-align: center;
+        position: relative;
+      }
+      .club-header img {
+        height: 80px;
+        margin-bottom: 1rem;
+      }
+      .nav-tabs .nav-link.active {
+        background-color: #fff;
+        color: #c70101;
+        font-weight: bold;
+        border-bottom: 3px solid #c70101;
+      }
+      .card-news, .card-kit, .card-video, .card-stat {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+        background-color: #fff;
+      }
+      .card-news:hover, .card-kit:hover, .card-video:hover, .card-stat:hover {
+        transform: translateY(-5px);
+      }
+      .card-news img, .card-kit img {
+        border-radius: 8px;
+      }
+      h5 {
+        border-left: 4px solid #c70101;
+        padding-left: 12px;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #333;
+      }
+      .card-stat img {
+        height: 64px;
+        width: 64px;
+        object-fit: cover;
+        border: 2px solid #c70101;
+      }
+      .card-video iframe {
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+      .card-video .p-2 {
+        font-size: 0.95rem;
+        font-weight: 500;
+        background-color: #f1f1f1;
+        border-top: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+
+    <div class="club-header">
+      <img src="/images/logoclub/club1.png" alt="Logo">
+      <h1 class="mb-1" th:text="${club.clubName}"></h1>
+      <p class="mb-0">1878 • Rach Tray</p>
+    </div>
+
+    <div class="container mt-4">
+      <ul class="nav nav-tabs">
+        <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId}">Overview</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/squad'">Squad</a></li>
+        <li class="nav-item"><a class="nav-link active" th:href="'/club/' + ${club.clubId} + '/fixtures'">Fixtures</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/results'">Results</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/stadium'">Stadium</a></li>
+
+      </ul>
+    </div>
+
+    <div>
+        <h2>The website is updating</h2>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

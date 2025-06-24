@@ -31,6 +31,8 @@ public class MatchEvent {
     private UUID matchEventId;
 
     private String matchEventTitle;
+    private Integer matchEventMinute;
+    private String icon;
     
     @Enumerated(EnumType.STRING)
     private MatchEventType matchEventType;
