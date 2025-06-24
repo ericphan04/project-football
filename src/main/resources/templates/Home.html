@@ -69,34 +69,7 @@
 
 <body>
     <!-- Header -->
-    <header class="pl-header py-3">
-        <div class="container d-flex justify-content-between align-items-center">
-            <a th:href="@{/}" class="fs-4 fw-bold">Premier League</a>
-            <nav class="d-flex gap-3">
-                <a th:href="@{/fixtures}">Fixtures</a>
-                <a th:href="@{/results}">Results</a>
-                <a th:href="@{/tables}">Tables</a>
-                <a th:href="@{/news}">News</a>
-                <a th:href="@{/fantasy}">Fantasy</a>
-                <a th:href="@{/clubs}">Clubs</a>
-                <a th:href="@{/players}">Players</a>
-            </nav>
-            <!-- Nếu chưa đăng nhập -->
-            <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn btn-primary btn-sm">Sign In</a>
-
-            <div class="dropdown" sec:authorize="isAuthenticated()">
-                <a class="btn dropdown-toggle btn-sm" href="#" role="button" id="dropdownMenuLink"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    Hello, <span sec:authentication="name"></span>
-                </a>
-            
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="background-color: #37003c;">
-                    <li><a class="dropdown-item" th:href="@{/user/profile}">View Profile</a></li>
-                    <li><a class="dropdown-item" th:href="@{/auth/logout}">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </header>
+    <div th:replace="fragments/header :: siteHeader"></div>
 
     <!-- Banner -->
     <div class="banner">

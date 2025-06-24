@@ -41,6 +41,7 @@ public class WebSecurityConfig {
 
   @Bean
   public AuthTokenFilter authenticationJwtTokenFilter() {
+    
     return new AuthTokenFilter();
   }
 
@@ -63,12 +64,10 @@ public class WebSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-        .sessionManagement(session -> session
-            .sessionFixation().none() // <== NGĂN đổi session ID
-        )
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/home", "/auth/**", "/login/**", "/oauth2/**", "/product/**").permitAll()
+            .requestMatchers("/home", "/auth/**", "/login/**", "/oauth2/**", "/product/**", "/error").permitAll()
             .requestMatchers("/css/**", "/images/**", "/component/**", "/fonts/**").permitAll()
+            .requestMatchers("/clubmanager/**").hasRole("CLUB_MANAGER")
             .anyRequest().authenticated())
         .oauth2Login(oauth2 -> oauth2
             .userInfoEndpoint(userInfo -> userInfo
