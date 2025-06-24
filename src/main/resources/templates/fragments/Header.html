@@ -9,11 +9,21 @@
             .pl-header {
                 background-color: #37003c;
                 color: white;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1000;
             }
 
             .pl-header a {
                 color: white;
                 text-decoration: none;
+            }
+
+            body {
+                padding-top: 60px;
+                /* để tránh nội dung bị che bởi header */
             }
         </style>
         <!-- Header -->
@@ -21,7 +31,7 @@
             <div class="container d-flex justify-content-between align-items-center">
                 <a th:href="@{/home}" class="fs-4 fw-bold">MyLeague</a>
                 <nav class="d-flex gap-3">
-                    <a th:href="@{/fixtures}">Fixtures</a>
+                    <a th:href="@{/match/fixture}">Fixtures</a>
                     <a th:href="@{/match}">Results</a>
                     <a th:href="@{/tables}">Tables</a>
                     <a th:href="@{/news}">News</a>
@@ -53,7 +63,7 @@
                         <li sec:authorize="hasRole('USER')">
                             <a class="dropdown-item" th:href="@{/user/profile}">View Profile</a>
                         </li>
-                        
+
                         <li><a class="dropdown-item" th:href="@{/auth/logout}">Logout</a></li>
                     </ul>
                 </div>
