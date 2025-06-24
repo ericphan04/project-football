@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.swp.myleague.model.entities.match.Match;
 
 import jakarta.persistence.Entity;
@@ -45,6 +46,7 @@ public class Ticket {
 
     @ManyToOne
     @JoinColumn(name = "matchId")
+    @JsonIgnore
     private Match match;
 
     @OneToMany(mappedBy = "ticket", fetch = FetchType.LAZY)
