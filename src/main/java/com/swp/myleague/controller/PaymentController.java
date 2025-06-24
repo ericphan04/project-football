@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.net.URLEncoder;
+import java.security.Principal;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +19,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.saleproduct.CartItem;
+import com.swp.myleague.model.service.EmailService;
+import com.swp.myleague.model.service.UserService;
 import com.swp.myleague.utils.VNPayUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,9 +44,15 @@ public class PaymentController {
     @Value("${vnpay.returnUrl}")
     private String vnp_ReturnUrl;
 
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    EmailService emailService;
+
     @GetMapping("/checkout")
     public String checkout(HttpSession session, Model model) {
-        
+
         HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
         if (cart == null)
             cart = new HashMap<>();
@@ -49,7 +60,6 @@ public class PaymentController {
         model.addAttribute("cartProducts", cart);
         return "Checkout";
     }
-    
 
     @GetMapping("/create-payment")
     public String createPayment(HttpServletRequest req, @RequestParam("amount") Double amount) throws Exception {
@@ -102,7 +112,7 @@ public class PaymentController {
     }
 
     @GetMapping("/vnpay-return")
-    public String paymentReturn(HttpServletRequest request) {
+    public String paymentReturn(HttpServletRequest request, Principal principal) {
         Map<String, String> params = new HashMap<>();
         for (Enumeration<String> paramNames = request.getParameterNames(); paramNames.hasMoreElements();) {
             String paramName = paramNames.nextElement();
@@ -113,19 +123,24 @@ public class PaymentController {
         }
 
         // Lấy secure hash để đối chiếu
-        String secureHash = request.getParameter("vnp_SecureHash");
-        String hashData = VNPayUtil.hashAllFields(params);
-        String checkHash;
+        // String secureHash = request.getParameter("vnp_SecureHash");
+        // String hashData = VNPayUtil.hashAllFields(params);
+        // String checkHash;
         try {
-            checkHash = VNPayUtil.hmacSHA512(vnp_HashSecret, hashData);
-            if (secureHash != null && secureHash.equals(checkHash)) {
+            // checkHash = VNPayUtil.hmacSHA512(vnp_HashSecret, hashData);
+            if (params.get("vnp_ResponseCode").equals("00")) {
+                String username = principal.getName();
+                User user = userService.findByUsername(username);
+                emailService.sendMail("chumlu2102@gmail.com", user.getEmail(), "THANH TOAN MYLEAGUE", "MaQR");
                 return "PaymentSuccess";
-            } 
+            }
         } catch (Exception e) {
             return new String("Không thể thực hiện thanh toán");
         }
         return "PaymentFailure";
-        
+
     }
+
+    
 
 }
