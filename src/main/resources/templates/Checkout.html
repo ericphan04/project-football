@@ -63,11 +63,12 @@
             <a href="/cart" class="text-decoration-none mb-3 d-inline-block">&larr; Back to cart</a>
             <h2 class="fw-bold mb-4"><img src="/images/logos/coke.png" alt="Logo" style="height: 40px;"> Checkout</h2>
 
-            <form th:action="@{/payment/create-payment?orderInfo=Product:626f4ec2-40fd-11f0-8315-862ccfb06c04}" method="get">
+            <form th:action="@{/payment/create-payment}" method="get">
                 <div class="card-custom mb-4">
                     <label for="email" class="form-label">Your email address:</label>
                     <input type="email" name="email" class="form-control" id="email" placeholder="Email" required>
                     <input type="hidden" name="amount" th:value="${total}" />
+                    <input type="hidden" name="orderInfo" value="Product:626f4ec2-40fd-11f0-8315-862ccfb06c04" >
                     <button type="submit" class="btn btn-purple w-100 mt-3">Save & continue</button>
                 </div>
             </form>
