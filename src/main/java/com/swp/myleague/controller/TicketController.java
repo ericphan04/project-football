@@ -1,16 +1,5 @@
 package com.swp.myleague.controller;
 
-import java.net.URLEncoder;
-import java.security.Principal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -20,13 +9,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.ticket.Ticket;
 import com.swp.myleague.model.service.EmailService;
 import com.swp.myleague.model.service.UserService;
 import com.swp.myleague.model.service.matchservice.MatchService;
 import com.swp.myleague.model.service.ticketservice.TicketService;
-import com.swp.myleague.utils.VNPayUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -83,36 +70,6 @@ public class TicketController {
         Double amount = ticket.getTicketPrice();
 
         return "redirect:/payment/create-payment?amount=" + amount;
-    }
-
-    @GetMapping("/vnpay-return")
-    public String paymentReturn(HttpServletRequest request, Principal principal) {
-        Map<String, String> params = new HashMap<>();
-        for (Enumeration<String> paramNames = request.getParameterNames(); paramNames.hasMoreElements();) {
-            String paramName = paramNames.nextElement();
-            String paramValue = request.getParameter(paramName);
-            if (!paramName.equals("vnp_SecureHash")) {
-                params.put(paramName, paramValue);
-            }
-        }
-
-        // Lấy secure hash để đối chiếu
-        String secureHash = request.getParameter("vnp_SecureHash");
-        String hashData = VNPayUtil.hashAllFields(params);
-        String checkHash;
-        try {
-            checkHash = VNPayUtil.hmacSHA512(vnp_HashSecret, hashData);
-            if (secureHash != null && secureHash.equals(checkHash)) {
-                String username = principal.getName();
-                User user = userService.findByUsername(username);
-                emailService.sendMail("chumlu2102@gmail.com", user.getEmail(), "DAT VE MYLEAGUE", "MaQR");
-                return "PaymentSuccess";
-            } 
-        } catch (Exception e) {
-            return new String("Không thể thực hiện thanh toán");
-        }
-        return "PaymentFailure";
-        
     }
 
 }
