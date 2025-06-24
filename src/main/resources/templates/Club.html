@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MyLeague Clubs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+        }
+
+        .club-card {
+            background: #fff;
+            color: #000;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .club-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .club-logo {
+            height: 50px;
+        }
+
+        .section-header {
+            font-size: 2rem;
+            margin: 30px 0 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+
+    <div class="container py-4">
+        <!-- Search Header -->
+        <div class="text-center mb-4">
+            <h1>MyLeague Clubs</h1>
+            <input type="text" class="form-control w-50 mx-auto" placeholder="Search Clubs" />
+        </div>
+
+        <!-- Current Season Clubs -->
+        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
+            <div class="col" th:each="club : ${clubs}">
+                <a th:href="'http://localhost:8080/club/' + ${club.clubId} ">
+                    <div class="club-card">
+                        <img th:src="@{{img}(img=${club.clubLogoPath})}" class="club-logo mb-2" alt="Logo" />
+                        <div th:text="${club.clubName}"></div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- All-time Premier League Clubs -->
+        <div class="section-header text-white">All-time Premier League Clubs</div>
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            <div class="col" th:each="entry : ${allTimeClubs}">
+                <div class="p-3 bg-light text-dark rounded">
+                    <strong th:text="${entry.clubName}"></strong><br />
+                    <img th:src="@{{img}(img=${entry.clubLogoPath})}" class="club-logo mb-2" alt="Logo" />
+                    Stadium:
+                    <span th:text="${entry.clubStadium}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

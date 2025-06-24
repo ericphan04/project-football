@@ -9,5 +9,7 @@ import com.swp.myleague.model.entities.information.Club;
 
 @Repository
 public interface ClubRepo extends JpaRepository<Club, UUID> {
+
+    Club findByUserId(UUID fromString);
     
 }

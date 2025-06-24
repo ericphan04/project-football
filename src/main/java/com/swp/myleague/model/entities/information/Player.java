@@ -38,6 +38,11 @@ public class Player {
     private Integer playerNumber;
     private String playerImgPath;
     private String playerInformation;
+    private String playerNationaly;
+    private Integer playerScores;
+    private Integer playerAssist;
+    private Integer playerAppearances;
+    private Integer playerCleanSheets;
 
     @Enumerated(EnumType.STRING)
     private PlayerPosition playerPosition;
