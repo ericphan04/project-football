@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Match Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #30003a, #470057);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .date-section {
+            background-color: #f1f1f1;
+            padding: 15px 25px;
+            margin-top: 40px;
+            border-left: 5px solid #5e007b;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .match-container {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .match-container:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .match-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 25px 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .team {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .team img {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: #fff;
+            padding: 4px;
+            border: 2px solid #ddd;
+            transition: transform 0.2s;
+        }
+
+        .team img:hover {
+            transform: scale(1.1);
+        }
+
+        .score {
+            font-weight: bold;
+            font-size: 1.6rem;
+            color: #30003a;
+        }
+
+        .venue {
+            padding: 15px 30px;
+            font-size: 0.95rem;
+            color: #555;
+            font-style: italic;
+            background-color: #fafafa;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .match-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+
+    <div class="hero">
+        <h1 class="mb-1 display-4">Fixtures</h1>
+        <p class="mb-0 fs-5">MyLeague - 2024/25</p>
+    </div>
+
+    <div class="container mt-4">
+        <div th:each="match : ${matches}" th:if="${!#lists.isEmpty(match.matchClubStats)}">
+            <a th:href="@{'/match/' + ${match.matchId}}" class="match-link">
+                <div class="date-section">
+                    <h5 th:text="${match.matchStartTime.format(T(java.time.format.DateTimeFormatter).ofPattern('dd MMM yyyy'))}">Match Date</h5>
+                </div>
+
+                <div class="match-container">
+                    <div class="match-row">
+                        <div class="team">
+                            <img th:src="@{{logo}(logo=${match.matchClubStats[0].club.clubLogoPath})}" alt="Home Logo">
+                            <span th:text="${match.matchClubStats[0].club.clubName}">Home Club</span>
+                        </div>
+
+                        <div class="score" th:text="${match.matchClubStats[0].matchClubStatScore} + ' - ' + ${match.matchClubStats[1].matchClubStatScore}">
+                            1 - 2
+                        </div>
+
+                        <div class="team text-end">
+                            <span th:text="${match.matchClubStats[1].club.clubName}">Away Club</span>
+                            <img th:src="@{{logo}(logo=${match.matchClubStats[1].club.clubLogoPath})}" alt="Away Logo">
+                        </div>
+                    </div>
+                    <div class="venue" th:text="${match.matchDescription}">Venue Name</div>
+                    <div>
+                        <a class="btn btn-primary" th:href="@{'/ticket/' + ${match.matchId}}">Book Ticket</a>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
