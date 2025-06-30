@@ -32,7 +32,50 @@ public class CartController {
             cart = new HashMap<>();
 
         model.addAttribute("cartProducts", cart);
-        return "Cart";
+        return "Checkout";
+    }
+
+    @GetMapping(value = { "/dp" })
+    public String decreaseAmountProduct(@RequestParam(name = "productId") String productId,
+            Model model, HttpServletRequest request, HttpSession session) {
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        Integer amount = 0;
+        CartItem ct = cart.get(productId);
+        if (ct != null) {
+            amount = cart.get(productId).getProductAmount();
+        } else {
+            ct = new CartItem();
+            ct.setProduct(productService.getById(productId));
+        }
+        if (amount > 1) {
+            amount = amount - 1;
+            ct.setProductAmount(amount);
+            cart.put(productId, ct);
+            session.setAttribute("cart", cart);
+        } else if (amount == 1) {
+            cart.remove(productId);
+            session.setAttribute("cart", cart);
+        }
+        return "redirect:/cart";
+    }
+
+    @GetMapping(value = { "/ip" })
+    public String increaseAmountProduct(@RequestParam(name = "productId") String productId,
+            Model model, HttpServletRequest request, HttpSession session) {
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        Integer amount = 0;
+        CartItem ct = cart.get(productId);
+        if (ct != null) {
+            amount = cart.get(productId).getProductAmount();
+        } else {
+            ct = new CartItem();
+            ct.setProduct(productService.getById(productId));
+        }
+        amount = ct.getProductAmount() + 1;
+        ct.setProductAmount(amount);
+        cart.put(productId, ct);
+        session.setAttribute("cart", cart);
+        return "redirect:/cart";
     }
 
     @PostMapping(value = { "", "/" })

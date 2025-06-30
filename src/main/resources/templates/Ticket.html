@@ -122,6 +122,9 @@
 </head>
 
 <body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+
+
     <div class="ticket-header">
         <h2 th:text="${match.matchTitle}">Match Title</h2>
         <p th:text="${#temporals.format(match.matchStartTime, 'dd MMM yyyy, HH:mm')}">Match Time</p>
