@@ -1,7 +1,6 @@
 package com.swp.myleague.controller;
 
 import java.util.HashMap;
-import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 
@@ -99,9 +98,15 @@ public class PaymentController {
         order = orderService.save(order);
 
         // 3️⃣ Tạo ItemData và PaymentData
-        Product product = productService.getById(orderInfo.split(":")[1]);
+        String itemName = "";
+        if (orderInfo.split(":")[0].equals("Product")) {
+            itemName = productService.getById(orderInfo.split(":")[1]).getProductName();
+        } else if (orderInfo.split(":")[0].equals("Ticket")) {
+            itemName = ticketService.getById(orderInfo.split(":")[1]).getTicketTitle();
+        }
+        
         ItemData item = ItemData.builder()
-                .name(product.getProductName())
+                .name(itemName)
                 .quantity(1)
                 .price(amount.intValue())
                 .build();
