@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.myleague.model.entities.saleproduct.CartItem;
 import com.swp.myleague.model.entities.saleproduct.Product;
@@ -63,6 +64,49 @@ public class ProductController {
         Product newProduct = productService.save(product);
         model.addAttribute("product", newProduct);
         return "ProductDetail";
+    }
+
+    @GetMapping(value = { "/dp" })
+    public String decreaseAmountProduct(@RequestParam(name = "productId") String productId,
+            Model model, HttpServletRequest request, HttpSession session) {
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        Integer amount = 0;
+        CartItem ct = cart.get(productId);
+        if (ct != null) {
+            amount = cart.get(productId).getProductAmount();
+        } else {
+            ct = new CartItem();
+            ct.setProduct(productService.getById(productId));
+        }
+        if (amount > 1) {
+            amount = amount - 1;
+            ct.setProductAmount(amount);
+            cart.put(productId, ct);
+            session.setAttribute("cart", cart);
+        } else if (amount == 1) {
+            cart.remove(productId);
+            session.setAttribute("cart", cart);
+        }
+        return "redirect:/product";
+    }
+
+    @GetMapping(value = { "/ip" })
+    public String increaseAmountProduct(@RequestParam(name = "productId") String productId,
+            Model model, HttpServletRequest request, HttpSession session) {
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        Integer amount = 0;
+        CartItem ct = cart.get(productId);
+        if (ct != null) {
+            amount = cart.get(productId).getProductAmount();
+        } else {
+            ct = new CartItem();
+            ct.setProduct(productService.getById(productId));
+        }
+        amount = ct.getProductAmount() + 1;
+        ct.setProductAmount(amount);
+        cart.put(productId, ct);
+        session.setAttribute("cart", cart);
+        return "redirect:/product";
     }
 
 }

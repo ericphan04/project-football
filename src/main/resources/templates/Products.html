@@ -157,22 +157,25 @@
                 <button class="btn-close" th:onclick="closeCart()"></button>
             </div>
             <p th:if="${#lists.isEmpty(cartProducts)}">Your shopping cart is empty</p>
-
             <div th:if="${!#lists.isEmpty(cartProducts)}">
                 <div class="mb-3" th:each="item : ${cartProducts}">
-                    <div class="d-flex gap-2">
+                    <div class="d-flex align-items-center gap-2">
                         <img th:src="@{${item.value.product.productImgPath}}" class="img-fluid rounded"
-                            style="width: 60px; height: 60px; object-fit: cover;" />
-                        <div>
+                            style="width:60px;height:60px;object-fit:cover;" />
+                        <div class="flex-grow-1">
                             <small th:text="${item.value.product.productName}">Product Name</small><br />
                             <small class="text-muted"
-                                th:text="'£' + ${item.value.product.productPrice * item.value.productAmount}">£00.00</small>
+                                th:text="'£' + (${item.value.product.productPrice} * ${item.value.productAmount})">£0.00</small><br />
+                            <div class="quantity-control mt-1">
+                                <a th:href="@{'/product/ip'(productId=${item.key}, showCart='true')}">+</a>
+                                <span th:text="${item.value.productAmount}">1</span>
+                                <a th:href="@{'/product/dp'(productId=${item.key}, showCart='true')}">-</a>
+                            </div>
                         </div>
-                        <div>
-                            <small class="text-muted" th:text="'x' + ${item.value.productAmount}">x00</small>
-                        </div>
-                        <a class="btn btn-primary" href="http://localhost:8080/payment/checkout">Checkout</a>
                     </div>
+                </div>
+                <div class="d-grid">
+                    <a class="btn btn-primary" th:href="@{/payment/checkout}">Checkout</a>
                 </div>
             </div>
             <hr />
@@ -293,7 +296,7 @@
                 method: 'POST'
             }).then(() => {
                 alert('Added to cart!');
-                
+
             }).catch(err => {
                 console.error('Error:', err);
                 alert('Failed to add to cart');
