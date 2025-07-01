@@ -1,15 +1,8 @@
 package com.swp.myleague.controller;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.net.URLEncoder;
 import java.security.Principal;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,32 +14,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.saleproduct.CartItem;
+import com.swp.myleague.model.entities.saleproduct.OrderStatus;
+import com.swp.myleague.model.entities.saleproduct.Orders;
 import com.swp.myleague.model.entities.saleproduct.Product;
 import com.swp.myleague.model.entities.ticket.Ticket;
 import com.swp.myleague.model.service.EmailService;
 import com.swp.myleague.model.service.UserService;
+import com.swp.myleague.model.service.saleproductservice.OrderService;
 import com.swp.myleague.model.service.saleproductservice.ProductService;
 import com.swp.myleague.model.service.ticketservice.TicketService;
-import com.swp.myleague.utils.VNPayUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import vn.payos.PayOS;
+import vn.payos.type.CheckoutResponseData;
+import vn.payos.type.ItemData;
+import vn.payos.type.PaymentData;
 
 @Controller
 @RequestMapping(value = { "/payment" })
 public class PaymentController {
-
-    @Value("${vnpay.tmnCode}")
-    private String vnp_TmnCode;
-
-    @Value("${vnpay.hashSecret}")
-    private String vnp_HashSecret;
-
-    @Value("${vnpay.payUrl}")
-    private String vnp_PayUrl;
-
-    @Value("${vnpay.returnUrl}")
-    private String vnp_ReturnUrl;
 
     @Autowired
     UserService userService;
@@ -54,9 +42,14 @@ public class PaymentController {
     @Autowired
     EmailService emailService;
 
-    @Autowired ProductService productService;
+    @Autowired
+    ProductService productService;
 
-    @Autowired TicketService ticketService;
+    @Autowired
+    TicketService ticketService;
+
+    @Autowired
+    OrderService orderService;
 
     @GetMapping("/checkout")
     public String checkout(HttpSession session, Model model) {
@@ -69,96 +62,151 @@ public class PaymentController {
         return "Checkout";
     }
 
-    @GetMapping("/create-payment")
-    public String createPayment(HttpServletRequest req, @RequestParam("amount") Double amount, @RequestParam("orderInfo") String orderInfo) throws Exception {
-        String vnp_Version = "2.1.0";
-        String vnp_Command = "pay";
-        String orderType = "other";
-        String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
-        String vnp_IpAddr = req.getRemoteAddr();
-        String vnp_OrderInfo = "Thanh toan don hang: " + vnp_TxnRef + ":" + orderInfo;
-        String vnp_TransactionDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+    @Value("${payos.client-id}")
+    private String clientId;
+    @Value("${payos.api-key}")
+    private String apiKey;
+    @Value("${payos.checksum-key}")
+    private String checksumKey;
+    @Value("${payos.api-base}")
+    private String apiBase;
 
-        Map<String, String> vnp_Params = new HashMap<>();
-        vnp_Params.put("vnp_Version", vnp_Version);
-        vnp_Params.put("vnp_Command", vnp_Command);
-        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf((long) (amount * 100))); // VNPay yêu cầu x100
-        vnp_Params.put("vnp_CurrCode", "VND");
-        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-        vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
-        vnp_Params.put("vnp_OrderType", orderType);
-        vnp_Params.put("vnp_Locale", "vn");
-        vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
-        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
-        vnp_Params.put("vnp_CreateDate", vnp_TransactionDate);
+    private final PayOS payOsClient;
 
-        // B1: Sort params by key
-        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
-        Collections.sort(fieldNames);
-
-        StringBuilder hashData = new StringBuilder();
-        StringBuilder query = new StringBuilder();
-
-        for (String name : fieldNames) {
-            String value = vnp_Params.get(name);
-            if (value != null && !value.isEmpty()) {
-                hashData.append(name).append('=').append(URLEncoder.encode(value, "UTF-8"));
-                query.append(name).append('=').append(URLEncoder.encode(value, "UTF-8"));
-                if (!name.equals(fieldNames.get(fieldNames.size() - 1))) {
-                    hashData.append('&');
-                    query.append('&');
-                }
-            }
-        }
-
-        String secureHash = VNPayUtil.hmacSHA512(vnp_HashSecret, hashData.toString());
-        query.append("&vnp_SecureHash=").append(secureHash);
-        String paymentUrl = vnp_PayUrl + "?" + query.toString();
-
-        return "redirect:" + paymentUrl;
+    public PaymentController(PayOS payOsClient) {
+        this.payOsClient = payOsClient;
     }
 
-    @GetMapping("/vnpay-return")
-    public String paymentReturn(HttpServletRequest request, Principal principal) {
-        Map<String, String> params = new HashMap<>();
-        for (Enumeration<String> paramNames = request.getParameterNames(); paramNames.hasMoreElements();) {
-            String paramName = paramNames.nextElement();
-            String paramValue = request.getParameter(paramName);
-            if (!paramName.equals("vnp_SecureHash")) {
-                params.put(paramName, paramValue);
+    @GetMapping("/create-payment")
+    public void createPayment(
+            @RequestParam("amount") Double amount,
+            @RequestParam("email") String email,
+            @RequestParam("orderInfo") String orderInfo,
+            HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        // 1️⃣ Lấy baseUrl cho return/cancel
+        String baseUrl = getBaseUrl(request);
+        String returnUrl = baseUrl + "/payment/return";
+
+        // 2️⃣ Sinh orderCode (6 chữ số cuối của millis)
+        Orders order = new Orders();
+        order.setOrderDateCreated(LocalDateTime.now());
+        order.setOrderStatus(OrderStatus.PENDING);
+        order.setOrderTotalMoney(amount);
+        order.setOrderCode(System.currentTimeMillis());
+        order.setOrderInfo(orderInfo);
+        order = orderService.save(order);
+
+        // 3️⃣ Tạo ItemData và PaymentData
+        String itemName = "";
+        if (orderInfo.split(":")[0].equals("Product")) {
+            itemName = productService.getById(orderInfo.split(":")[1]).getProductName();
+        } else if (orderInfo.split(":")[0].equals("Ticket")) {
+            itemName = ticketService.getById(orderInfo.split(":")[1]).getTicketTitle();
+        }
+        
+        ItemData item = ItemData.builder()
+                .name(itemName)
+                .quantity(1)
+                .price(amount.intValue())
+                .build();
+
+        PaymentData paymentData = PaymentData.builder()
+                .orderCode(order.getOrderCode())
+                .amount(amount.intValue())
+                .description("THANH TOÁN ĐƠN HÀNG")
+                .returnUrl(returnUrl)
+                .cancelUrl(returnUrl)
+                .item(item)
+                .build();
+
+        // 4️⃣ Gọi PayOS client để lấy link thanh toán
+        CheckoutResponseData checkout = payOsClient.createPaymentLink(paymentData);
+        String checkoutUrl = checkout.getCheckoutUrl();
+
+        // 5️⃣ Redirect user
+        response.sendRedirect(checkoutUrl);
+    }
+
+    private String getBaseUrl(HttpServletRequest req) {
+        String scheme = req.getScheme();
+        String host = req.getServerName();
+        int port = req.getServerPort();
+        boolean std = (scheme.equals("http") && port == 80)
+                || (scheme.equals("https") && port == 443);
+        return scheme + "://" + host + (std ? "" : ":" + port);
+    }
+
+    @GetMapping("/return")
+    public String payosReturn(
+            @RequestParam("code") String code,
+            @RequestParam("id") String paymentLinkId,
+            @RequestParam("status") String status,
+            @RequestParam("cancel") boolean cancel,
+            @RequestParam("orderCode") Long orderCode,
+            // @RequestParam("amount") BigDecimal amount,
+            Principal principal) {
+        Orders orders = orderService.getByOrderCode(orderCode);
+
+        // 1️⃣ Parse orderInfo
+        String[] parts = orders.getOrderInfo().split(":");
+        String type = parts[0]; // "Product" hoặc "Ticket"
+        String refIdStr = parts.length > 1 ? parts[1] : "";
+        // UUID referenceId = null;
+        // try {
+        // referenceId = UUID.fromString(refIdStr);
+        // } catch (IllegalArgumentException e) {
+        // // nếu không phải UUID hợp lệ thì báo lỗi
+        // return "PaymentFailure";
+        // }
+
+        // 2️⃣ Nếu thanh toán thành công
+        if ("00".equals(code) && "PAID".equals(status)) {
+            // 2.1 Lấy user
+            User user = userService.findByUsername(principal.getName());
+
+            // 2.2 Tạo mới Order (chú ý: không lấy từ DB mà khởi tạo mới)
+            Orders order = orderService.getById(orders.getOrderId().toString());
+            order.setOrderStatus(OrderStatus.COMPLETED);
+            // lưu lần đầu để JPA sinh UUID
+            order = orderService.save(order);
+
+            // 2.3 Giảm stock tùy type
+            if ("Product".equalsIgnoreCase(type)) {
+                Product product = productService.getById(refIdStr);
+                product.setProductAmount(product.getProductAmount() - 1);
+                productService.save(product);
+
+            } else if ("Ticket".equalsIgnoreCase(type)) {
+                Ticket ticket = ticketService.getById(refIdStr);
+                ticket.setTicketAmount(ticket.getTicketAmount() - 1);
+                ticketService.save(ticket);
             }
+
+            // 2.4 Gửi email xác nhận
+            String subject = "Xác nhận đơn hàng #" + order.getOrderId().toString();
+            String body = String.format(
+                    "Chào %s,\n\n" +
+                            "Đơn hàng của bạn đã được thanh toán thành công.\n" +
+                            "Mã đơn (UUID): %s\n" +
+                            "Tổng tiền: %s VND\n" +
+                            "Bạn có thể xem chi tiết tại: https://localhost:8080/orders/%s\n\n" +
+                            "Cảm ơn bạn!",
+                    user.getFullname(),
+                    order.getOrderId().toString(),
+                    order.getOrderTotalMoney(),
+                    order.getOrderId().toString());
+            emailService.sendMail(
+                    "chumlu2102@gmail.com",
+                    user.getEmail(),
+                    subject,
+                    body);
+
+            return "PaymentSuccess";
         }
 
-        try {
-            if (params.get("vnp_ResponseCode").equals("00")) {
-                String username = principal.getName();
-                User user = userService.findByUsername(username);
-                String subject = "THANH TOAN MYLEAGUE: ";
-                switch (params.get("vnp_OrderInfo").split(":")[2]) {
-                    case "Product":
-                        subject += "BUY PRODUCT";
-                        Product product = productService.getById(params.get("vnp_OrderInfo").split(":")[3]);
-                        product.setProductAmount(product.getProductAmount() - 1);
-                        productService.save(product);
-                        break;
-                    case "Ticket": 
-                        subject += "BUY TICKET";
-                        Ticket ticket = ticketService.getById(params.get("vnp_OrderInfo").split(":")[3]);
-                        ticket.setTicketAmount(ticket.getTicketAmount() - 1);
-                        ticketService.save(ticket);
-                        break;
-                    default:
-                        break;
-                }
-                emailService.sendMail("chumlu2102@gmail.com", user.getEmail(), subject, "MaQR");
-                return "PaymentSuccess";
-            }
-        } catch (Exception e) {
-            return new String("Không thể thực hiện thanh toán");
-        }
+        // 3️⃣ Nếu user hủy hoặc lỗi
         return "PaymentFailure";
 
     }
-
 }
