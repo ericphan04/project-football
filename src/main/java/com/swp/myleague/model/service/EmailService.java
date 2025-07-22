@@ -25,7 +25,11 @@ public class EmailService {
             helper.setSubject(subject);
             helper.setText(text, true);
 
-            helper.addInline("qrImage", new ByteArrayResource(imageBytes), "image/png");
+            if (imageBytes != null) {
+                helper.addInline("qrImage", new ByteArrayResource(imageBytes), "image/png");
+            }
+
+            
             mailSender.send(message);
         } catch (MessagingException e) {
             // TODO Auto-generated catch block
