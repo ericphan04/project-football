@@ -33,7 +33,7 @@
                 <nav class="d-flex gap-3">
                     <a th:href="@{/match/fixture}">Fixtures</a>
                     <a th:href="@{/match}">Results</a>
-                    <a th:href="@{/tables}">Tables</a>
+                    <a th:href="@{/tables(season=${#calendars.year(#calendars.createNow())})}">Tables</a>
                     <a th:href="@{/news}">News</a>
                     <a th:href="@{/club}">Clubs</a>
                     <a th:href="@{/product}">Product</a>
