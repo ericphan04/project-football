@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.swp.myleague.model.entities.User;
+import com.swp.myleague.model.entities.saleproduct.Orders;
 import com.swp.myleague.model.service.UserService;
+import com.swp.myleague.model.service.saleproductservice.OrderService;
 
 @Controller
 @RequestMapping(value = { "/user", "/user/" })
@@ -24,6 +26,9 @@ public class UserController {
 
     @Autowired
     PasswordEncoder encoder;
+
+    @Autowired
+    OrderService orderService;
 
     // Lấy danh sách toàn bộ user (dành cho admin)
     @GetMapping("")
@@ -47,6 +52,8 @@ public class UserController {
         String username = principal.getName(); // lấy username từ context
         User user = userService.findByUsername(username); // giả sử bạn có hàm này
         model.addAttribute("user", user);
+        List<Orders> orders = orderService.getByUserId(user.getUserId().toString());
+        model.addAttribute("orders", orders);
         return "UserProfile"; // view hiển thị profile cá nhân
     }
 
