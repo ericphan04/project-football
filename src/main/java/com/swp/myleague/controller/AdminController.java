@@ -18,6 +18,7 @@ import com.swp.myleague.common.CommonFunc;
 import com.swp.myleague.model.entities.admin_request.Request;
 import com.swp.myleague.model.entities.admin_request.RequestStatus;
 import com.swp.myleague.model.entities.blog.Blog;
+import com.swp.myleague.model.entities.blog.BlogCategory;
 import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.match.Match;
 import com.swp.myleague.model.entities.ticket.Ticket;
@@ -138,6 +139,7 @@ public class AdminController {
                 case "BLOG":
                     Blog blog = CommonFunc.parse(request.getRequestInfor(), Blog.class);
                     blog = blogService.save(blog);
+                    blog.setBlogCategory(BlogCategory.Hotnews);
                     emailClub = userService.getUserById(blog.getClub().getUserId().toString()).getEmail();
                     break;
                 default:
