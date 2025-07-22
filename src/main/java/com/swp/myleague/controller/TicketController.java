@@ -1,5 +1,7 @@
 package com.swp.myleague.controller;
 
+import java.security.Principal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.ticket.Ticket;
 import com.swp.myleague.model.service.EmailService;
 import com.swp.myleague.model.service.UserService;
@@ -63,13 +66,13 @@ public class TicketController {
     }
 
     @PostMapping("/bookingticket")
-    public String postMethodName(HttpServletRequest req, @RequestParam(name = "ticketId") String ticketId, Model model)
+    public String postMethodName(HttpServletRequest req, @RequestParam(name = "ticketId") String ticketId, Model model, Principal principal)
             throws Exception {
-
+        User user = userService.findByUsername(principal.getName());
         Ticket ticket = ticketService.getById(ticketId);
         Double amount = ticket.getTicketPrice();
 
-        return "redirect:/payment/create-payment?amount=" + amount + "&orderInfo=Ticket:" + ticketId;
+        return "redirect:/payment/create-payment?amount=" + amount + "&orderInfo=Ticket:" + ticketId + "&email=" + user.getEmail();
     }
 
 }

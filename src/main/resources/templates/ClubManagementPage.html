@@ -116,8 +116,8 @@
                                 <td th:text="${player.playerNumber}">8</td>
                                 <td>
                                     <a class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
-                                    th:attr="data-bs-target='#editPlayerModal__' + ${player.playerId}"><i
-                                        class="bi bi-pencil"></i></a>
+                                        th:attr="data-bs-target='#editPlayerModal__' + ${player.playerId}"><i
+                                            class="bi bi-pencil"></i></a>
                                     <a class="btn btn-sm btn-outline-danger"
                                         th:href="@{/player/delete/{id}(id=${player.playerId})}"><i
                                             class="bi bi-trash"></i></a>
@@ -255,7 +255,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form th:action="@{/clubmanager/addblog}" method="post">
+                    <form th:action="@{/clubmanager/addblog}" method="post" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label class="form-label">Blog Title</label>
                             <input type="text" class="form-control" name="title" required />
@@ -263,6 +263,18 @@
                         <div class="mb-3">
                             <label class="form-label">Content</label>
                             <textarea class="form-control" name="content" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category" required>
+                                <option value="" disabled selected>Select category</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.name()}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Thumbnail Image</label>
+                            <input type="file" class="form-control" name="thumnailFile" required />
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -273,6 +285,7 @@
             </div>
         </div>
     </div>
+
 
     <div th:each="blog : ${club.blogs}">
         <div class="modal fade" th:id="'editBlogModal__' + ${blog.blogId}" tabindex="-1"

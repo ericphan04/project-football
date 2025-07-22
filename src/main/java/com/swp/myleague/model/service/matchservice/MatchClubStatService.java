@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 import com.swp.myleague.common.IService;
 import com.swp.myleague.model.entities.match.MatchClubStat;
 import com.swp.myleague.model.repo.MatchClubStatRepo;
+import com.swp.myleague.payload.ClubStandingDTO;
 
 @Service
 public class MatchClubStatService implements IService<MatchClubStat> {
 
-    @Autowired MatchClubStatRepo matchClubStatRepo;
+    @Autowired
+    MatchClubStatRepo matchClubStatRepo;
 
     @Override
     public List<MatchClubStat> getAll() {
@@ -36,6 +38,12 @@ public class MatchClubStatService implements IService<MatchClubStat> {
         return matchClubStats;
     }
 
+    public List<ClubStandingDTO> getClubStandings(Integer season) {
+        return matchClubStatRepo.findClubStandingsBySeason(season);
+    }
+
+    
+
     @Override
     public MatchClubStat getById(String id) {
         // TODO Auto-generated method stub
@@ -52,5 +60,5 @@ public class MatchClubStatService implements IService<MatchClubStat> {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
-    
+
 }

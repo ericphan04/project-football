@@ -1,5 +1,9 @@
 package com.swp.myleague.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -9,12 +13,18 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.swp.myleague.model.entities.User;
+import com.swp.myleague.model.entities.admin_request.Request;
+import com.swp.myleague.model.entities.admin_request.RequestStatus;
 import com.swp.myleague.model.entities.blog.Blog;
+import com.swp.myleague.model.entities.blog.BlogCategory;
 import com.swp.myleague.model.entities.information.Club;
 import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.information.PlayerPosition;
+import com.swp.myleague.model.repo.BlogRepo;
+import com.swp.myleague.model.service.RequestService;
 import com.swp.myleague.model.service.UserService;
 import com.swp.myleague.model.service.blogservice.BlogService;
 import com.swp.myleague.model.service.informationservice.ClubService;
@@ -39,6 +49,12 @@ public class ClubManagementController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    RequestService requestService;
+
+    @Autowired
+    BlogRepo blogRepo;
+
     @GetMapping("")
     public String getClub(Model model, Principal principal) {
         String username = principal.getName(); // lấy username từ context
@@ -46,6 +62,7 @@ public class ClubManagementController {
         Club club = clubService.getByUserId(user.getUserId());
         model.addAttribute("club", club);
         model.addAttribute("positions", PlayerPosition.values());
+        model.addAttribute("categories", BlogCategory.values());
         return "ClubManagementPage";
     }
 
@@ -84,7 +101,12 @@ public class ClubManagementController {
         player.setPlayerNationaly(playerNationaly);
         player.setPlayerNumber(Integer.parseInt(playerNumber));
 
-        player = playerService.save(player);
+        // player = playerService.save(player);
+        Request request = new Request();
+        request.setRequestTitle("CREATE_PLAYER_FROM" + club.getClubName());
+        request.setRequestInfor(player.toString());
+        request.setRequestStatus(RequestStatus.PENDING);
+        requestService.save(request);
         return "redirect:/clubmanager";
     }
 
@@ -113,18 +135,32 @@ public class ClubManagementController {
     @PostMapping("/addblog")
     public String addBlog(@RequestParam(name = "title") String blogTitle,
             @RequestParam(name = "content") String blogContent,
-            Model model, Principal principal) {
-        String username = principal.getName(); // lấy username từ context
+            @RequestParam("thumnailFile") MultipartFile thumnailFile,
+            Principal principal) {
+        String username = principal.getName();
         User user = userService.findByUsername(username);
         Club club = clubService.getByUserId(user.getUserId());
-
         Blog blog = new Blog();
+        File newFile = new File(
+                "src/main/resources/static/images/Storage-Files" + File.separator + thumnailFile.getOriginalFilename());
+        try {
+
+            Files.copy(thumnailFile.getInputStream(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            blog.setBlogThumnailPath("/images/Storage-Files/" + thumnailFile.getOriginalFilename());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
         blog.setBlogTitle(blogTitle);
         blog.setBlogContent(blogContent);
         blog.setClub(club);
         blog.setBlogDateCreated(LocalDateTime.now());
 
-        blog = blogService.save(blog);
+        Request request = new Request();
+        request.setRequestTitle("CREATE_BLOG_FROM" + club.getClubName());
+        request.setRequestInfor(blog.toString());
+        request.setRequestStatus(RequestStatus.PENDING);
+        requestService.save(request);
 
         return "redirect:/clubmanager";
     }

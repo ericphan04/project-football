@@ -68,6 +68,7 @@ public class WebSecurityConfig {
             .requestMatchers("/home", "/auth/**", "/login/**", "/oauth2/**", "/product/**", "/error").permitAll()
             .requestMatchers("/css/**", "/images/**", "/component/**", "/fonts/**").permitAll()
             .requestMatchers("/clubmanager/**").hasRole("CLUB_MANAGER")
+            .requestMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated())
         .oauth2Login(oauth2 -> oauth2
             .userInfoEndpoint(userInfo -> userInfo

@@ -15,12 +15,11 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+// import lombok.ToString;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Entity
 @Table(name = "'match'")
 public class Match {
@@ -35,13 +34,23 @@ public class Match {
     private String matchDescription;
     private String matchLinkLivestream;
 
+    private UUID matchMOM;
+
     @OneToMany(mappedBy = "match", fetch = FetchType.EAGER)
     private List<MatchEvent> matchEvents;
 
     @OneToMany(mappedBy = "match", fetch = FetchType.LAZY)
     private List<MatchPlayerStat> matchPlayerStats;
 
-    @OneToMany(mappedBy = "match", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "match", fetch = FetchType.EAGER)
     private List<MatchClubStat> matchClubStats;
-    
+
+    @Override
+    public String toString() {
+        return "Match{matchId=" + this.matchId +
+                ", matchStartTime=" + this.matchStartTime +
+                ", statsCount=" + (matchClubStats != null ? matchClubStats.size() : 0) +
+                "}";
+    }
+
 }

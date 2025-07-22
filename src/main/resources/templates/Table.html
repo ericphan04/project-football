@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premier League Table 2025/26</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #212529;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #7d2ae8, #29b6f6);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .table-container {
+            background-color: #f8f9fa;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .table thead th {
+            color: #495057;
+        }
+
+        .table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+
+        .team-logo {
+            width: 26px;
+            height: 26px;
+            margin-right: 10px;
+        }
+
+        .next-logo {
+            width: 22px;
+            height: 22px;
+        }
+
+        .top-4 {
+            background-color: rgba(0, 128, 255, 0.08);
+        }
+
+        .relegation {
+            background-color: rgba(255, 0, 0, 0.08);
+        }
+
+        .table-success.text-dark {
+            background-color: #d1e7dd !important;
+            color: #0f5132 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+    <div class="container mt-4">
+        <div class="header">
+            <h2>Premier League Table</h2>
+            <p class="mb-0">2025/26 - Matchweek 1</p>
+        </div>
+
+        <div class="table-container">
+            <table class="table table-light table-hover align-middle text-center">
+                <thead>
+                    <tr>
+                        <th>Pos</th>
+                        <th class="text-start">Team</th>
+                        <th>Pl</th>
+                        <th>W</th>
+                        <th>D</th>
+                        <th>L</th>
+                        <th>GF</th>
+                        <th>GA</th>
+                        <th>GD</th>
+                        <th>Pts</th>
+                        <th>Next</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="team, iterStat : ${teams}">
+                        <td th:text="${iterStat.index + 1}"></td>
+                        <td class="text-start">
+                            <img th:src="@{${team.logoUrl}}" alt="Logo" class="team-logo">
+                            <span th:text="${team.clubName}"></span>
+                        </td>
+                        <td th:text="${team.played}">0</td>
+                        <td th:text="${team.wins}">0</td>
+                        <td th:text="${team.draws}">0</td>
+                        <td th:text="${team.losses}">0</td>
+                        <td th:text="${team.goalsFor}">0</td>
+                        <td th:text="${team.goalsAgainst}">0</td>
+                        <td th:text="${team.goalDifference}">0</td>
+                        <td th:text="${team.points}">0</td>
+                        <td>
+                            <img th:if="${team.nextLogoUrl != null}" th:src="@{${team.nextLogoUrl}}" alt="Next"
+                                class="next-logo" data-bs-toggle="tooltip" title="Next opponent">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle=\"tooltip\"]');
+        [...tooltipTriggerList].map(t => new bootstrap.Tooltip(t));
+    </script>
+</body>
+
+</html>

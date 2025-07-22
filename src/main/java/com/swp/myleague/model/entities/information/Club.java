@@ -20,7 +20,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"players", "blogs"})
 @Entity
 public class Club {
     
@@ -37,6 +37,7 @@ public class Club {
     private String clubFounded;
 
     private String clubStadium;
+    private Integer clubStadiumCapacity;
 
     @OneToMany(mappedBy = "club", fetch = FetchType.LAZY)
     private List<Player> players;

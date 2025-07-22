@@ -1,47 +1,44 @@
-package com.swp.myleague.model.entities.saleproduct;
+package com.swp.myleague.model.entities.admin_request;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 
-import com.swp.myleague.model.entities.User;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
 @Entity
-public class Orders {
-    
+public class Request {
+
     @Id
     @GeneratedValue
     @UuidGenerator
-    private UUID orderId;
+    private UUID requestId;
 
-    private Long orderCode;
-    private String orderInfo;
+    private String requestTitle;
 
-    private Double orderTotalMoney;
-    private LocalDateTime orderDateCreated;
+    @Column(columnDefinition = "TEXT")
+    private String requestInfor;
 
+    private LocalDateTime requestDateCreate;
+    private LocalDateTime requestDateUpdate;
+    
     @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus;
-
-    @ManyToOne
-    @JoinColumn(name = "userId")
-    private User user;
+    private RequestStatus requestStatus;
 
 }
