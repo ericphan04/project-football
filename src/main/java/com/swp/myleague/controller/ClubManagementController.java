@@ -11,10 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.myleague.model.entities.User;
+import com.swp.myleague.model.entities.admin_request.Request;
+import com.swp.myleague.model.entities.admin_request.RequestStatus;
 import com.swp.myleague.model.entities.blog.Blog;
 import com.swp.myleague.model.entities.information.Club;
 import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.information.PlayerPosition;
+import com.swp.myleague.model.service.RequestService;
 import com.swp.myleague.model.service.UserService;
 import com.swp.myleague.model.service.blogservice.BlogService;
 import com.swp.myleague.model.service.informationservice.ClubService;
@@ -38,6 +41,9 @@ public class ClubManagementController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    RequestService requestService;
 
     @GetMapping("")
     public String getClub(Model model, Principal principal) {
@@ -84,7 +90,12 @@ public class ClubManagementController {
         player.setPlayerNationaly(playerNationaly);
         player.setPlayerNumber(Integer.parseInt(playerNumber));
 
-        player = playerService.save(player);
+        // player = playerService.save(player);
+        Request request = new Request();
+        request.setRequestTitle("CREATE_PLAYER_FROM" + club.getClubName());
+        request.setRequestInfor(player.toString());
+        request.setRequestStatus(RequestStatus.PENDING);
+        requestService.save(request);
         return "redirect:/clubmanager";
     }
 
@@ -124,7 +135,12 @@ public class ClubManagementController {
         blog.setClub(club);
         blog.setBlogDateCreated(LocalDateTime.now());
 
-        blog = blogService.save(blog);
+        // blog = blogService.save(blog);
+        Request request = new Request();
+        request.setRequestTitle("CREATE_BLOG_FROM" + club.getClubName());
+        request.setRequestInfor(blog.toString());
+        request.setRequestStatus(RequestStatus.PENDING);
+        requestService.save(request);
 
         return "redirect:/clubmanager";
     }

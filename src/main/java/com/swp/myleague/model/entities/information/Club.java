@@ -20,7 +20,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"players", "blogs"})
 @Entity
 public class Club {
     

@@ -95,6 +95,7 @@ public class ClubController {
     @GetMapping("/{clubId}/fixtures")
     public String getStatsOfClub(@PathVariable("clubId") String clubId, Model model) {
         model.addAttribute("club", clubService.getById(clubId));
+        model.addAttribute("matches", matchService.getByClubId(clubId));
         return "DetailClubFixture";
     }
 
