@@ -25,6 +25,8 @@ public class MatchEventService implements IService<MatchEvent> {
         return matchEventRepo.findAllByMatchMatchId(UUID.fromString(matchId));
     }
 
+    
+
     @Override
     public MatchEvent getById(String id) {
         // TODO Auto-generated method stub

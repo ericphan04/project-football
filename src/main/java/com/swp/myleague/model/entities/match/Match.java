@@ -41,7 +41,7 @@ public class Match {
     @OneToMany(mappedBy = "match", fetch = FetchType.LAZY)
     private List<MatchPlayerStat> matchPlayerStats;
 
-    @OneToMany(mappedBy = "match", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "match", fetch = FetchType.EAGER)
     private List<MatchClubStat> matchClubStats;
     
 }
