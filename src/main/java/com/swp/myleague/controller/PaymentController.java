@@ -186,24 +186,24 @@ public class PaymentController {
             String base64Image = Base64.getEncoder().encodeToString(qrCodeBytes);
             String subject = "Xác nhận đơn hàng #" + order.getOrderId().toString();
             String body = String.format(
-                    "Chào %s,\n\n" +
-                            "Đơn hàng của bạn đã được thanh toán thành công.\n" +
-                            "Mã đơn (UUID): %s\n" +
-                            "Tổng tiền: %s VND\n" +
-                            "Bạn có thể xem chi tiết tại: https://localhost:8080/orders/%s\n\n" +
-                            "Hãy đưa mã QR này nếu như bạn muốn sử dụng nó để lấy sản phẩm thực tế: \n" +
-                            "<img src='data:image/png;base64,%s' />\n\n" +
+                    "Chào %s,<br><br>" +
+                            "Đơn hàng của bạn đã được thanh toán thành công.<br>" +
+                            "Mã đơn (UUID): %s<br>" +
+                            "Tổng tiền: %s VND<br>" +
+                            "Chi tiết: <a href='https://localhost:8080/orders/%s'>Xem đơn hàng</a><br><br>" +
+                            "<img src='cid:qrImage' /><br><br>" +
                             "Cảm ơn bạn!",
-                    user.getFullname(),
-                    order.getOrderId().toString(),
+                    user.getFullname() != null ? user.getFullname() : "khách hàng",
+                    order.getOrderId(),
                     order.getOrderTotalMoney(),
-                    order.getOrderId().toString(),
+                    order.getOrderId(),
                     base64Image);
             emailService.sendMail(
                     "chumlu2102@gmail.com",
                     user.getEmail(),
                     subject,
-                    body);
+                    body,
+                    qrCodeBytes);
 
             return "PaymentSuccess";
         }

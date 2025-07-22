@@ -30,15 +30,19 @@ public class MatchPlayerStatService implements IService<MatchPlayerStat> {
         return matchPlayerStatRepo.findAllByMatchMatchId(UUID.fromString(matchId));
     }
 
-    public List<MatchPlayerStat> getAllByPlayerAndMatch(String playerId, String matchId) {
-        return matchPlayerStatRepo.findAllByPlayerPlayerId(UUID.fromString(playerId)).stream()
-                .filter(mps -> mps.getMatch().getMatchId().equals(UUID.fromString(matchId))).toList();
+    public MatchPlayerStat getAllByPlayerAndMatch(String playerId, String matchId) {
+        UUID playerUUID = UUID.fromString(playerId);
+        UUID matchUUID = UUID.fromString(matchId);
+    
+        return matchPlayerStatRepo.findAllByPlayerPlayerId(playerUUID).stream()
+                .filter(mps -> mps.getMatch().getMatchId().equals(matchUUID))
+                .findFirst() // Lấy phần tử đầu tiên phù hợp
+                .orElse(null); // Trả về null nếu không tìm thấy
     }
 
     @Override
     public MatchPlayerStat getById(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getById'");
+        return matchPlayerStatRepo.findById(UUID.fromString(id)).orElseThrow();
     }
 
     @Override

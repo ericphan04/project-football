@@ -35,6 +35,7 @@ public class MatchEvent {
     private String matchEventTitle;
     private Integer matchEventMinute;
     private String icon;
+    private String vidUrl;
     
     @Enumerated(EnumType.STRING)
     private MatchEventType matchEventType;

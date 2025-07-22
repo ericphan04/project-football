@@ -106,7 +106,7 @@ public class AuthController {
         String token = jwtUtils.generateVerificationToken(signup);
         String verifyUrl = "http://localhost:8080/auth/verify?token=" + token;
 
-        emailService.sendMail("chumlu2102@gmail.com", email, "Xác thực tài khoản", verifyUrl);
+        emailService.sendMail("chumlu2102@gmail.com", email, "Xác thực tài khoản", verifyUrl, null);
 
         model.addAttribute("message", "✅ Vui lòng kiểm tra email để xác thực tài khoản");
         return "SignupPage";
@@ -300,7 +300,7 @@ public class AuthController {
         String token = jwtUtils.generateResetPasswordToken(user);
         String resetUrl = "http://localhost:8080/auth/reset-password-form?token=" + token;
 
-        emailService.sendMail("chumlu2102@gmail.com", email, "RESET PASSWORD", resetUrl);
+        emailService.sendMail("chumlu2102@gmail.com", email, "RESET PASSWORD", resetUrl, null);
 
         model.addAttribute("message", "✅ Vui lòng kiểm tra email để đặt lại mật khẩu");
         return "forgot-password-form";
