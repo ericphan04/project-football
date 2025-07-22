@@ -41,6 +41,8 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
       auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
       SecurityContextHolder.getContext().setAuthentication(auth);
+      logger.info("JWT Token: " + jwt);
+      logger.info("Authorities: " + userDetails.getAuthorities());
     }
 
     filterChain.doFilter(request, response);
@@ -49,7 +51,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
   private String parseJwt(HttpServletRequest request) {
     if (request.getCookies() != null) {
       for (Cookie cookie : request.getCookies()) {
-        logger.info(cookie.getName()+":"+cookie.getValue());
+        logger.info(cookie.getName() + ":" + cookie.getValue());
         if ("myleague".equals(cookie.getName())) {
           return cookie.getValue();
         }

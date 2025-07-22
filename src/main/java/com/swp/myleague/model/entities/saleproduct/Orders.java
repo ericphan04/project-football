@@ -1,7 +1,6 @@
 package com.swp.myleague.model.entities.saleproduct;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
@@ -15,7 +14,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,8 +31,11 @@ public class Orders {
     @UuidGenerator
     private UUID orderId;
 
+    private Long orderCode;
+    private String orderInfo;
+
     private Double orderTotalMoney;
-    private Date orderDateCreated;
+    private LocalDateTime orderDateCreated;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
@@ -42,8 +43,5 @@ public class Orders {
     @ManyToOne
     @JoinColumn(name = "userId")
     private User user;
-
-    @OneToMany(mappedBy = "order")
-    private List<OrderProduct> orderProducts;
 
 }

@@ -8,7 +8,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -42,6 +41,7 @@ public class WebSecurityConfig {
 
   @Bean
   public AuthTokenFilter authenticationJwtTokenFilter() {
+    
     return new AuthTokenFilter();
   }
 
@@ -64,12 +64,11 @@ public class WebSecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-        .sessionManagement(session -> session
-            .sessionFixation().none() // <== NGĂN đổi session ID
-        )
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/home", "/auth/**", "/login/**", "/oauth2/**", "/product/**").permitAll()
+            .requestMatchers("/home", "/auth/**", "/login/**", "/oauth2/**", "/product/**", "/error").permitAll()
             .requestMatchers("/css/**", "/images/**", "/component/**", "/fonts/**").permitAll()
+            .requestMatchers("/clubmanager/**").hasRole("CLUB_MANAGER")
+            .requestMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated())
         .oauth2Login(oauth2 -> oauth2
             .userInfoEndpoint(userInfo -> userInfo

@@ -1,0 +1,61 @@
+<!-- fragments/footer.html -->
+<style>
+    .footer {
+        background-color: #37003c;
+        color: white;
+        padding: 3rem 0;
+        margin-top: 3rem;
+    }
+
+    .footer h6 {
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .footer a {
+        color: #bbb;
+        text-decoration: none;
+    }
+
+    .footer a:hover {
+        color: white;
+    }
+</style>
+
+<footer class="footer text-center" th:fragment="siteFooter">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <h6>Premier League</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Fixtures</a></li>
+                    <li><a href="#">Results</a></li>
+                    <li><a href="#">Tables</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6>Fantasy</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#">FPL Home</a></li>
+                    <li><a href="#">Stats</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6>Stats</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#">Player Stats</a></li>
+                    <li><a href="#">Club Stats</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6>More</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="#">News</a></li>
+                    <li><a href="#">Videos</a></li>
+                </ul>
+            </div>
+        </div>
+        <p class="mt-4">&copy; Premier League 2025</p>
+    </div>
+</footer>

@@ -45,7 +45,7 @@ public class JwtUtils {
   }
 
   public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-    String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+    String jwt = generateToken(userPrincipal);
     ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/").maxAge(jwtExpirationMs).httpOnly(true)
         .build();
     return cookie;
@@ -82,9 +82,19 @@ public class JwtUtils {
     return false;
   }
 
-  public String generateTokenFromUsername(String username) {
+  // public String generateTokenFromUsername(String username) {
+  // return Jwts.builder()
+  // .setSubject(username)
+  // .setIssuedAt(new Date())
+  // .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+  // .signWith(key(), SignatureAlgorithm.HS256)
+  // .compact();
+  // }
+
+  public String generateToken(UserDetailsImpl user) {
     return Jwts.builder()
-        .setSubject(username)
+        .setSubject(user.getUsername())
+        .claim("role", user.getAuthorities().iterator().next().getAuthority()) // eg. "ROLE_ADMIN"
         .setIssuedAt(new Date())
         .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
         .signWith(key(), SignatureAlgorithm.HS256)

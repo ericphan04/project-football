@@ -1,8 +1,11 @@
-package com.swp.myleague.model.entities.saleproduct;
+package com.swp.myleague.model.entities;
 
+import java.sql.Date;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
+
+import com.swp.myleague.model.entities.blog.Blog;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,26 +18,26 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
 @Entity
-public class OrderProduct {
+public class Comment {
     
     @Id
     @GeneratedValue
     @UuidGenerator
-    private UUID orderProductId;
+    private UUID commentId;
+
+    private String commentContent;
+    private Date commentDateCreated;
+    
+    @ManyToOne
+    @JoinColumn(name = "commentCreatedBy")
+    private User user;
 
     @ManyToOne
-    @JoinColumn(name = "orderId")
-    private Orders order;
-
-    @ManyToOne
-    @JoinColumn(name = "productId")
-    private Product product;
-
-    private Integer orderProductAmount;
-
+    @JoinColumn(name = "blogId")
+    private Blog blog;
 
 }

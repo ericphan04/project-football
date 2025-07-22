@@ -26,23 +26,65 @@ public class CartController {
     ProductService productService;
 
     @GetMapping(value = { "/", "" })
-    public String getCart(Model model, HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        Object o = session.getAttribute("cart");
-        if (o == null) {
-            session.setAttribute("cart", new HashMap<>());
-        }
-        return "Cart";
+    public String getCart(Model model, HttpServletRequest request, HttpSession session) {
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        if (cart == null)
+            cart = new HashMap<>();
+
+        model.addAttribute("cartProducts", cart);
+        return "Checkout";
     }
 
-    @PostMapping(value = { "/add", "/add/" })
+    @GetMapping(value = { "/dp" })
+    public String decreaseAmountProduct(@RequestParam(name = "productId") String productId,
+            Model model, HttpServletRequest request, HttpSession session) {
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        Integer amount = 0;
+        CartItem ct = cart.get(productId);
+        if (ct != null) {
+            amount = cart.get(productId).getProductAmount();
+        } else {
+            ct = new CartItem();
+            ct.setProduct(productService.getById(productId));
+        }
+        if (amount > 1) {
+            amount = amount - 1;
+            ct.setProductAmount(amount);
+            cart.put(productId, ct);
+            session.setAttribute("cart", cart);
+        } else if (amount == 1) {
+            cart.remove(productId);
+            session.setAttribute("cart", cart);
+        }
+        return "redirect:/cart";
+    }
+
+    @GetMapping(value = { "/ip" })
+    public String increaseAmountProduct(@RequestParam(name = "productId") String productId,
+            Model model, HttpServletRequest request, HttpSession session) {
+        HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
+        Integer amount = 0;
+        CartItem ct = cart.get(productId);
+        if (ct != null) {
+            amount = cart.get(productId).getProductAmount();
+        } else {
+            ct = new CartItem();
+            ct.setProduct(productService.getById(productId));
+        }
+        amount = ct.getProductAmount() + 1;
+        ct.setProductAmount(amount);
+        cart.put(productId, ct);
+        session.setAttribute("cart", cart);
+        return "redirect:/cart";
+    }
+
+    @PostMapping(value = { "", "/" })
     public String addProductToCart(Model model, HttpServletRequest request, @RequestParam("productId") String productId,
             @RequestParam("productAmount") String productAmount,
             @RequestParam("size") String size,
-            @RequestParam("url") String url) {
-        HttpSession session = request.getSession();
+            @RequestParam("url") String url, HttpSession session) {
         Object o = session.getAttribute("cart");
-        
+
         if (o == null) {
             session.setAttribute("cart", new HashMap<>());
         }
@@ -59,9 +101,7 @@ public class CartController {
         ct.setProductAmount(amount);
         cart.put(productId, ct);
         session.setAttribute("cart", cart);
-        return "Products";
+        return "redirect:product";
     }
-
-    
 
 }

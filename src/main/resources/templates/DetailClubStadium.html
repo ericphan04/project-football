@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${club.clubName} + ' Stadium'">Stadium</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .club-header {
+      background: linear-gradient(to right, #c70101, #6c0000);
+      color: white;
+      padding: 3rem 1rem;
+      text-align: center;
+    }
+    .club-header img {
+      height: 80px;
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      margin: 2rem 0 1rem;
+      font-size: 1.25rem;
+      color: #4b006e;
+      font-weight: bold;
+    }
+    #map {
+      width: 100%;
+      height: 500px;
+      border: 1px solid #ddd;
+      margin-bottom: 2rem;
+    }
+    .tab-section {
+      margin-top: 1rem;
+    }
+  </style>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBamXOpGnhqjB8a-ZlMuF47JSGdMnhb4OY&callback=initMap" async defer></script>
+</head>
+<body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+
+  <div class="club-header">
+    <img src="/images/logoclub/club1.png" alt="Logo">
+    <h1 class="mb-1" th:text="${club.clubName}">Manchester United</h1>
+    <p class="mb-0">Est: 1878 • <span th:text="${club.clubStadium}">Old Trafford</span>, Manchester</p>
+  </div>
+
+  <div class="container">
+    <div class="container mt-4">
+        <ul class="nav nav-tabs">
+          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId}">Overview</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/squad'">Squad</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/fixtures'">Fixtures</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/results'">Results</a></li>
+          <li class="nav-item"><a class="nav-link active" th:href="'/club/' + ${club.clubId} + '/stadium'">Stadium</a></li>
+
+        </ul>
+      </div>
+
+    <h2 th:text="'Map for: ' + ${club.clubStadium}">Map for: unknown</h2>
+    <div id="map"></div>
+
+    <div class="section-title">AccessAble</div>
+    <p>
+      <span th:text="${club.clubName}"></span> Football Club have worked in partnership with AccessAble to produce detailed pan-disability guides for <span th:text="${club.clubStadium}"></span>.
+      <br>
+      You can view the guide via <a href="https://www.accessable.co.uk/organisations/manchester-united-football-club" target="_blank">accessable.co.uk</a>
+    </p>
+
+    <div class="section-title">Arriving at <span th:text="${club.clubStadium}">Old Trafford</span> by Public Transport</div>
+    <p >
+      National Rail and local bus and tram connections are available. See club site for more info.
+    </p>
+
+    <div class="section-title">Arriving by Car</div>
+    <p >
+      Use Google Maps. Stadium is served by main roads from North/South/East/West. Parking details below.
+    </p>
+  </div>
+
+  <script th:inline="javascript">
+    let address = /*[['${club.clubStadium}']]*/ "Old Trafford, Manchester";
+
+    function initMap() {
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: address }, function(results, status) {
+        if (status === 'OK') {
+          const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15,
+            center: results[0].geometry.location
+          });
+          new google.maps.Marker({
+            map: map,
+            position: results[0].geometry.location,
+            title: address
+          });
+        } else {
+          alert('Không tìm thấy vị trí: ' + status);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

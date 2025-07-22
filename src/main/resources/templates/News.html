@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Premier League News</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .news-header {
+            background: linear-gradient(to right, #1b5fc6, #7b42f6);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+        }
+
+        .news-header h1 {
+            font-size: 2.5rem;
+        }
+
+        .news-search {
+            margin-top: 1rem;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+        }
+
+        .news-card img {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .news-content h5 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .news-meta {
+            font-size: 0.9rem;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="fragments/header :: siteHeader"></div>
+
+    <div class="news-header">
+        <h1>News</h1>
+        <div class="container news-search">
+            <form class="d-flex justify-content-center">
+                <input type="text" class="form-control w-50" placeholder="Search news...">
+                <button type="submit" class="btn btn-light ms-2">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="mb-3">
+            <h5 class="text-muted">Latest News</h5>
+        </div>
+
+        <div th:each="blog : ${blogs}" class="news-card">
+            <img th:src="@{{img}(img=${blog.blogThumnailPath})}" alt="News thumbnail">
+            <div class="news-content">
+                <div class="news-meta" th:text="${blog.blogCategory.name()}">Category</div>
+                <h5><a th:href="@{/news/{id}(id=${blog.blogId})}" th:text="${blog.blogTitle}">Sample title</a></h5>
+                <small class="text-muted" th:text="${#temporals.format(blog.blogDateCreated, 'dd MMM yyyy')}">01 Jan
+                    2025</small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
