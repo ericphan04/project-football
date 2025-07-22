@@ -222,77 +222,106 @@
                     </div>
                 </div>
 
-                <!-- Requests -->
                 <div id="requests" class="tab-content d-none">
                     <h3 class="mb-4">Requests</h3>
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Created</th>
-                                        <th>Updated</th>
-                                        <th>Description</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="request : ${requests}">
-                                        <td th:text="${request.requestTitle}">Request Title</td>
-                                        <td
-                                            th:text="${#temporals.format(request.requestDateCreate, 'dd/MM/yyyy HH:mm')}">
-                                            Created</td>
-                                        <td
-                                            th:text="${#temporals.format(request.requestDateUpdate, 'dd/MM/yyyy HH:mm')}">
-                                            Updated</td>
-                                        <td th:text="${request.requestInfor}">Description</td>
-                                        <td>
-                                            <!-- PENDING -->
-                                            <span th:if="${request.requestStatus.name() == 'PENDING'}"
-                                                th:text="${request.requestStatus.name()}"
-                                                class="badge rounded-pill bg-warning text-dark">
-                                            </span>
 
-                                            <!-- CONFIRM -->
-                                            <span th:if="${request.requestStatus.name() == 'CONFIRM'}"
-                                                th:text="${request.requestStatus.name()}"
-                                                class="badge rounded-pill bg-success">
-                                            </span>
+                    <!-- Tabs Nav -->
+                    <ul class="nav nav-tabs" id="clubTab" role="tablist">
+                        <li class="nav-item" role="presentation" th:each="club, iterStat : ${allClubs}">
+                            <button class="nav-link" th:classappend="${iterStat.index == 0} ? 'active'"
+                                th:id="'tab-' + ${club.clubName.hashCode()}" data-bs-toggle="tab"
+                                th:data-bs-target="'#tab-pane-' + ${club.clubName.hashCode()}" type="button" role="tab"
+                                th:aria-controls="'tab-pane-' + ${club.clubName.hashCode()}"
+                                th:aria-selected="${iterStat.index == 0} ? 'true' : 'false'" th:text="${club.clubName}">
+                                Club Name
+                            </button>
+                        </li>
+                    </ul>
 
-                                            <!-- CANCEL -->
-                                            <span th:if="${request.requestStatus.name() == 'CANCEL'}"
-                                                th:text="${request.requestStatus.name()}"
-                                                class="badge rounded-pill bg-danger">
-                                            </span>
+                    <!-- Tabs Content -->
+                    <div th:each="club, iterStat : ${allClubs}"
+                        th:class="'tab-pane fade' + (${iterStat.index == 0} ? ' show active' : '')"
+                        th:id="'tab-pane-' + ${club.clubName.hashCode()}" role="tabpanel"
+                        th:aria-labelledby="'tab-' + ${club.clubName.hashCode()}">
 
-                                            <!-- DEFAULT / OTHER -->
-                                            <span
-                                                th:if="${request.requestStatus.name() != 'PENDING' and request.requestStatus.name() != 'CONFIRM' and request.requestStatus.name() != 'CANCEL'}"
-                                                th:text="${request.requestStatus.name()}"
-                                                class="badge rounded-pill bg-secondary">
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <form th:action="@{/admin/requests}" method="post" class="d-flex gap-2">
-                                                <input type="hidden" name="requestId" th:value="${request.requestId}" />
-                                                <button name="status" value="CONFIRM" type="submit"
-                                                    class="btn btn-outline-success btn-sm">
-                                                    <i class="bi bi-check-circle"></i> Accept
-                                                </button>
-                                                <button name="status" value="CANCEL" type="submit"
-                                                    class="btn btn-outline-danger btn-sm">
-                                                    <i class="bi bi-x-circle"></i> Cancel
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div th:if="${#maps.containsKey(requestsByClub, club.clubName)}"
+                            th:with="requests=${requestsByClub[club.clubName]}">
+                            <div th:if="${!requests.isEmpty()}">
+                                <!-- Table if there are requests -->
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <table class="table table-hover align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Created</th>
+                                                    <th>Updated</th>
+                                                    <th>Description</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="request : ${requests}">
+                                                    <td th:text="${request.requestTitle}">Request Title</td>
+                                                    <td
+                                                        th:text="${#temporals.format(request.requestDateCreate, 'dd/MM/yyyy HH:mm')}">
+                                                        Created</td>
+                                                    <td
+                                                        th:text="${#temporals.format(request.requestDateUpdate, 'dd/MM/yyyy HH:mm')}">
+                                                        Updated</td>
+                                                    <td th:text="${request.requestInfor}">Description</td>
+                                                    <td>
+                                                        <span th:if="${request.requestStatus.name() == 'PENDING'}"
+                                                            th:text="${request.requestStatus.name()}"
+                                                            class="badge rounded-pill bg-warning text-dark"></span>
+                                                        <span th:if="${request.requestStatus.name() == 'CONFIRM'}"
+                                                            th:text="${request.requestStatus.name()}"
+                                                            class="badge rounded-pill bg-success"></span>
+                                                        <span th:if="${request.requestStatus.name() == 'CANCEL'}"
+                                                            th:text="${request.requestStatus.name()}"
+                                                            class="badge rounded-pill bg-danger"></span>
+                                                        <span
+                                                            th:if="${request.requestStatus.name() != 'PENDING' and request.requestStatus.name() != 'CONFIRM' and request.requestStatus.name() != 'CANCEL'}"
+                                                            th:text="${request.requestStatus.name()}"
+                                                            class="badge rounded-pill bg-secondary"></span>
+                                                    </td>
+                                                    <td th:if="${request.requestStatus.name() == 'PENDING'}">
+                                                        <form th:action="@{/admin/requests}" method="post"
+                                                            class="d-flex gap-2">
+                                                            <input type="hidden" name="requestId"
+                                                                th:value="${request.requestId}" />
+                                                            <button name="status" value="CONFIRM" type="submit"
+                                                                class="btn btn-outline-success btn-sm">
+                                                                <i class="bi bi-check-circle"></i> Accept
+                                                            </button>
+                                                            <button name="status" value="CANCEL" type="submit"
+                                                                class="btn btn-outline-danger btn-sm">
+                                                                <i class="bi bi-x-circle"></i> Cancel
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${requests.isEmpty()}" class="text-center text-muted p-4">
+                                <i class="bi bi-info-circle"></i> Chưa có yêu cầu nào từ câu lạc bộ này.
+                            </div>
+                        </div>
+
+                        <div th:if="${!#maps.containsKey(requestsByClub, club.clubName)}"
+                            class="text-center text-muted p-4">
+                            <i class="bi bi-info-circle"></i> Chưa có yêu cầu nào từ câu lạc bộ này.
                         </div>
                     </div>
                 </div>
+
+
+
 
                 <!-- Manage ticket -->
                 <div id="tickets" class="tab-content d-none">
@@ -408,7 +437,8 @@
                 <!-- Auto Fixture Tab -->
                 <div id="generate-fixtures" class="tab-content d-none">
                     <h3 class="mb-4">Generate Fixtures Automatically</h3>
-                    <button class="btn btn-outline-primary mb-3" onclick="openAutoFixtureModal()">Generate Now</button>
+                    <button class="btn btn-outline-primary mb-3" onclick="openAutoFixtureModal()">Generate
+                        Now</button>
 
                     <div th:if="${fixtures != null}" th:each="entry : ${fixturesByRound}" class="mb-4">
                         <h5 class="text-primary" th:text="'Round ' + ${entry.key}">Round 1</h5>
@@ -465,7 +495,8 @@
                         <div class="modal-content">
                             <form th:action="@{/admin/fixture/create}" method="get">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="autoFixtureModalLabel">Fixture Generation Settings</h5>
+                                    <h5 class="modal-title" id="autoFixtureModalLabel">Fixture Generation Settings
+                                    </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
@@ -498,7 +529,8 @@
                                     aria-label="Đóng"></button>
                             </div>
                             <div class="modal-body">
-                                Dữ liệu trận đấu hiện có đã được khởi tạo trước đó. Bạn có chắc chắn muốn khởi tạo lại
+                                Dữ liệu trận đấu hiện có đã được khởi tạo trước đó. Bạn có chắc chắn muốn khởi tạo
+                                lại
                                 không? <br />
                                 <small class="text-muted">Thao tác này có thể ghi đè lịch cũ.</small>
                             </div>

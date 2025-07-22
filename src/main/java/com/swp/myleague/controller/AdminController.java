@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.myleague.common.CommonFunc;
 import com.swp.myleague.model.entities.admin_request.Request;
+import com.swp.myleague.model.entities.admin_request.RequestStatus;
 import com.swp.myleague.model.entities.blog.Blog;
 import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.match.Match;
@@ -72,7 +73,7 @@ public class AdminController {
         model.addAttribute("users", userService.getUser());
         model.addAttribute("products", productService.getAll());
         model.addAttribute("matches", matchService.getAll());
-        model.addAttribute("requests", requestService.getAll());
+
         model.addAttribute("tickets", ticketService.getAll());
 
         List<Match> fixtures = new ArrayList<>();
@@ -88,6 +89,37 @@ public class AdminController {
             model.addAttribute("hasAutoFixtureSession", true);
         }
 
+        List<Request> requests = requestService.getAll();
+        Map<String, List<Request>> requestsByClub = new TreeMap<>();
+
+        for (Request req : requests) {
+            String clubName = "Unknown";
+
+            try {
+                String[] parts = req.getRequestTitle().split("_");
+                if (parts.length < 2)
+                    throw new IllegalArgumentException("Invalid format");
+                String type = parts[1];
+
+                if ("PLAYER".equals(type)) {
+                    Player player = CommonFunc.parse(req.getRequestInfor(), Player.class);
+                    clubName = player.getClub().getClubName();
+                } else if ("BLOG".equals(type)) {
+                    Blog blog = CommonFunc.parse(req.getRequestInfor(), Blog.class);
+                    clubName = blog.getClub().getClubName();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                clubName = "Invalid";
+            }
+
+            requestsByClub.computeIfAbsent(clubName, k -> new ArrayList<>()).add(req);
+        }
+
+        model.addAttribute("requestsByClub", requestsByClub);
+        model.addAttribute("allClubs", clubService.getAll()); // 👈 thêm dòng này
+
         return "AdminDashboard";
     }
 
@@ -100,12 +132,12 @@ public class AdminController {
             switch (request.getRequestTitle().split("_")[1]) {
                 case "PLAYER":
                     Player player = CommonFunc.parse(request.getRequestInfor(), Player.class);
-                    playerService.save(player);
+                    player = playerService.save(player);
                     emailClub = userService.getUserById(player.getClub().getUserId().toString()).getEmail();
                     break;
                 case "BLOG":
                     Blog blog = CommonFunc.parse(request.getRequestInfor(), Blog.class);
-                    blogService.save(blog);
+                    blog = blogService.save(blog);
                     emailClub = userService.getUserById(blog.getClub().getUserId().toString()).getEmail();
                     break;
                 default:
@@ -118,7 +150,19 @@ public class AdminController {
                 status;
 
         emailService.sendMail("chumlu2102@gmail.com", emailClub, "[RESULT OF REQUEST ]" + request.getRequestTitle(),
-                text);
+                text, null);
+        switch (status.toLowerCase()) {
+            case "confirm":
+                request.setRequestStatus(RequestStatus.CONFIRM);
+                break;
+            case "cancel":
+                request.setRequestStatus(RequestStatus.CANCEL);
+                break;
+            default:
+                break;
+        }
+
+        requestService.save(request);
 
         return "redirect:/admin";
     }
@@ -188,7 +232,6 @@ public class AdminController {
                 continue;
 
             Ticket base = group.get(0);
-            
 
             Ticket merged = new Ticket();
             merged.setMatch(match);

@@ -188,6 +188,56 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="http://localhost:8080/ticket/bookingticket">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ticketModalLabel">Ticket Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th>Title</th>
+                                    <td id="modalTicketTitle"></td>
+                                </tr>
+                                <tr>
+                                    <th>Type</th>
+                                    <td id="modalTicketType"></td>
+                                </tr>
+                                <tr>
+                                    <th>Area</th>
+                                    <td id="modalTicketArea"></td>
+                                </tr>
+                                <tr>
+                                    <th>Remaining</th>
+                                    <td id="modalTicketAmount"></td>
+                                </tr>
+                                <tr>
+                                    <th>Price</th>
+                                    <td id="modalTicketPrice"></td>
+                                </tr>
+                                <tr>
+                                    <th>Note</th>
+                                    <td id="modalTicketNote"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input type="hidden" name="ticketId" id="hiddenTicketId">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Book Now</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <script th:inline="javascript">
         const tickets = JSON.parse(/*[[${ticketsJson}]]*/ '[]');
 
@@ -303,6 +353,28 @@
         });
 
         drawTicketRings();
+
+        document.querySelectorAll('.legend-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const area = item.textContent.split(' ')[1]; // "Area A" => "A"
+                const ticket = tickets.find(t => t.ticketArea === area);
+                if (ticket) {
+                    showTicketModal(ticket);
+                }
+            });
+        });
+
+        function showTicketModal(t) {
+            document.getElementById('modalTicketTitle').textContent = t.ticketTitle;
+            document.getElementById('modalTicketType').textContent = t.ticketType;
+            document.getElementById('modalTicketArea').textContent = t.ticketArea;
+            document.getElementById('modalTicketAmount').textContent = t.ticketAmount;
+            document.getElementById('modalTicketPrice').textContent = t.ticketPrice || 'N/A';
+            document.getElementById('modalTicketNote').textContent = t.ticketNote || '-';
+            document.getElementById('hiddenTicketId').value = t.ticketId;
+            const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
+            modal.show();
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

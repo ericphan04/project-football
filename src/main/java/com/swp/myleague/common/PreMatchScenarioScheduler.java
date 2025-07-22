@@ -86,12 +86,12 @@ public class PreMatchScenarioScheduler {
 
             try {
                 int minutes = Integer.parseInt(parts[0].trim());
-                int seconds = Integer.parseInt(parts[1].trim());
+                // int seconds = Integer.parseInt(parts[1].trim());
                 String content = parts[2].trim();
 
-                LocalDateTime eventTime = match.getMatchStartTime()
-                        .plusMinutes(minutes)
-                        .plusSeconds(seconds);
+                // LocalDateTime eventTime = match.getMatchStartTime()
+                //         .plusMinutes(minutes)
+                //         .plusSeconds(seconds);
 
                 MatchEvent event = new MatchEvent();
                 event.setMatch(match);
