@@ -212,7 +212,7 @@
                         <img th:src="@{${p.productImgPath}}" alt="Product Image" class="img-fluid product-img" />
                         <div class="product-title" th:text="${p.productName}">Premier League Item</div>
                         <div class="product-desc">1 Colour</div>
-                        <div class="product-price" th:text="'£' + ${p.productPrice}">£25.00</div>
+                        <div class="product-price" th:text="${p.productPrice} + 'đ'">250000đ</div>
                     </a>
                     <button class="btn btn-sm btn-outline-dark mt-2" th:data-id="${p.productId}"
                         th:onclick="addToCart(this.getAttribute('data-id'))" type="button">
@@ -299,7 +299,7 @@
 
             }).catch(err => {
                 console.error('Error:', err);
-                alert('Failed to add to cart');
+                // alert('Failed to add to cart');
             });
             window.location.reload();
         }

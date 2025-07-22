@@ -376,7 +376,9 @@
                                     <label class="form-label">Match</label>
                                     <select id="matchId" class="form-select mb-3" required>
                                         <option th:each="match : ${matches}" th:value="${match.matchId}"
-                                            th:text="${match.matchTitle}">Match</option>
+                                            th:text="${match.matchTitle}">
+                                            Match
+                                        </option>
                                     </select>
 
                                     <table class="table table-bordered">
@@ -389,37 +391,42 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <!-- Standard Tickets Row -->
                                             <tr
                                                 th:each="area : ${T(com.swp.myleague.model.entities.ticket.TicketArea).values()}">
                                                 <td th:text="${area}">A</td>
                                                 <td>Standard</td>
                                                 <td>
                                                     <input type="number" class="form-control ticket-quantity" min="0"
-                                                        value="0" th:attr="data-area=${area}, data-type='Standard'">
+                                                        value="0" th:attr="data-area=${area}, data-type='Standard'"
+                                                        onchange="updateTicketValues('Standard')" />
                                                 </td>
                                                 <td>
                                                     <input type="number" class="form-control ticket-price" min="0"
                                                         step="0.01" value="0.00"
-                                                        th:attr="data-area=${area}, data-type='Standard'">
+                                                        th:attr="data-area=${area}, data-type='Standard'"
+                                                        onchange="updateTicketValues('Standard')" />
                                                 </td>
                                             </tr>
+                                            <!-- VIP Tickets Row -->
                                             <tr
                                                 th:each="area : ${T(com.swp.myleague.model.entities.ticket.TicketArea).values()}">
                                                 <td th:text="${area}">A</td>
                                                 <td>VIP</td>
                                                 <td>
                                                     <input type="number" class="form-control ticket-quantity" min="0"
-                                                        value="0" th:attr="data-area=${area}, data-type='VIP'">
+                                                        value="0" th:attr="data-area=${area}, data-type='VIP'"
+                                                        onchange="updateTicketValues('VIP')" />
                                                 </td>
                                                 <td>
                                                     <input type="number" class="form-control ticket-price" min="0"
                                                         step="0.01" value="0.00"
-                                                        th:attr="data-area=${area}, data-type='VIP'">
+                                                        th:attr="data-area=${area}, data-type='VIP'"
+                                                        onchange="updateTicketValues('VIP')" />
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
-
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary"
@@ -431,6 +438,8 @@
                         </div>
                     </div>
                 </div>
+
+
 
 
 
@@ -643,6 +652,24 @@
             modal.show();
         }
 
+        function updateTicketValues(ticketType) {
+            const quantities = document.querySelectorAll(`.ticket-quantity[data-type='${ticketType}']`);
+            const prices = document.querySelectorAll(`.ticket-price[data-type='${ticketType}']`);
+
+            // Lấy giá trị của ô đầu tiên trong loại vé được thay đổi (có thể lấy bất kỳ ô nào vì chúng đều đồng bộ)
+            const firstQuantity = quantities[0].value;
+            const firstPrice = prices[0].value;
+
+            // Cập nhật tất cả các ô của loại vé tương ứng
+            quantities.forEach(quantity => {
+                quantity.value = firstQuantity;
+            });
+
+            prices.forEach(price => {
+                price.value = firstPrice;
+            });
+        }
+
         function submitDetailedTickets() {
             const matchId = document.getElementById("matchId").value;
             const tickets = [];
@@ -660,20 +687,24 @@
                 );
                 const price = parseFloat(priceInput.value);
 
-                for (let j = 0; j < quantity; j++) {
+                // Chỉ thêm vé nếu số lượng > 0
+                if (quantity > 0) {
                     tickets.push({
                         ticketArea: area,
                         ticketType: type,
-                        ticketPrice: price
+                        ticketPrice: price,
+                        ticketQuantity: quantity
                     });
                 }
             }
 
+            // Kiểm tra nếu không có vé nào được chọn
             if (tickets.length === 0) {
                 alert("Please enter quantity for at least one ticket.");
                 return;
             }
 
+            // Gửi thông tin tickets lên server
             fetch(`/admin/save-tickets?matchId=${matchId}`, {
                 method: 'POST',
                 headers: {
@@ -688,6 +719,9 @@
                 }
             });
         }
+
+
+
 
     </script>
 

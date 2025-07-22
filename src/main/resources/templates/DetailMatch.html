@@ -245,7 +245,7 @@
             <div th:if="${motm != null}" class="row align-items-center">
                 <!-- Ảnh cầu thủ -->
                 <div class="col-md-4 text-center mb-4 mb-md-0">
-                    <img th:src="@{'/images/players/' + ${motm.player.playerImgPath}}" alt="Player Photo"
+                    <img th:src="@{${motm.player.playerImgPath}}" alt="Player Photo"
                         class="rounded-circle shadow"
                         style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff;">
                 </div>

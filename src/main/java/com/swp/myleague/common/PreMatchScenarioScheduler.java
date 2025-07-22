@@ -13,7 +13,7 @@ import com.swp.myleague.model.entities.match.Match;
 import com.swp.myleague.model.entities.match.MatchEvent;
 import com.swp.myleague.model.repo.MatchEventRepo;
 import com.swp.myleague.model.repo.MatchRepo;
-import com.swp.myleague.utils.openai_matchevent.OpenAiService;
+import com.swp.myleague.utils.LLaMa_matchevent.LlamaClientService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,29 +24,24 @@ import lombok.extern.slf4j.Slf4j;
 public class PreMatchScenarioScheduler {
 
     private final MatchRepo matchRepo;
-    private final MatchEventRepo eventRepo; // nếu muốn lưu MatchEvent
-    private final OpenAiService openAiService;
+    private final MatchEventRepo eventRepo;
 
-    /**
-     * Chạy mỗi phút. Cron "0 * * * * *" = giây 0 của mỗi phút.
-     * Điều chỉnh fixedRate/cron theo nhu cầu.
-     */
+    private final LlamaClientService llamaClientService;
+
     @Scheduled(cron = "0 * * * * *", zone = "Asia/Ho_Chi_Minh")
     public void generateScenarioForUpcomingMatches() {
-
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-        LocalDateTime threshold = now.plusMinutes(15); // “sắp bắt đầu” = 15ph tới
+        LocalDateTime threshold = now.plusMinutes(15);
 
         List<Match> upcoming = matchRepo.findByMatchStartTimeBetweenAndMatchEventsIsEmpty(now, threshold);
 
         for (Match match : upcoming) {
             try {
                 String prompt = buildPrompt(match);
-                String script = openAiService.askChatGPT(prompt);
+                String script = llamaClientService.generateResponse(prompt, "llama3"); // ✅ sử dụng LLaMA
 
-                // Ví dụ: “00:00:Tiếng còi khai cuộc\n05:30:Cú sút đầu tiên...”
                 List<MatchEvent> events = parseScript(script, match);
-                eventRepo.saveAll(events); // hoặc gửi qua WebSocket/Kafka
+                eventRepo.saveAll(events);
 
                 log.info("Generated scenario for match {}", match.getMatchTitle());
             } catch (Exception ex) {
@@ -54,6 +49,7 @@ public class PreMatchScenarioScheduler {
             }
         }
     }
+
 
     /** Tạo prompt hướng dẫn ChatGPT */
     private String buildPrompt(Match m) {
