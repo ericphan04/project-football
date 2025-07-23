@@ -1,5 +1,6 @@
 package com.swp.myleague.controller;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.swp.myleague.common.CommonFunc;
 import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.saleproduct.CartItem;
 import com.swp.myleague.model.entities.saleproduct.OrderStatus;
@@ -104,7 +106,7 @@ public class PaymentController {
         } else if (orderInfo.split(":")[0].equals("Ticket")) {
             itemName = ticketService.getById(orderInfo.split(":")[1]).getTicketTitle();
         }
-        
+
         ItemData item = ItemData.builder()
                 .name(itemName)
                 .quantity(1)
@@ -147,18 +149,12 @@ public class PaymentController {
             // @RequestParam("amount") BigDecimal amount,
             Principal principal) {
         Orders orders = orderService.getByOrderCode(orderCode);
+        StringBuilder infor = new StringBuilder();
 
         // 1️⃣ Parse orderInfo
         String[] parts = orders.getOrderInfo().split(":");
         String type = parts[0]; // "Product" hoặc "Ticket"
         String refIdStr = parts.length > 1 ? parts[1] : "";
-        // UUID referenceId = null;
-        // try {
-        // referenceId = UUID.fromString(refIdStr);
-        // } catch (IllegalArgumentException e) {
-        // // nếu không phải UUID hợp lệ thì báo lỗi
-        // return "PaymentFailure";
-        // }
 
         // 2️⃣ Nếu thanh toán thành công
         if ("00".equals(code) && "PAID".equals(status)) {
@@ -168,6 +164,7 @@ public class PaymentController {
             // 2.2 Tạo mới Order (chú ý: không lấy từ DB mà khởi tạo mới)
             Orders order = orderService.getById(orders.getOrderId().toString());
             order.setOrderStatus(OrderStatus.COMPLETED);
+            order.setUser(user);
             // lưu lần đầu để JPA sinh UUID
             order = orderService.save(order);
 
@@ -175,32 +172,38 @@ public class PaymentController {
             if ("Product".equalsIgnoreCase(type)) {
                 Product product = productService.getById(refIdStr);
                 product.setProductAmount(product.getProductAmount() - 1);
-                productService.save(product);
-
+                product = productService.save(product);
+                infor.append("Product:").append(product.toString());
             } else if ("Ticket".equalsIgnoreCase(type)) {
                 Ticket ticket = ticketService.getById(refIdStr);
                 ticket.setTicketAmount(ticket.getTicketAmount() - 1);
-                ticketService.save(ticket);
+                ticket = ticketService.save(ticket);
+                infor.append("Ticket:").append(ticket.toString());
             }
 
             // 2.4 Gửi email xác nhận
+            byte[] qrCodeBytes = CommonFunc.genQRCode(infor.toString());
+            String base64Image = Base64.getEncoder().encodeToString(qrCodeBytes);
             String subject = "Xác nhận đơn hàng #" + order.getOrderId().toString();
             String body = String.format(
-                    "Chào %s,\n\n" +
-                            "Đơn hàng của bạn đã được thanh toán thành công.\n" +
-                            "Mã đơn (UUID): %s\n" +
-                            "Tổng tiền: %s VND\n" +
-                            "Bạn có thể xem chi tiết tại: https://localhost:8080/orders/%s\n\n" +
+                    "Chào %s,<br><br>" +
+                            "Đơn hàng của bạn đã được thanh toán thành công.<br>" +
+                            "Mã đơn (UUID): %s<br>" +
+                            "Tổng tiền: %s VND<br>" +
+                            "Chi tiết: <a href='https://localhost:8080/orders/%s'>Xem đơn hàng</a><br><br>" +
+                            "<img src='cid:qrImage' /><br><br>" +
                             "Cảm ơn bạn!",
-                    user.getFullname(),
-                    order.getOrderId().toString(),
+                    user.getFullname() != null ? user.getFullname() : "khách hàng",
+                    order.getOrderId(),
                     order.getOrderTotalMoney(),
-                    order.getOrderId().toString());
+                    order.getOrderId(),
+                    base64Image);
             emailService.sendMail(
                     "chumlu2102@gmail.com",
                     user.getEmail(),
                     subject,
-                    body);
+                    body,
+                    qrCodeBytes);
 
             return "PaymentSuccess";
         }

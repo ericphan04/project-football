@@ -61,11 +61,15 @@
                                 class="bi bi-people me-2"></i> Users</a></li>
                     <li class="nav-item"><a class="nav-link" onclick="showTab('products')"><i
                                 class="bi bi-box me-2"></i> Products</a></li>
-                    <li class="nav-item">
-                        <a class="nav-link" onclick="showTab('matches')">
-                            <i class="bi bi-calendar-event me-2"></i> Matches
-                        </a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" onclick="showTab('matches')"><i
+                                class="bi bi-calendar-event me-2"></i> Matches</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showTab('requests')"><i
+                                class="bi bi-calendar-event me-2"></i> Requests</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showTab('generate-fixtures')"><i
+                                class="bi bi-shuffle me-2"></i> Auto Fixture</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showTab('tickets')"><i
+                                class="bi bi-ticket-perforated me-2"></i> Tickets</a></li>
+
                 </ul>
             </aside>
 
@@ -218,9 +222,341 @@
                     </div>
                 </div>
 
+                <div id="requests" class="tab-content d-none">
+                    <h3 class="mb-4">Requests</h3>
+
+                    <!-- Tabs Nav -->
+                    <ul class="nav nav-tabs" id="clubTab" role="tablist">
+                        <li class="nav-item" role="presentation" th:each="club, iterStat : ${allClubs}">
+                            <button class="nav-link" th:classappend="${iterStat.index == 0} ? 'active'"
+                                th:id="'tab-' + ${club.clubName.hashCode()}" data-bs-toggle="tab"
+                                th:data-bs-target="'#tab-pane-' + ${club.clubName.hashCode()}" type="button" role="tab"
+                                th:aria-controls="'tab-pane-' + ${club.clubName.hashCode()}"
+                                th:aria-selected="${iterStat.index == 0} ? 'true' : 'false'" th:text="${club.clubName}">
+                                Club Name
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tabs Content -->
+                    <div th:each="club, iterStat : ${allClubs}"
+                        th:class="'tab-pane fade' + (${iterStat.index == 0} ? ' show active' : '')"
+                        th:id="'tab-pane-' + ${club.clubName.hashCode()}" role="tabpanel"
+                        th:aria-labelledby="'tab-' + ${club.clubName.hashCode()}">
+
+                        <div th:if="${#maps.containsKey(requestsByClub, club.clubName)}"
+                            th:with="requests=${requestsByClub[club.clubName]}">
+                            <div th:if="${!requests.isEmpty()}">
+                                <!-- Table if there are requests -->
+                                <div class="card mb-4">
+                                    <div class="card-body">
+                                        <table class="table table-hover align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Title</th>
+                                                    <th>Created</th>
+                                                    <th>Updated</th>
+                                                    <th>Description</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="request : ${requests}">
+                                                    <td th:text="${request.requestTitle}">Request Title</td>
+                                                    <td
+                                                        th:text="${#temporals.format(request.requestDateCreate, 'dd/MM/yyyy HH:mm')}">
+                                                        Created</td>
+                                                    <td
+                                                        th:text="${#temporals.format(request.requestDateUpdate, 'dd/MM/yyyy HH:mm')}">
+                                                        Updated</td>
+                                                    <td th:text="${request.requestInfor}">Description</td>
+                                                    <td>
+                                                        <span th:if="${request.requestStatus.name() == 'PENDING'}"
+                                                            th:text="${request.requestStatus.name()}"
+                                                            class="badge rounded-pill bg-warning text-dark"></span>
+                                                        <span th:if="${request.requestStatus.name() == 'CONFIRM'}"
+                                                            th:text="${request.requestStatus.name()}"
+                                                            class="badge rounded-pill bg-success"></span>
+                                                        <span th:if="${request.requestStatus.name() == 'CANCEL'}"
+                                                            th:text="${request.requestStatus.name()}"
+                                                            class="badge rounded-pill bg-danger"></span>
+                                                        <span
+                                                            th:if="${request.requestStatus.name() != 'PENDING' and request.requestStatus.name() != 'CONFIRM' and request.requestStatus.name() != 'CANCEL'}"
+                                                            th:text="${request.requestStatus.name()}"
+                                                            class="badge rounded-pill bg-secondary"></span>
+                                                    </td>
+                                                    <td th:if="${request.requestStatus.name() == 'PENDING'}">
+                                                        <form th:action="@{/admin/requests}" method="post"
+                                                            class="d-flex gap-2">
+                                                            <input type="hidden" name="requestId"
+                                                                th:value="${request.requestId}" />
+                                                            <button name="status" value="CONFIRM" type="submit"
+                                                                class="btn btn-outline-success btn-sm">
+                                                                <i class="bi bi-check-circle"></i> Accept
+                                                            </button>
+                                                            <button name="status" value="CANCEL" type="submit"
+                                                                class="btn btn-outline-danger btn-sm">
+                                                                <i class="bi bi-x-circle"></i> Cancel
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div th:if="${requests.isEmpty()}" class="text-center text-muted p-4">
+                                <i class="bi bi-info-circle"></i> Chưa có yêu cầu nào từ câu lạc bộ này.
+                            </div>
+                        </div>
+
+                        <div th:if="${!#maps.containsKey(requestsByClub, club.clubName)}"
+                            class="text-center text-muted p-4">
+                            <i class="bi bi-info-circle"></i> Chưa có yêu cầu nào từ câu lạc bộ này.
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <!-- Manage ticket -->
+                <div id="tickets" class="tab-content d-none">
+                    <h3 class="mb-4">Tickets</h3>
+                    <button class="btn btn-primary btn-sm" onclick="openAddTicketModal()">
+                        <i class="bi bi-plus-circle"></i> Add Ticket
+                    </button>
+
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Match</th>
+                                        <th>Quantity</th>
+                                        <th>Area</th>
+                                        <th>Type</th>
+                                        <th>Price ($)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="ticket : ${tickets}">
+                                        <td th:text="${ticket.match.matchTitle}">Match Title</td>
+                                        <td th:text="${ticket.ticketAmount}">100</td>
+                                        <td th:text="${ticket.ticketArea}">VIP</td>
+                                        <td th:text="${ticket.ticketType}">ADULT</td>
+                                        <td th:text="${ticket.ticketPrice}">50.00</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Ticket Modal -->
+                <div class="modal fade" id="addTicketModal" tabindex="-1" aria-labelledby="addTicketModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <form id="ticketForm">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addTicketModalLabel">Add Tickets by Area & Type</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label class="form-label">Match</label>
+                                    <select id="matchId" class="form-select mb-3" required>
+                                        <option th:each="match : ${matches}" th:value="${match.matchId}"
+                                            th:text="${match.matchTitle}">
+                                            Match
+                                        </option>
+                                    </select>
+
+                                    <table class="table table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Area</th>
+                                                <th>Type</th>
+                                                <th>Quantity</th>
+                                                <th>Price ($)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Standard Tickets Row -->
+                                            <tr
+                                                th:each="area : ${T(com.swp.myleague.model.entities.ticket.TicketArea).values()}">
+                                                <td th:text="${area}">A</td>
+                                                <td>Standard</td>
+                                                <td>
+                                                    <input type="number" class="form-control ticket-quantity" min="0"
+                                                        value="0" th:attr="data-area=${area}, data-type='Standard'"
+                                                        onchange="updateTicketValues('Standard')" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="form-control ticket-price" min="0"
+                                                        step="0.01" value="0.00"
+                                                        th:attr="data-area=${area}, data-type='Standard'"
+                                                        onchange="updateTicketValues('Standard')" />
+                                                </td>
+                                            </tr>
+                                            <!-- VIP Tickets Row -->
+                                            <tr
+                                                th:each="area : ${T(com.swp.myleague.model.entities.ticket.TicketArea).values()}">
+                                                <td th:text="${area}">A</td>
+                                                <td>VIP</td>
+                                                <td>
+                                                    <input type="number" class="form-control ticket-quantity" min="0"
+                                                        value="0" th:attr="data-area=${area}, data-type='VIP'"
+                                                        onchange="updateTicketValues('VIP')" />
+                                                </td>
+                                                <td>
+                                                    <input type="number" class="form-control ticket-price" min="0"
+                                                        step="0.01" value="0.00"
+                                                        th:attr="data-area=${area}, data-type='VIP'"
+                                                        onchange="updateTicketValues('VIP')" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-primary" onclick="submitDetailedTickets()">Save
+                                        Tickets</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+                <!-- Auto Fixture Tab -->
+                <div id="generate-fixtures" class="tab-content d-none">
+                    <h3 class="mb-4">Generate Fixtures Automatically</h3>
+                    <button class="btn btn-outline-primary mb-3" onclick="openAutoFixtureModal()">Generate
+                        Now</button>
+
+                    <div th:if="${fixtures != null}" th:each="entry : ${fixturesByRound}" class="mb-4">
+                        <h5 class="text-primary" th:text="'Round ' + ${entry.key}">Round 1</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6" th:each="match : ${entry.value}">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between mb-2"
+                                            th:if="${match.matchClubStats != null and #lists.size(match.matchClubStats) > 0}">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <img th:src="@{{logo}(logo=${match.matchClubStats[0].club.clubLogoPath})}"
+                                                    alt="Home" width="32" height="32">
+                                                <strong th:text="${match.matchClubStats[0].club.clubName}">Home</strong>
+                                            </div>
+                                            <span class="fw-bold">vs</span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <strong th:text="${match.matchClubStats[1].club.clubName}">Away</strong>
+                                                <img th:src="@{{logo}(logo=${match.matchClubStats[1].club.clubLogoPath})}"
+                                                    alt="Away" width="32" height="32">
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Title</label>
+                                            <input type="text" class="form-control form-control-sm"
+                                                th:value="${match.matchTitle}">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Date</label>
+                                            <input type="datetime-local" class="form-control form-control-sm"
+                                                th:value="${#temporals.format(match.matchStartTime, 'yyyy-MM-dd''T''HH:mm')}">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Venue</label>
+                                            <input type="text" class="form-control form-control-sm"
+                                                th:value="${match.matchDescription}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <form th:action="@{/admin/fixture/save-round}" method="post" class="mt-3">
+                            <input type="hidden" name="roundNumber" th:value="${entry.key}" />
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Save Matches for Round <span th:text="${entry.key}">1</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Auto Fixture Modal -->
+                <div class="modal fade" id="autoFixtureModal" tabindex="-1" aria-labelledby="autoFixtureModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form th:action="@{/admin/fixture/create}" method="get">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="autoFixtureModalLabel">Fixture Generation Settings
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <label class="form-label">Start Date</label>
+                                    <input type="date" class="form-control mb-2" name="startDate" required>
+
+                                    <label class="form-label">Match Slots per Day</label>
+                                    <input type="number" class="form-control mb-2" name="matchSlots" min="1" required>
+
+                                    <input hidden class="form-control" name="recreate" value="true">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Generate</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="confirmRegenerateModal" tabindex="-1"
+                    aria-labelledby="confirmRegenerateLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-warning">
+                                <h5 class="modal-title" id="confirmRegenerateLabel">Xác nhận khởi tạo lại</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Đóng"></button>
+                            </div>
+                            <div class="modal-body">
+                                Dữ liệu trận đấu hiện có đã được khởi tạo trước đó. Bạn có chắc chắn muốn khởi tạo
+                                lại
+                                không? <br />
+                                <small class="text-muted">Thao tác này có thể ghi đè lịch cũ.</small>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-danger" onclick="confirmRegenerate()">Tiếp
+                                    tục</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
+
+
 
     <!-- Add Product Modal -->
     <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
@@ -300,6 +636,105 @@
         function openAddMatchModal() {
             const modal = new bootstrap.Modal(document.getElementById('addMatchModal'));
             modal.show();
+        }
+
+        // Nếu user đồng ý khởi tạo lại
+        function confirmRegenerate() {
+            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmRegenerateModal'));
+            confirmModal.hide();
+
+            const fixtureModal = new bootstrap.Modal(document.getElementById('autoFixtureModal'));
+            fixtureModal.show();
+        }
+
+        function openAddTicketModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addTicketModal'));
+            modal.show();
+        }
+
+        function updateTicketValues(ticketType) {
+            const quantities = document.querySelectorAll(`.ticket-quantity[data-type='${ticketType}']`);
+            const prices = document.querySelectorAll(`.ticket-price[data-type='${ticketType}']`);
+
+            // Lấy giá trị của ô đầu tiên trong loại vé được thay đổi (có thể lấy bất kỳ ô nào vì chúng đều đồng bộ)
+            const firstQuantity = quantities[0].value;
+            const firstPrice = prices[0].value;
+
+            // Cập nhật tất cả các ô của loại vé tương ứng
+            quantities.forEach(quantity => {
+                quantity.value = firstQuantity;
+            });
+
+            prices.forEach(price => {
+                price.value = firstPrice;
+            });
+        }
+
+        function submitDetailedTickets() {
+            const matchId = document.getElementById("matchId").value;
+            const tickets = [];
+
+            const quantities = document.querySelectorAll(".ticket-quantity");
+            const prices = document.querySelectorAll(".ticket-price");
+
+            for (let i = 0; i < quantities.length; i++) {
+                const quantity = parseInt(quantities[i].value);
+                const area = quantities[i].dataset.area;
+                const type = quantities[i].dataset.type;
+
+                const priceInput = Array.from(prices).find(p =>
+                    p.dataset.area === area && p.dataset.type === type
+                );
+                const price = parseFloat(priceInput.value);
+
+                // Chỉ thêm vé nếu số lượng > 0
+                if (quantity > 0) {
+                    tickets.push({
+                        ticketArea: area,
+                        ticketType: type,
+                        ticketPrice: price,
+                        ticketQuantity: quantity
+                    });
+                }
+            }
+
+            // Kiểm tra nếu không có vé nào được chọn
+            if (tickets.length === 0) {
+                alert("Please enter quantity for at least one ticket.");
+                return;
+            }
+
+            // Gửi thông tin tickets lên server
+            fetch(`/admin/save-tickets?matchId=${matchId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(tickets)
+            }).then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else {
+                    alert("Error saving tickets.");
+                }
+            });
+        }
+
+
+
+
+    </script>
+
+    <script th:inline="javascript">
+        function openAutoFixtureModal() {
+            const hasAutoFixture = [[${ hasAutoFixtureSession }]];
+            if (hasAutoFixture) {
+                const confirmModal = new bootstrap.Modal(document.getElementById('confirmRegenerateModal'));
+                confirmModal.show();
+            } else {
+                const modal = new bootstrap.Modal(document.getElementById('autoFixtureModal'));
+                modal.show();
+            }
         }
     </script>
 
