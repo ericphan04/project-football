@@ -304,38 +304,62 @@
 
             const drawRing = (ticketList, innerA, outerA, innerB, outerB) => {
                 const step = (2 * Math.PI) / ticketList.length;
-                ticketList.forEach((ticket, i) => {
-                    const start = i * step;
-                    const end = start + step;
-                    ctx.beginPath();
-                    for (let angle = start; angle <= end; angle += 0.01) {
-                        const x = centerX + outerA * Math.cos(angle);
-                        const y = centerY + outerB * Math.sin(angle);
-                        if (angle === start) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
-                    }
-                    for (let angle = end; angle >= start; angle -= 0.01) {
-                        const x = centerX + innerA * Math.cos(angle);
-                        const y = centerY + innerB * Math.sin(angle);
-                        ctx.lineTo(x, y);
-                    }
-                    ctx.closePath();
-                    const base = baseColors[ticket.ticketArea] || '#999';
-                    ctx.fillStyle = shadeColor(base, typeShades[ticket.ticketType] || 1);
-                    ctx.fill();
-                    ctx.strokeStyle = '#333';
-                    ctx.stroke();
-
-                    const mid = (start + end) / 2;
-                    const labelX = centerX + ((outerA + innerA) / 2) * Math.cos(mid);
-                    const labelY = centerY + ((outerB + innerB) / 2) * Math.sin(mid);
-                    ctx.fillStyle = '#000';
-                    ctx.font = 'bold 10px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(`${ticket.ticketType}`, labelX, labelY);
-
-                    positionMap[ticket.ticketId] = { start, end, innerA, outerA, innerB, outerB, ticket };
+                // Nhóm theo ticketArea
+                const grouped = {};
+                ticketList.forEach(ticket => {
+                    const area = ticket.ticketArea;
+                    if (!grouped[area]) grouped[area] = [];
+                    grouped[area].push(ticket);
                 });
+
+                // Vẽ từng nhóm ticketArea
+                let currentAngle = 0;
+                const totalTickets = ticketList.length;
+
+                for (let area in grouped) {
+                    const ticketsInArea = grouped[area];
+                    const anglePerTicket = (2 * Math.PI) / totalTickets;
+
+                    ticketsInArea.forEach(ticket => {
+                        const start = currentAngle;
+                        const end = start + anglePerTicket;
+
+                        ctx.beginPath();
+                        for (let angle = start; angle <= end; angle += 0.01) {
+                            const x = centerX + outerA * Math.cos(angle);
+                            const y = centerY + outerB * Math.sin(angle);
+                            if (angle === start) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        for (let angle = end; angle >= start; angle -= 0.01) {
+                            const x = centerX + innerA * Math.cos(angle);
+                            const y = centerY + innerB * Math.sin(angle);
+                            ctx.lineTo(x, y);
+                        }
+                        ctx.closePath();
+
+                        const baseColorKey = ticket.ticketArea;
+                        const base = baseColors[baseColorKey] || '#999';
+                        ctx.fillStyle = shadeColor(base, typeShades[ticket.ticketType] || 1);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.stroke();
+
+                        // text label
+                        const mid = (start + end) / 2;
+                        const labelX = centerX + ((outerA + innerA) / 2) * Math.cos(mid);
+                        const labelY = centerY + ((outerB + innerB) / 2) * Math.sin(mid);
+                        ctx.fillStyle = '#000';
+                        ctx.font = 'bold 10px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`${ticket.ticketType}`, labelX, labelY);
+
+                        positionMap[ticket.ticketId] = { start, end, innerA, outerA, innerB, outerB, ticket };
+
+                        currentAngle += anglePerTicket;
+                    });
+                }
+
             }
 
             drawRing(vipTickets, 120, 170, 70, 100);

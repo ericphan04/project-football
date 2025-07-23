@@ -33,7 +33,7 @@ public class MatchPlayerStatService implements IService<MatchPlayerStat> {
     public MatchPlayerStat getAllByPlayerAndMatch(String playerId, String matchId) {
         UUID playerUUID = UUID.fromString(playerId);
         UUID matchUUID = UUID.fromString(matchId);
-    
+
         return matchPlayerStatRepo.findAllByPlayerPlayerId(playerUUID).stream()
                 .filter(mps -> mps.getMatch().getMatchId().equals(matchUUID))
                 .findFirst() // Lấy phần tử đầu tiên phù hợp
@@ -54,6 +54,10 @@ public class MatchPlayerStatService implements IService<MatchPlayerStat> {
     public MatchPlayerStat delete(String id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
+
+    public List<MatchPlayerStat> getAllByMatchIdandClubId(String matchId, String clubId) {
+        return matchPlayerStatRepo.findAllByMatchIdAndClubIdNative(UUID.fromString(matchId), UUID.fromString(clubId));
     }
 
 }

@@ -14,17 +14,21 @@ import com.swp.myleague.model.entities.match.Match;
 @Repository
 public interface MatchRepo extends JpaRepository<Match, UUID> {
 
-    @Query("""
-        SELECT m FROM Match m
-        JOIN m.matchClubStats mcs
-        WHERE mcs.club.clubId = :clubId
-          AND m.matchStartTime > CURRENT_TIMESTAMP
-        ORDER BY m.matchStartTime ASC
-        """)
-    List<Match> findUpcomingMatchesByClub(@Param("clubId") UUID clubId);
+  @Query("""
+      SELECT m FROM Match m
+      JOIN m.matchClubStats mcs
+      WHERE mcs.club.clubId = :clubId
+        AND m.matchStartTime > CURRENT_TIMESTAMP
+      ORDER BY m.matchStartTime ASC
+      """)
+  List<Match> findUpcomingMatchesByClub(@Param("clubId") UUID clubId);
 
-    List<Match> findByMatchDescription(String roundDescription);
+  List<Match> findByMatchDescription(String roundDescription);
 
-    List<Match> findByMatchStartTimeBetweenAndMatchEventsIsEmpty(LocalDateTime from, LocalDateTime to);
-    
+  @Query("SELECT DISTINCT m FROM Match m WHERE m.matchStartTime BETWEEN :start AND :end")
+  List<Match> findMatchesBetween(@Param("start") LocalDateTime start,
+                                 @Param("end") LocalDateTime end);
+
+  List<Match> findByMatchStartTimeBetweenAndMatchEventsIsEmpty(LocalDateTime now, LocalDateTime threshold);
+
 }
