@@ -108,8 +108,12 @@
                 <h5>Personal Details</h5>
                 <p><strong>Club:</strong> <span th:text="${player.club.clubName}">Manchester United</span></p>
                 <p><strong>Position:</strong> <span th:text="${player.playerPosition.name()}">Goalkeeper</span></p>
-                <p><strong>Nationality:</strong> <img style="height: 16px;"> <span
-                        th:text="${player.playerNationaly}">Türkiye</span></p>
+                <p>
+                    <strong>Nationality:</strong>
+                    <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.png'}"
+                        alt="flag" style="height: 16px; margin-right: 4px;">
+                    <span th:text="${player.playerNationaly}">Turkey</span>
+                </p>
                 <p><strong>Date of Birth:</strong> <span>14/04/1998</span> (<span>27</span>)</p>
                 <p><strong>Height:</strong> <span>198cm</span></p>
             </div>

@@ -27,8 +27,13 @@ public interface MatchRepo extends JpaRepository<Match, UUID> {
 
   @Query("SELECT DISTINCT m FROM Match m WHERE m.matchStartTime BETWEEN :start AND :end")
   List<Match> findMatchesBetween(@Param("start") LocalDateTime start,
-                                 @Param("end") LocalDateTime end);
+      @Param("end") LocalDateTime end);
 
-  List<Match> findByMatchStartTimeBetweenAndMatchEventsIsEmpty(LocalDateTime now, LocalDateTime threshold);
+  @Query("""
+          SELECT m FROM Match m
+          WHERE m.matchStartTime > :now AND m.matchStartTime < :within
+      """)
+  List<Match> findUpcomingMatches(@Param("now") LocalDateTime now,
+      @Param("within") LocalDateTime within);
 
 }

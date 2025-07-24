@@ -66,14 +66,6 @@ public class MatchService implements IService<Match> {
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
     }
 
-    public Player getPom(String matchId) {
-        return null;
-    }
-
-    public List<Player> getScorerOfTheMatch(String matchId) {
-        return null;
-    }
-
     public List<Match> autoGenFixturesMatches(LocalDate startDate, List<LocalTime> matchSlots) {
         List<Club> clubs = clubRepo.findAll().stream()
                 .filter(clb -> clb.getClubLogoPath() != null && clb.getClubLogoPath().contains("images"))
@@ -174,6 +166,7 @@ public class MatchService implements IService<Match> {
 
     }
 
+    @Transactional(readOnly = true)
     public List<Player> getStartingLineup(String matchId, String clubId) {
         Match match = getById(matchId);
         Club club = clubRepo.findById(UUID.fromString(clubId)).orElseThrow();
@@ -185,6 +178,7 @@ public class MatchService implements IService<Match> {
         return startingLineup;
     }
 
+    @Transactional(readOnly = true)
     public List<Player> getSubstitueLineup(String matchId, String clubId) {
         Match match = getById(matchId);
         Club club = clubRepo.findById(UUID.fromString(clubId)).orElseThrow();

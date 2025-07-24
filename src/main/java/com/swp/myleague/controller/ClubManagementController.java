@@ -7,6 +7,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -19,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.admin_request.Request;
@@ -98,11 +100,18 @@ public class ClubManagementController {
             @RequestParam(name = "playerNationaly") String playerNationaly,
             @RequestParam(name = "playerNumber") String playerNumber,
             @RequestParam("playerImage") MultipartFile playerImage, // mới thêm nếu có upload ảnh
-            Principal principal) {
+            Principal principal, RedirectAttributes redirectAttributes) {
 
         String username = principal.getName();
         User user = userService.findByUsername(username);
         Club club = clubService.getByUserId(user.getUserId());
+
+        List<Player> getPlayers = playerService.getPlayersByClubId(club.getClubId().toString());
+
+        if (getPlayers.stream().anyMatch(p -> p.getPlayerFullName().equals(playerName) || p.getPlayerNumber() == Integer.parseInt(playerNumber))) {
+            redirectAttributes.addFlashAttribute("message", "The player is existed");
+            return "redirect:/clubmanager";
+        }
 
         Player player = new Player();
         player.setClub(club);

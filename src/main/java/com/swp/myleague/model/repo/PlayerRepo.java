@@ -1,18 +1,94 @@
 package com.swp.myleague.model.repo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.swp.myleague.model.entities.information.Player;
+import com.swp.myleague.payload.PlayerStandingAssistDTO;
+import com.swp.myleague.payload.PlayerStandingCleanSheetsDTO;
+import com.swp.myleague.payload.PlayerStandingGoalDTO;
+import com.swp.myleague.payload.PlayerStandingPlayedMinutesDTO;
 
 @Repository
 public interface PlayerRepo extends JpaRepository<Player, UUID> {
 
     List<Player> findAllByClubClubId(UUID fromString);
 
+    Optional<Player> findByPlayerFullName(String playerName);
+
     // List<Player> getTop10ScorePlayers();
-    
+    @Query(value = """
+            SELECT BIN_TO_UUID(player_id) AS player_id, SUM(match_player_goal) AS total_goals
+            FROM match_player_stat s
+            JOIN `'match'` m ON s.match_id = m.match_id
+            WHERE YEAR(m.match_start_time) = :season
+            AND m.match_start_time < now()
+            GROUP BY player_id
+            ORDER BY total_goals DESC
+            LIMIT 10
+            """, nativeQuery = true)
+    List<PlayerStandingGoalDTO> findTop10GoalScorersInSeason(@Param("season") Integer season);
+
+    @Query(value = """
+            SELECT BIN_TO_UUID(player_id) AS player_id, SUM(match_player_assist) AS total_assists
+            FROM match_player_stat s
+            JOIN `'match'` m ON s.match_id = m.match_id
+            WHERE YEAR(m.match_start_time) = :season
+            AND m.match_start_time < now()
+            GROUP BY player_id
+            ORDER BY total_assists DESC
+            LIMIT 10
+            """, nativeQuery = true)
+    List<PlayerStandingAssistDTO> findTop10AssistersInSeason(@Param("season") Integer season);
+
+    @Query(value = """
+            SELECT BIN_TO_UUID(player_id) AS player_id, SUM(match_player_minuted_played) AS total_minutes
+            FROM match_player_stat s
+            JOIN `'match'` m ON s.match_id = m.match_id
+            WHERE YEAR(m.match_start_time) = :season
+            AND m.match_start_time < now()
+            GROUP BY player_id
+            ORDER BY total_minutes DESC
+            LIMIT 10
+            """, nativeQuery = true)
+    List<PlayerStandingPlayedMinutesDTO> findTop10PlayersByMinutesPlayed(@Param("season") Integer season);
+
+    @Query(value = """
+                        SELECT
+                BIN_TO_UUID(s.player_id) AS player_id,
+                COUNT(*) AS clean_sheets
+            FROM match_player_stat s
+            JOIN `'match'` m ON s.match_id = m.match_id
+            JOIN match_club_stat cs ON cs.match_id = m.match_id
+            JOIN player p ON p.player_id = s.player_id
+            WHERE
+                YEAR(m.match_start_time) = :season
+                AND m.match_start_time < NOW()
+                AND s.is_starter = TRUE
+                AND (
+                    p.player_position = 'GK'
+                    OR (
+                        p.player_position = 'CB'
+                        AND s.player_id IN (
+                            SELECT s2.player_id
+                            FROM match_player_stat s2
+                            JOIN player p2 ON p2.player_id = s2.player_id
+                            WHERE s2.match_id = m.match_id
+                              AND p2.club_id = cs.club_id
+                        )
+                    )
+                )
+                AND cs.match_club_stat_score = 0
+            GROUP BY s.player_id
+            ORDER BY clean_sheets DESC
+            LIMIT 10;
+                        """, nativeQuery = true)
+    List<PlayerStandingCleanSheetsDTO> findTop10PlayersByCleanSheets(@Param("season") Integer season);
+
 }

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.swp.myleague.model.entities.match.Match;
 import com.swp.myleague.model.entities.match.MatchPlayerStat;
 
 @Repository
@@ -25,5 +26,7 @@ public interface MatchPlayerStatRepo extends JpaRepository<MatchPlayerStat, UUID
     List<MatchPlayerStat> findAllByMatchIdAndClubIdNative(
             @Param("matchId") UUID matchId,
             @Param("clubId") UUID clubId);
+
+    List<MatchPlayerStat> findByMatch(Match match);
 
 }
