@@ -16,12 +16,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.swp.myleague.common.IService;
 import com.swp.myleague.model.entities.information.Club;
 import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.match.Match;
 import com.swp.myleague.model.entities.match.MatchClubStat;
+import com.swp.myleague.model.entities.match.MatchPlayerStat;
 import com.swp.myleague.model.repo.ClubRepo;
 import com.swp.myleague.model.repo.MatchClubStatRepo;
 import com.swp.myleague.model.repo.MatchRepo;
@@ -150,7 +152,8 @@ public class MatchService implements IService<Match> {
     }
 
     public List<Match> getByRound(Integer roudNumber) {
-        return getAll().stream().filter((Match m) -> m.getMatchDescription().split(" ")[1].equals(roudNumber + "")).toList();
+        return getAll().stream().filter((Match m) -> m.getMatchDescription().split(" ")[1].equals(roudNumber + ""))
+                .toList();
     }
 
     public List<Match> saveAuto(List<Match> list) {
@@ -171,9 +174,33 @@ public class MatchService implements IService<Match> {
 
     }
 
-    public List<Match> findMatchesNeedNarration(LocalDateTime from, LocalDateTime to) {
-        return matchRepo
-                .findByMatchStartTimeBetweenAndMatchEventsIsEmpty(from, to);
+    public List<Player> getStartingLineup(String matchId, String clubId) {
+        Match match = getById(matchId);
+        Club club = clubRepo.findById(UUID.fromString(clubId)).orElseThrow();
+        List<Player> startingLineup = match.getMatchPlayerStats().stream()
+                .filter(stat -> stat.getPlayer().getClub().equals(club) && Boolean.TRUE.equals(stat.getIsStarter()))
+                .map(MatchPlayerStat::getPlayer)
+                .collect(Collectors.toList());
+
+        return startingLineup;
+    }
+
+    public List<Player> getSubstitueLineup(String matchId, String clubId) {
+        Match match = getById(matchId);
+        Club club = clubRepo.findById(UUID.fromString(clubId)).orElseThrow();
+        List<Player> substituteLineup = match.getMatchPlayerStats().stream()
+                .filter(stat -> stat.getPlayer().getClub().equals(club) && Boolean.FALSE.equals(stat.getIsStarter()))
+                .map(MatchPlayerStat::getPlayer)
+                .collect(Collectors.toList());
+
+        return substituteLineup;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Match> getMatchesBetween(LocalDateTime aroundTime) {
+        LocalDateTime start = aroundTime.minusMinutes(15);
+        LocalDateTime end = aroundTime.plusMinutes(15);
+        return matchRepo.findMatchesBetween(start, end);
     }
 
 }

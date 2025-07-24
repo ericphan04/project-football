@@ -32,14 +32,18 @@ public class MatchPlayerStat {
     private Integer matchPlayerMinutedPlayed;
     private Integer matchPlayerGoal;
     private Integer matchPlayerAssist;
+    private Integer matchPlayerPass;
+    private Integer matchPlayerShoots;
 
     private Double rating;
+
+    private Boolean isStarter;
 
     @ManyToOne
     @JoinColumn(name = "matchId")
     private Match match;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "playerId")
     private Player player;
     

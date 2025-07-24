@@ -1,5 +1,10 @@
 package com.swp.myleague.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -13,12 +18,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.swp.myleague.common.CommonFunc;
 import com.swp.myleague.model.entities.admin_request.Request;
+import com.swp.myleague.model.entities.admin_request.RequestStatus;
 import com.swp.myleague.model.entities.blog.Blog;
+import com.swp.myleague.model.entities.blog.BlogCategory;
 import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.match.Match;
+import com.swp.myleague.model.entities.saleproduct.Product;
+import com.swp.myleague.model.entities.saleproduct.ProductSize;
 import com.swp.myleague.model.entities.ticket.Ticket;
 import com.swp.myleague.model.service.EmailService;
 import com.swp.myleague.model.service.RequestService;
@@ -72,7 +82,7 @@ public class AdminController {
         model.addAttribute("users", userService.getUser());
         model.addAttribute("products", productService.getAll());
         model.addAttribute("matches", matchService.getAll());
-        model.addAttribute("requests", requestService.getAll());
+
         model.addAttribute("tickets", ticketService.getAll());
 
         List<Match> fixtures = new ArrayList<>();
@@ -88,6 +98,37 @@ public class AdminController {
             model.addAttribute("hasAutoFixtureSession", true);
         }
 
+        List<Request> requests = requestService.getAll();
+        Map<String, List<Request>> requestsByClub = new TreeMap<>();
+
+        for (Request req : requests) {
+            String clubName = "Unknown";
+
+            try {
+                String[] parts = req.getRequestTitle().split("_");
+                if (parts.length < 2)
+                    throw new IllegalArgumentException("Invalid format");
+                String type = parts[1];
+
+                if ("PLAYER".equals(type)) {
+                    Player player = CommonFunc.parse(req.getRequestInfor(), Player.class);
+                    clubName = player.getClub().getClubName();
+                } else if ("BLOG".equals(type)) {
+                    Blog blog = CommonFunc.parse(req.getRequestInfor(), Blog.class);
+                    clubName = blog.getClub().getClubName();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                clubName = "Invalid";
+            }
+
+            requestsByClub.computeIfAbsent(clubName, k -> new ArrayList<>()).add(req);
+        }
+
+        model.addAttribute("requestsByClub", requestsByClub);
+        model.addAttribute("allClubs", clubService.getAll()); // 👈 thêm dòng này
+
         return "AdminDashboard";
     }
 
@@ -100,12 +141,13 @@ public class AdminController {
             switch (request.getRequestTitle().split("_")[1]) {
                 case "PLAYER":
                     Player player = CommonFunc.parse(request.getRequestInfor(), Player.class);
-                    playerService.save(player);
+                    player = playerService.save(player);
                     emailClub = userService.getUserById(player.getClub().getUserId().toString()).getEmail();
                     break;
                 case "BLOG":
                     Blog blog = CommonFunc.parse(request.getRequestInfor(), Blog.class);
-                    blogService.save(blog);
+                    blog = blogService.save(blog);
+                    blog.setBlogCategory(BlogCategory.Hotnews);
                     emailClub = userService.getUserById(blog.getClub().getUserId().toString()).getEmail();
                     break;
                 default:
@@ -118,7 +160,19 @@ public class AdminController {
                 status;
 
         emailService.sendMail("chumlu2102@gmail.com", emailClub, "[RESULT OF REQUEST ]" + request.getRequestTitle(),
-                text);
+                text, null);
+        switch (status.toLowerCase()) {
+            case "confirm":
+                request.setRequestStatus(RequestStatus.CONFIRM);
+                break;
+            case "cancel":
+                request.setRequestStatus(RequestStatus.CANCEL);
+                break;
+            default:
+                break;
+        }
+
+        requestService.save(request);
 
         return "redirect:/admin";
     }
@@ -188,7 +242,6 @@ public class AdminController {
                 continue;
 
             Ticket base = group.get(0);
-            
 
             Ticket merged = new Ticket();
             merged.setMatch(match);
@@ -201,6 +254,48 @@ public class AdminController {
             mergedTickets.add(merged);
         }
         ticketService.saveAllTickets(mergedTickets);
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/addproduct")
+    public String addProduct(
+            @RequestParam("productName") String name,
+            @RequestParam("productDescription") String description,
+            @RequestParam("productSize") String size,
+            @RequestParam("productPrice") String price,
+            @RequestParam("productAmount") String amount,
+            @RequestParam("productImage") MultipartFile productImage,
+            Principal principal) {
+
+        // String username = principal.getName();
+        // User user = userService.findByUsername(username);
+        // Club club = clubService.getByUserId(user.getUserId()); 
+
+        Product product = new Product();
+        product.setProductName(name);
+        product.setProductDescription(description);
+        product.setProductSize(java.util.Arrays.stream(ProductSize.values())
+                .filter(s -> s.name().equalsIgnoreCase(size))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid product size: " + size)));
+        product.setProductPrice(Double.parseDouble(price));
+        product.setProductAmount(Integer.parseInt(amount));
+
+        // Xử lý ảnh sản phẩm
+        if (!productImage.isEmpty()) {
+            File imageFile = new File("src/main/resources/static/images/Storage-Files" + File.separator
+                    + productImage.getOriginalFilename());
+            try {
+                Files.copy(productImage.getInputStream(), imageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                product.setProductImgPath("/images/Storage-Files/" + productImage.getOriginalFilename());
+            } catch (IOException e) {
+                e.printStackTrace(); // hoặc log lỗi
+            }
+        }
+
+        // Lưu product trực tiếp vào DB
+        productService.save(product);
+
         return "redirect:/admin";
     }
 

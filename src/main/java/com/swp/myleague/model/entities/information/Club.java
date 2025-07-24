@@ -37,6 +37,7 @@ public class Club {
     private String clubFounded;
 
     private String clubStadium;
+    private Integer clubStadiumCapacity;
 
     @OneToMany(mappedBy = "club", fetch = FetchType.LAZY)
     private List<Player> players;

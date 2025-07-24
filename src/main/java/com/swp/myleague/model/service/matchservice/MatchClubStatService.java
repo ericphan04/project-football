@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.swp.myleague.common.IService;
 import com.swp.myleague.model.entities.match.MatchClubStat;
+import com.swp.myleague.model.repo.ClubRepo;
 import com.swp.myleague.model.repo.MatchClubStatRepo;
 import com.swp.myleague.payload.ClubStandingDTO;
 
@@ -16,6 +17,9 @@ public class MatchClubStatService implements IService<MatchClubStat> {
 
     @Autowired
     MatchClubStatRepo matchClubStatRepo;
+
+    @Autowired
+    ClubRepo clubRepo;
 
     @Override
     public List<MatchClubStat> getAll() {

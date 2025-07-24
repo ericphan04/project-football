@@ -116,8 +116,8 @@
                                 <td th:text="${player.playerNumber}">8</td>
                                 <td>
                                     <a class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
-                                    th:attr="data-bs-target='#editPlayerModal__' + ${player.playerId}"><i
-                                        class="bi bi-pencil"></i></a>
+                                        th:attr="data-bs-target='#editPlayerModal__' + ${player.playerId}"><i
+                                            class="bi bi-pencil"></i></a>
                                     <a class="btn btn-sm btn-outline-danger"
                                         th:href="@{/player/delete/{id}(id=${player.playerId})}"><i
                                             class="bi bi-trash"></i></a>
@@ -127,6 +127,11 @@
                     </table>
                     <button class="btn btn-manage mt-2" data-bs-toggle="modal" data-bs-target="#addPlayerModal"><i
                             class="bi bi-plus-lg"></i> Add New Player</button>
+                    <form th:action="@{/clubmanager/exportplayers}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-download"></i> Export for Lineup
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -174,23 +179,50 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form th:action="@{/clubmanager/addplayer}" method="post">
+                    <form th:action="@{/clubmanager/addplayer}" method="post" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label for="playerName" class="form-label">Full Name</label>
                             <input type="text" class="form-control" id="playerName" name="playerFullName" required>
                         </div>
+
                         <div class="mb-3">
                             <label for="position" class="form-label">Position</label>
-                            <input type="text" class="form-control" id="position" name="position" required>
+                            <select class="form-select" id="position" name="position" required>
+                                <option value="" selected disabled>Choose position</option>
+                                <option value="FW">Forward (FW)</option>
+                                <option value="MD">Midfielder (MD)</option>
+                                <option value="CB">Center Back (CB)</option>
+                                <option value="GK">Goalkeeper (GK)</option>
+                                <option value="LB">Left Back (LB)</option>
+                                <option value="RB">Right Back (RB)</option>
+                                <option value="RWB">Right Wing Back (RWB)</option>
+                                <option value="LWB">Left Wing Back (LWB)</option>
+                                <option value="CM">Center Midfield (CM)</option>
+                                <option value="AM">Attacking Midfield (AM)</option>
+                                <option value="LFW">Left Forward (LFW)</option>
+                                <option value="RFW">Right Forward (RFW)</option>
+                                <option value="SS">Second Striker (SS)</option>
+                                <option value="ST">Striker (ST)</option>
+                                <option value="CDM">Defensive Midfield (CDM)</option>
+                            </select>
                         </div>
+
                         <div class="mb-3">
                             <label for="nationality" class="form-label">Nationality</label>
                             <input type="text" class="form-control" id="nationality" name="playerNationaly" required>
                         </div>
+
                         <div class="mb-3">
                             <label for="shirtNumber" class="form-label">Shirt Number</label>
                             <input type="number" class="form-control" id="shirtNumber" name="playerNumber" required>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="playerImage" class="form-label">Player Image</label>
+                            <input class="form-control" type="file" id="playerImage" name="playerImage"
+                                accept="image/*">
+                        </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-manage">Add Player</button>
@@ -200,6 +232,7 @@
             </div>
         </div>
     </div>
+
     <!-- Edit Club Modal -->
     <div class="modal fade" id="editClubModal" tabindex="-1" aria-labelledby="editClubModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -255,7 +288,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form th:action="@{/clubmanager/addblog}" method="post">
+                    <form th:action="@{/clubmanager/addblog}" method="post" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label class="form-label">Blog Title</label>
                             <input type="text" class="form-control" name="title" required />
@@ -263,6 +296,18 @@
                         <div class="mb-3">
                             <label class="form-label">Content</label>
                             <textarea class="form-control" name="content" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category" required>
+                                <option value="" disabled selected>Select category</option>
+                                <option th:each="cat : ${categories}" th:value="${cat.name()}" th:text="${cat.name()}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Thumbnail Image</label>
+                            <input type="file" class="form-control" name="thumnailFile" required />
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -273,6 +318,7 @@
             </div>
         </div>
     </div>
+
 
     <div th:each="blog : ${club.blogs}">
         <div class="modal fade" th:id="'editBlogModal__' + ${blog.blogId}" tabindex="-1"

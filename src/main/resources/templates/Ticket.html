@@ -8,7 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            /* Thêm background gradient */
             font-family: 'Segoe UI', sans-serif;
         }
 
@@ -17,6 +18,12 @@
             color: white;
             padding: 2rem;
             text-align: center;
+            border-radius: 12px;
+            /* Thêm border radius để mềm mại hơn */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            /* Thêm bóng đổ */
+            margin-bottom: 2rem;
+            /* Khoảng cách dưới */
         }
 
         .match-info {
@@ -26,6 +33,8 @@
             padding: 1.5rem 2rem;
             border-radius: 12px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            /* Thêm bóng đổ */
+            background-color: #fff;
         }
 
         .match-row {
@@ -117,6 +126,14 @@
         .venue {
             font-size: 0.95rem;
             color: #666;
+            margin-top: 1rem;
+            /* Khoảng cách trên */
+        }
+
+        /* Thêm border-radius và padding cho modal */
+        .modal-content {
+            border-radius: 12px;
+            padding: 2rem;
         }
     </style>
 </head>
@@ -188,6 +205,56 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="http://localhost:8080/ticket/bookingticket">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="ticketModalLabel">Ticket Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-sm">
+                            <tbody>
+                                <tr>
+                                    <th>Title</th>
+                                    <td id="modalTicketTitle"></td>
+                                </tr>
+                                <tr>
+                                    <th>Type</th>
+                                    <td id="modalTicketType"></td>
+                                </tr>
+                                <tr>
+                                    <th>Area</th>
+                                    <td id="modalTicketArea"></td>
+                                </tr>
+                                <tr>
+                                    <th>Remaining</th>
+                                    <td id="modalTicketAmount"></td>
+                                </tr>
+                                <tr>
+                                    <th>Price</th>
+                                    <td id="modalTicketPrice"></td>
+                                </tr>
+                                <tr>
+                                    <th>Note</th>
+                                    <td id="modalTicketNote"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <input type="hidden" name="ticketId" id="hiddenTicketId">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Book Now</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
     <script th:inline="javascript">
         const tickets = JSON.parse(/*[[${ticketsJson}]]*/ '[]');
 
@@ -237,38 +304,62 @@
 
             const drawRing = (ticketList, innerA, outerA, innerB, outerB) => {
                 const step = (2 * Math.PI) / ticketList.length;
-                ticketList.forEach((ticket, i) => {
-                    const start = i * step;
-                    const end = start + step;
-                    ctx.beginPath();
-                    for (let angle = start; angle <= end; angle += 0.01) {
-                        const x = centerX + outerA * Math.cos(angle);
-                        const y = centerY + outerB * Math.sin(angle);
-                        if (angle === start) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
-                    }
-                    for (let angle = end; angle >= start; angle -= 0.01) {
-                        const x = centerX + innerA * Math.cos(angle);
-                        const y = centerY + innerB * Math.sin(angle);
-                        ctx.lineTo(x, y);
-                    }
-                    ctx.closePath();
-                    const base = baseColors[ticket.ticketArea] || '#999';
-                    ctx.fillStyle = shadeColor(base, typeShades[ticket.ticketType] || 1);
-                    ctx.fill();
-                    ctx.strokeStyle = '#333';
-                    ctx.stroke();
-
-                    const mid = (start + end) / 2;
-                    const labelX = centerX + ((outerA + innerA) / 2) * Math.cos(mid);
-                    const labelY = centerY + ((outerB + innerB) / 2) * Math.sin(mid);
-                    ctx.fillStyle = '#000';
-                    ctx.font = 'bold 10px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(`${ticket.ticketTitle} (${ticket.ticketAmount})`, labelX, labelY);
-
-                    positionMap[ticket.ticketId] = { start, end, innerA, outerA, innerB, outerB, ticket };
+                // Nhóm theo ticketArea
+                const grouped = {};
+                ticketList.forEach(ticket => {
+                    const area = ticket.ticketArea;
+                    if (!grouped[area]) grouped[area] = [];
+                    grouped[area].push(ticket);
                 });
+
+                // Vẽ từng nhóm ticketArea
+                let currentAngle = 0;
+                const totalTickets = ticketList.length;
+
+                for (let area in grouped) {
+                    const ticketsInArea = grouped[area];
+                    const anglePerTicket = (2 * Math.PI) / totalTickets;
+
+                    ticketsInArea.forEach(ticket => {
+                        const start = currentAngle;
+                        const end = start + anglePerTicket;
+
+                        ctx.beginPath();
+                        for (let angle = start; angle <= end; angle += 0.01) {
+                            const x = centerX + outerA * Math.cos(angle);
+                            const y = centerY + outerB * Math.sin(angle);
+                            if (angle === start) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        for (let angle = end; angle >= start; angle -= 0.01) {
+                            const x = centerX + innerA * Math.cos(angle);
+                            const y = centerY + innerB * Math.sin(angle);
+                            ctx.lineTo(x, y);
+                        }
+                        ctx.closePath();
+
+                        const baseColorKey = ticket.ticketArea;
+                        const base = baseColors[baseColorKey] || '#999';
+                        ctx.fillStyle = shadeColor(base, typeShades[ticket.ticketType] || 1);
+                        ctx.fill();
+                        ctx.strokeStyle = '#333';
+                        ctx.stroke();
+
+                        // text label
+                        const mid = (start + end) / 2;
+                        const labelX = centerX + ((outerA + innerA) / 2) * Math.cos(mid);
+                        const labelY = centerY + ((outerB + innerB) / 2) * Math.sin(mid);
+                        ctx.fillStyle = '#000';
+                        ctx.font = 'bold 10px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`${ticket.ticketType}`, labelX, labelY);
+
+                        positionMap[ticket.ticketId] = { start, end, innerA, outerA, innerB, outerB, ticket };
+
+                        currentAngle += anglePerTicket;
+                    });
+                }
+
             }
 
             drawRing(vipTickets, 120, 170, 70, 100);
@@ -303,6 +394,28 @@
         });
 
         drawTicketRings();
+
+        document.querySelectorAll('.legend-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const area = item.textContent.split(' ')[1]; // "Area A" => "A"
+                const ticket = tickets.find(t => t.ticketArea === area);
+                if (ticket) {
+                    showTicketModal(ticket);
+                }
+            });
+        });
+
+        function showTicketModal(t) {
+            document.getElementById('modalTicketTitle').textContent = t.ticketTitle;
+            document.getElementById('modalTicketType').textContent = t.ticketType;
+            document.getElementById('modalTicketArea').textContent = t.ticketArea;
+            document.getElementById('modalTicketAmount').textContent = t.ticketAmount;
+            document.getElementById('modalTicketPrice').textContent = t.ticketPrice || 'N/A';
+            document.getElementById('modalTicketNote').textContent = t.ticketNote || '-';
+            document.getElementById('hiddenTicketId').value = t.ticketId;
+            const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
+            modal.show();
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

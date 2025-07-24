@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -54,47 +55,93 @@ public class CommonFunc {
                 throw new IllegalArgumentException("Invalid format for class: " + clazz.getSimpleName());
             }
 
-            // Loại bỏ phần class name
             String content = str.substring(clazz.getSimpleName().length() + 1, str.length() - 1);
-            String[] parts = content.split(", (?=[a-zA-Z0-9_]+=)");
-
-            Map<String, String> fieldMap = new HashMap<>();
-            for (String part : parts) {
-                String[] keyValue = part.split("=", 2);
-                fieldMap.put(keyValue[0].trim(), keyValue[1].trim());
-            }
+            Map<String, String> fieldMap = parseFields(content);
 
             T instance = clazz.getDeclaredConstructor().newInstance();
 
             for (Field field : clazz.getDeclaredFields()) {
-                String valueStr = fieldMap.get(field.getName());
-                if (valueStr == null)
-                    continue;
-
                 field.setAccessible(true);
-                Object value = convert(valueStr, field.getType());
-                field.set(instance, value);
+                String valueStr = fieldMap.get(field.getName());
+
+                if (valueStr == null || "null".equals(valueStr)) {
+                    field.set(instance, null);
+                } else if (valueStr.startsWith(field.getType().getSimpleName() + "(")) {
+                    // Nested object
+                    Object nestedObj = parse(valueStr, field.getType());
+                    field.set(instance, nestedObj);
+                } else if (field.getType().isEnum()) {
+                    // Parse enum safely
+                    Object enumVal = Enum.valueOf((Class<Enum>) field.getType(), valueStr);
+                    field.set(instance, enumVal);
+                } else {
+                    Object value = convert(valueStr, field.getType());
+                    field.set(instance, value);
+                }
             }
-
             return instance;
-
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse object from toString: " + e.getMessage(), e);
         }
     }
 
-    private static Object convert(String value, Class<?> type) {
-        if (type == String.class)
-            return value;
-        if (type == int.class || type == Integer.class)
-            return Integer.parseInt(value);
-        if (type == long.class || type == Long.class)
-            return Long.parseLong(value);
-        if (type == boolean.class || type == Boolean.class)
-            return Boolean.parseBoolean(value);
-        if (type == double.class || type == Double.class)
-            return Double.parseDouble(value);
-        throw new IllegalArgumentException("Unsupported field type: " + type.getName());
+    /**
+     * Tách key=value trong content, giữ nguyên nested object.
+     * Ví dụ: club=Club(...), playerPosition=FW, ...
+     */
+    private static Map<String, String> parseFields(String content) {
+        Map<String, String> map = new HashMap<>();
+        int depth = 0;
+        StringBuilder sb = new StringBuilder();
+        String currentKey = null;
+
+        for (int i = 0; i < content.length(); i++) {
+            char c = content.charAt(i);
+
+            if (c == '=' && depth == 0 && currentKey == null) {
+                currentKey = sb.toString().trim();
+                sb.setLength(0);
+            } else if (c == ',' && depth == 0 && currentKey != null) {
+                map.put(currentKey, sb.toString().trim());
+                currentKey = null;
+                sb.setLength(0);
+            } else {
+                if (c == '(')
+                    depth++;
+                else if (c == ')')
+                    depth--;
+                sb.append(c);
+            }
+        }
+        if (currentKey != null) {
+            map.put(currentKey, sb.toString().trim());
+        }
+        return map;
+    }
+
+    /**
+     * Convert String value sang đúng kiểu.
+     */
+    private static Object convert(String valueStr, Class<?> targetType) {
+        if (valueStr == null || "null".equals(valueStr)) {
+            return null;
+        }
+        if (targetType == String.class) {
+            return valueStr;
+        } else if (targetType == int.class || targetType == Integer.class) {
+            return Integer.parseInt(valueStr);
+        } else if (targetType == long.class || targetType == Long.class) {
+            return Long.parseLong(valueStr);
+        } else if (targetType == boolean.class || targetType == Boolean.class) {
+            return Boolean.parseBoolean(valueStr);
+        } else if (targetType == UUID.class) {
+            return UUID.fromString(valueStr);
+        } else if (targetType == LocalDateTime.class) {
+            // parse ISO string hoặc format phù hợp (ví dụ: "2024-07-16T15:30:00")
+            return LocalDateTime.parse(valueStr);
+        } else {
+            throw new IllegalArgumentException("Unsupported field type: " + targetType.getName());
+        }
     }
 
 }
