@@ -1,7 +1,10 @@
 package com.swp.myleague.controller;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.security.Principal;
 import java.time.LocalDateTime;
 
@@ -53,13 +56,18 @@ public class PaymentController {
     @Autowired
     OrderService orderService;
 
+    String listProductIds = "";
+
     @GetMapping("/checkout")
     public String checkout(HttpSession session, Model model) {
 
         HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
         if (cart == null)
             cart = new HashMap<>();
-
+        cart.values().stream().forEach(item -> {
+            listProductIds += ":" + item.getProduct().getProductId();
+        });
+        model.addAttribute("listProductIds", listProductIds);
         model.addAttribute("cartProducts", cart);
         return "Checkout";
     }
@@ -84,6 +92,7 @@ public class PaymentController {
             @RequestParam("amount") Double amount,
             @RequestParam("email") String email,
             @RequestParam("orderInfo") String orderInfo,
+            @RequestParam("shippingAddress") String shippingAddress,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         // 1️⃣ Lấy baseUrl cho return/cancel
@@ -102,7 +111,23 @@ public class PaymentController {
         // 3️⃣ Tạo ItemData và PaymentData
         String itemName = "";
         if (orderInfo.split(":")[0].equals("Product")) {
-            itemName = productService.getById(orderInfo.split(":")[1]).getProductName();
+
+            String[] parts = orderInfo.split(":");
+
+            if (parts.length > 1) {
+                List<String> productIds = Arrays.asList(parts).subList(1, parts.length);
+
+                itemName = productIds.stream()
+                        .map(id -> {
+                            try {
+                                return productService.getById(id).getProductName();
+                            } catch (Exception e) {
+                                return "Không tìm thấy sản phẩm";
+                            }
+                        })
+                        .collect(Collectors.joining(", "));
+            }
+
         } else if (orderInfo.split(":")[0].equals("Ticket")) {
             itemName = ticketService.getById(orderInfo.split(":")[1]).getTicketTitle();
         }

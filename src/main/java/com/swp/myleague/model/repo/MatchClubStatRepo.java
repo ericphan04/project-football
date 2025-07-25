@@ -19,7 +19,7 @@ public interface MatchClubStatRepo extends JpaRepository<MatchClubStat, UUID> {
     public List<MatchClubStat> findAllByClubClubId(UUID fromString);
 
     @Query(value = """
-                            SELECT
+                                        SELECT
                 c.club_name AS clubName,
                 SUM(
                     CASE
@@ -31,24 +31,36 @@ public interface MatchClubStatRepo extends JpaRepository<MatchClubStat, UUID> {
                     END
                 ) AS points,
                 c.club_logo_path AS logoUrl,
-                COUNT(CASE WHEN m.match_start_time <= NOW() THEN mcs.match_id END) AS played,  -- chỉ đếm những trận đã diễn ra
+                COUNT(CASE WHEN m.match_start_time <= NOW() THEN mcs.match_id END) AS played,
                 SUM(CASE WHEN m.match_start_time <= NOW() AND mcs.match_club_stat_score > opp.match_club_stat_score THEN 1 ELSE 0 END) AS wins,
                 SUM(CASE WHEN m.match_start_time <= NOW() AND mcs.match_club_stat_score = opp.match_club_stat_score THEN 1 ELSE 0 END) AS draws,
                 SUM(CASE WHEN m.match_start_time <= NOW() AND mcs.match_club_stat_score < opp.match_club_stat_score THEN 1 ELSE 0 END) AS losses,
                 SUM(CASE WHEN m.match_start_time <= NOW() THEN mcs.match_club_stat_score ELSE 0 END) AS goalsFor,
                 SUM(CASE WHEN m.match_start_time <= NOW() THEN opp.match_club_stat_score ELSE 0 END) AS goalsAgainst,
                 SUM(CASE WHEN m.match_start_time <= NOW() THEN mcs.match_club_stat_score - opp.match_club_stat_score ELSE 0 END) AS goalDifference,
-                '' AS nextLogoUrl
+
+                -- NEXT OPPONENT LOGO
+                (
+                    SELECT c2.club_logo_path
+                    FROM match_club_stat mcs2
+                    JOIN `'match'` m2 ON m2.match_id = mcs2.match_id
+                    JOIN match_club_stat mcs_opp ON mcs_opp.match_id = mcs2.match_id AND mcs_opp.club_id != mcs2.club_id
+                    JOIN club c2 ON c2.club_id = mcs_opp.club_id
+                    WHERE mcs2.club_id = mcs.club_id
+                      AND m2.match_start_time > NOW()
+                    ORDER BY m2.match_start_time ASC
+                    LIMIT 1
+                ) AS nextLogoUrl
+
             FROM match_club_stat mcs
             JOIN `'match'` m ON m.match_id = mcs.match_id
             JOIN club c ON c.club_id = mcs.club_id
-            JOIN match_club_stat opp
-                ON opp.match_id = mcs.match_id AND opp.club_id != mcs.club_id
+            JOIN match_club_stat opp ON opp.match_id = mcs.match_id AND opp.club_id != mcs.club_id
             WHERE YEAR(m.match_start_time) = :season
-            GROUP BY c.club_name, c.club_logo_path
+            GROUP BY c.club_id, c.club_name, c.club_logo_path
             ORDER BY points DESC, goalDifference DESC, goalsFor DESC;
 
-                        """, nativeQuery = true)
+                                    """, nativeQuery = true)
     List<ClubStandingDTO> findClubStandingsBySeason(@Param("season") Integer season);
 
 }

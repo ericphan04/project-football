@@ -35,6 +35,9 @@ public class Club {
     private String clubPrimaryColor;
     private String clubSecondaryColor;
     private String clubFounded;
+    private String clubHomeKit;
+    private String clubAwayKit;
+    private String clubThirdKit;
 
     private String clubStadium;
     private Integer clubStadiumCapacity;

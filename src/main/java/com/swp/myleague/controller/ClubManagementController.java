@@ -100,6 +100,9 @@ public class ClubManagementController {
             @RequestParam(name = "playerNationaly") String playerNationaly,
             @RequestParam(name = "playerNumber") String playerNumber,
             @RequestParam("playerImage") MultipartFile playerImage, // mới thêm nếu có upload ảnh
+            @RequestParam("playerDob") String dob,
+            @RequestParam("playerHeight") String height,
+            @RequestParam("playerWeight") String weight,
             Principal principal, RedirectAttributes redirectAttributes) {
 
         String username = principal.getName();
@@ -122,6 +125,11 @@ public class ClubManagementController {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid player position: " + playerPosition)));
         player.setPlayerNationaly(playerNationaly);
         player.setPlayerNumber(Integer.parseInt(playerNumber));
+        player.setPlayerInformation("dob: " + dob + "\nheight: " + height + "\nweight: " + weight);
+        player.setPlayerAppearances(0);
+        player.setPlayerAssist(0);
+        player.setPlayerCleanSheets(0);
+        player.setPlayerScores(0);
 
         // Xử lý ảnh cầu thủ (nếu có gửi lên)
         if (!playerImage.isEmpty()) {
