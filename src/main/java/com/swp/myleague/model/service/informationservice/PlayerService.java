@@ -16,6 +16,8 @@ import com.swp.myleague.payload.PlayerStandingAssistDTO;
 import com.swp.myleague.payload.PlayerStandingCleanSheetsDTO;
 import com.swp.myleague.payload.PlayerStandingGoalDTO;
 import com.swp.myleague.payload.PlayerStandingPlayedMinutesDTO;
+import com.swp.myleague.payload.TopAppearedClub;
+import com.swp.myleague.payload.TopScorerClub;
 
 @Service
 public class PlayerService implements IService<Player> {
@@ -135,6 +137,14 @@ public class PlayerService implements IService<Player> {
         }
 
         return result;
+    }
+
+    public TopScorerClub getTopScorerOfClub(String clubId) {
+        return playerRepo.getTopScorerDTOByClubId(UUID.fromString(clubId));
+    }
+
+    public TopAppearedClub getTopAppearedOfClub(String clubId) {
+        return playerRepo.getTopAppearedDTOByClubId(UUID.fromString(clubId));
     }
 
 }
