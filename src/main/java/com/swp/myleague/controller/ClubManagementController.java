@@ -7,13 +7,20 @@ import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.admin_request.Request;
@@ -29,6 +36,8 @@ import com.swp.myleague.model.service.UserService;
 import com.swp.myleague.model.service.blogservice.BlogService;
 import com.swp.myleague.model.service.informationservice.ClubService;
 import com.swp.myleague.model.service.informationservice.PlayerService;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -85,28 +94,55 @@ public class ClubManagementController {
     }
 
     @PostMapping("/addplayer")
-    public String addPlayer(@RequestParam(name = "playerFullName") String playerName,
+    public String addPlayer(
+            @RequestParam(name = "playerFullName") String playerName,
             @RequestParam(name = "position") String playerPosition,
             @RequestParam(name = "playerNationaly") String playerNationaly,
             @RequestParam(name = "playerNumber") String playerNumber,
-            Model model, Principal principal) {
-        Player player = new Player();
-        String username = principal.getName(); // lấy username từ context
+            @RequestParam("playerImage") MultipartFile playerImage, // mới thêm nếu có upload ảnh
+            Principal principal, RedirectAttributes redirectAttributes) {
+
+        String username = principal.getName();
         User user = userService.findByUsername(username);
         Club club = clubService.getByUserId(user.getUserId());
+
+        List<Player> getPlayers = playerService.getPlayersByClubId(club.getClubId().toString());
+
+        if (getPlayers.stream().anyMatch(p -> p.getPlayerFullName().equals(playerName) || p.getPlayerNumber() == Integer.parseInt(playerNumber))) {
+            redirectAttributes.addFlashAttribute("message", "The player is existed");
+            return "redirect:/clubmanager";
+        }
+
+        Player player = new Player();
         player.setClub(club);
         player.setPlayerFullName(playerName);
-        player.setPlayerPosition(Arrays.asList(PlayerPosition.values()).stream()
-                .filter(pp -> pp.name().equals(playerPosition)).findFirst().orElseThrow());
+        player.setPlayerPosition(Arrays.stream(PlayerPosition.values())
+                .filter(pp -> pp.name().equalsIgnoreCase(playerPosition))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid player position: " + playerPosition)));
         player.setPlayerNationaly(playerNationaly);
         player.setPlayerNumber(Integer.parseInt(playerNumber));
 
-        // player = playerService.save(player);
+        // Xử lý ảnh cầu thủ (nếu có gửi lên)
+        if (!playerImage.isEmpty()) {
+            File imageFile = new File(
+                    "src/main/resources/static/images/Storage-Files" + File.separator
+                            + playerImage.getOriginalFilename());
+            try {
+                Files.copy(playerImage.getInputStream(), imageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                player.setPlayerImgPath("/images/Storage-Files/" + playerImage.getOriginalFilename());
+            } catch (IOException e) {
+                e.printStackTrace(); // có thể log ra logger
+            }
+        }
+
+        // Tạo request để xác nhận thêm cầu thủ
         Request request = new Request();
-        request.setRequestTitle("CREATE_PLAYER_FROM" + club.getClubName());
+        request.setRequestTitle("CREATE_PLAYER_FROM_" + club.getClubName());
         request.setRequestInfor(player.toString());
         request.setRequestStatus(RequestStatus.PENDING);
         requestService.save(request);
+
         return "redirect:/clubmanager";
     }
 
@@ -150,7 +186,7 @@ public class ClubManagementController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         blog.setBlogTitle(blogTitle);
         blog.setBlogContent(blogContent);
         blog.setClub(club);
@@ -183,6 +219,42 @@ public class ClubManagementController {
         blog = blogService.save(blog);
 
         return "redirect:/clubmanager";
+    }
+
+    @PostMapping("/exportplayers")
+    public void exportPlayers(HttpServletResponse response, Principal principal) throws IOException {
+        String username = principal.getName();
+        User user = userService.findByUsername(username);
+        Club club = clubService.getByUserId(user.getUserId());
+
+        // Cấu hình response header để tải file
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=club_players.xlsx");
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Players");
+
+        // Header
+        Row headerRow = sheet.createRow(0);
+        String[] headers = { "Player id", "Full Name", "Position", "Number", "Nationality", "Lineup Type", };
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Dữ liệu
+        int rowIdx = 1;
+        for (Player player : club.getPlayers()) {
+            Row row = sheet.createRow(rowIdx++);
+            row.createCell(0).setCellValue(player.getPlayerId().toString());
+            row.createCell(1).setCellValue(player.getPlayerFullName());
+            row.createCell(2).setCellValue(player.getPlayerPosition().name());
+            row.createCell(3).setCellValue(player.getPlayerNumber());
+            row.createCell(4).setCellValue(player.getPlayerNationaly());
+        }
+
+        workbook.write(response.getOutputStream());
+        workbook.close();
     }
 
 }

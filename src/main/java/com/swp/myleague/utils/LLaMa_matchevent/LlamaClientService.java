@@ -3,6 +3,7 @@ package com.swp.myleague.utils.LLaMa_matchevent;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,15 +14,16 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class LlamaClientService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private RestTemplate restTemplate;
 
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
 
     public String generateResponse(String prompt, String modelName) {
         Map<String, Object> body = new HashMap<>();
-        body.put("model", modelName);         // ví dụ: llama3, mistral, gemma
+        body.put("model", modelName); // ví dụ: llama3, mistral, gemma
         body.put("prompt", prompt);
-        body.put("stream", false);            // false = trả kết quả 1 lần
+        body.put("stream", false); // false = trả kết quả 1 lần
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

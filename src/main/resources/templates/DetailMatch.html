@@ -160,6 +160,40 @@
             color: #000;
             /* đen hoặc tuỳ team */
         }
+
+        .formation-line {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .home-side {
+            transform: rotate(-90deg);
+        }
+
+        .away-side {
+            transform: rotate(90deg);
+        }
+
+        .home-side .player-box {
+            text-align: center;
+            margin: 0 10px;
+            transform: rotate(90deg)
+        }
+
+        .away-side .player-box {
+            text-align: center;
+            margin: 0 10px;
+            transform: rotate(-90deg)
+        }
+
+        .player-box img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            object-fit: cover;
+        }
     </style>
 </head>
 
@@ -188,7 +222,8 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-end mb-3" th:if="${isAdmin}">
+        <div class="d-flex justify-content-end mb-3"
+            th:if="${isAdmin and match.matchStartTime.isBefore(T(java.time.LocalDateTime).now())}">
             <button class="btn btn-primary btn-sm me-2">
                 <i class="bi bi-pencil-square"></i> Update Match Info
             </button>
@@ -200,6 +235,44 @@
             </button>
         </div>
 
+        <div class="d-flex justify-content-end mb-3"
+            th:if="${isAdmin and match.matchStartTime.isAfter(T(java.time.LocalDateTime).now())}">
+            <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#uploadLineupModal">
+                <i class="bi bi-file-earmark-excel"></i> Import Lineup (Excel)
+            </button>
+
+        </div>
+
+        <!-- Upload Lineup Modal -->
+        <div class="modal fade" id="uploadLineupModal" tabindex="-1" aria-labelledby="uploadLineupModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form th:action="@{/match/import-lineup}" method="post" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="uploadLineupModalLabel">Upload Lineup Excel</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="matchId" th:value="${match.matchId}" />
+                            <div class="mb-3">
+                                <label for="lineupFile" class="form-label">Choose Excel File (.xlsx)</label>
+                                <input class="form-control" type="file" id="lineupFile" name="file" accept=".xlsx"
+                                    required />
+                                <div class="form-text">File must contain playerId, playerName, clubId, position,
+                                    starter, etc.</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-upload"></i> Upload
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
 
 
@@ -245,8 +318,7 @@
             <div th:if="${motm != null}" class="row align-items-center">
                 <!-- Ảnh cầu thủ -->
                 <div class="col-md-4 text-center mb-4 mb-md-0">
-                    <img th:src="@{${motm.player.playerImgPath}}" alt="Player Photo"
-                        class="rounded-circle shadow"
+                    <img th:src="@{${motm.player.playerImgPath}}" alt="Player Photo" class="rounded-circle shadow"
                         style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff;">
                 </div>
 
@@ -286,11 +358,120 @@
             <div class="text-muted fs-6 text-center" th:unless="${motm != null}">Chưa chọn</div>
         </div>
 
+        <!-- LINEUP -->
+        <!-- LINEUP -->
+        <div class="section slide-up">
+            <!-- <h5 class="text-center mb-4">Starting Lineups (Formation: 4-2-3-1)</h5> -->
+            <div class="row">
+                <!-- Home Team -->
+                <div class="col-md-6 ">
+                    <h6 class="text-center text-primary" th:text="${match.matchClubStats[0].club.clubName}">Home Team
+                    </h6>
+                    <div class="formation-wrapper home-side">
+                        <!-- GK -->
+                        <div class="formation-line gk">
+                            <div th:each="p : ${startingLineupHome}" th:if="${p.playerPosition.name() == 'GK'}"
+                                class="player-box">
+                                <img th:src="@{${p.playerImgPath}}" />
+                                <div th:text="${p.playerFullName}">GK</div>
+                            </div>
+                        </div>
+                        <!-- DEF -->
+                        <div class="formation-line df">
+                            <div th:each="p : ${startingLineupHome}" th:if="${p.playerPosition.name() == 'CB'}"
+                                class="player-box">
+                                <img th:src="@{${p.playerImgPath}}" />
+                                <div th:text="${p.playerFullName}">DF</div>
+                            </div>
+                        </div>
+                        <!-- DM -->
+                        <div class="formation-line dm">
+                            <div th:each="p : ${startingLineupHome}" th:if="${'MD' == p.playerPosition.name()}"
+                                class="player-box">
+                                <img th:src="@{${p.playerImgPath}}" />
+                                <div th:text="${p.playerFullName}">DM</div>
+                            </div>
+                        </div>
+                        <!-- FW -->
+                        <div class="formation-line fw">
+                            <div th:each="p : ${startingLineupHome}" th:if="${'FW' == p.playerPosition.name()}"
+                                class="player-box">
+                                <img th:src="@{${p.playerImgPath}}" />
+                                <div th:text="${p.playerFullName}">FW</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Away Team -->
+                <div class="col-md-6">
+                    <h6 class="text-center text-danger" th:text="${match.matchClubStats[1].club.clubName}">Away Team
+                    </h6>
+                    <div class="formation-wrapper   away-side">
+                        <!-- GK -->
+                        <div class="formation-line gk">
+                            <div th:each="p : ${startingLineupAway}" th:if="${p.playerPosition.name() == 'GK'}"
+                                class="player-box">
+                                <img th:src="@{${p.playerImgPath}}" />
+                                <div th:text="${p.playerFullName}">GK</div>
+                            </div>
+                        </div>
+                        <!-- DEF -->
+                        <div class="formation-line df">
+                            <div th:each="p : ${startingLineupAway}" th:if="${'CB' == p.playerPosition.name()}"
+                                class="player-box">
+                                <img th:src="@{${p.playerImgPath}}" />
+                                <div th:text="${p.playerFullName}">CB</div>
+                            </div>
+                        </div>
+                        <!-- DM -->
+                        <div class="formation-line dm">
+                            <div th:each="p : ${startingLineupAway}" th:if="${'MD' == p.playerPosition.name()}"
+                                class="player-box">
+                                <img th:src="@{${p.playerImgPath}}" />
+                                <div th:text="${p.playerFullName}">MD</div>
+                            </div>
+                        </div>
+                        <!-- FW -->
+                        <div class="formation-line fw">
+                            <div th:each="p : ${startingLineupAway}" th:if="${'FW' == p.playerPosition.name()}"
+                                class="player-box">
+                                <img th:src="@{${p.playerImgPath}}" />
+                                <div th:text="${p.playerFullName}">FW</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <!-- Home Substitutes -->
+                <div class="col-md-6">
+                    <h6 class="text-center text-primary">Substitutes - <span th:text="${match.matchClubStats[0].club.clubName}">Home Team</span></h6>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        <div class="player-box m-2" th:each="p : ${substitueLineupHome}">
+                            <img th:src="@{${p.playerImgPath}}" alt="Player" />
+                            <div th:text="${p.playerFullName}">Sub</div>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Away Substitutes -->
+                <div class="col-md-6">
+                    <h6 class="text-center text-danger">Substitutes - <span th:text="${match.matchClubStats[1].club.clubName}">Away Team</span></h6>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        <div class="player-box m-2" th:each="p : ${substitueLineupAway}">
+                            <img th:src="@{${p.playerImgPath}}" alt="Player" />
+                            <div th:text="${p.playerFullName}">Sub</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
 
 
 
-
-
+        <!-- MatchStat -->
         <div class="section stats slide-up">
             <h5 class="mb-3">Match Stats</h5>
             <div class="stats-table">

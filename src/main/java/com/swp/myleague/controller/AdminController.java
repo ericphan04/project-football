@@ -1,5 +1,10 @@
 package com.swp.myleague.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -13,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.swp.myleague.common.CommonFunc;
 import com.swp.myleague.model.entities.admin_request.Request;
@@ -21,6 +27,8 @@ import com.swp.myleague.model.entities.blog.Blog;
 import com.swp.myleague.model.entities.blog.BlogCategory;
 import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.match.Match;
+import com.swp.myleague.model.entities.saleproduct.Product;
+import com.swp.myleague.model.entities.saleproduct.ProductSize;
 import com.swp.myleague.model.entities.ticket.Ticket;
 import com.swp.myleague.model.service.EmailService;
 import com.swp.myleague.model.service.RequestService;
@@ -246,6 +254,48 @@ public class AdminController {
             mergedTickets.add(merged);
         }
         ticketService.saveAllTickets(mergedTickets);
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/addproduct")
+    public String addProduct(
+            @RequestParam("productName") String name,
+            @RequestParam("productDescription") String description,
+            @RequestParam("productSize") String size,
+            @RequestParam("productPrice") String price,
+            @RequestParam("productAmount") String amount,
+            @RequestParam("productImage") MultipartFile productImage,
+            Principal principal) {
+
+        // String username = principal.getName();
+        // User user = userService.findByUsername(username);
+        // Club club = clubService.getByUserId(user.getUserId()); 
+
+        Product product = new Product();
+        product.setProductName(name);
+        product.setProductDescription(description);
+        product.setProductSize(java.util.Arrays.stream(ProductSize.values())
+                .filter(s -> s.name().equalsIgnoreCase(size))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Invalid product size: " + size)));
+        product.setProductPrice(Double.parseDouble(price));
+        product.setProductAmount(Integer.parseInt(amount));
+
+        // Xử lý ảnh sản phẩm
+        if (!productImage.isEmpty()) {
+            File imageFile = new File("src/main/resources/static/images/Storage-Files" + File.separator
+                    + productImage.getOriginalFilename());
+            try {
+                Files.copy(productImage.getInputStream(), imageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                product.setProductImgPath("/images/Storage-Files/" + productImage.getOriginalFilename());
+            } catch (IOException e) {
+                e.printStackTrace(); // hoặc log lỗi
+            }
+        }
+
+        // Lưu product trực tiếp vào DB
+        productService.save(product);
+
         return "redirect:/admin";
     }
 
