@@ -9,5 +9,6 @@ public enum MatchEventType {
     FreeKick,
     Penalty,
     Shoot,
-    Highlight
+    Highlight,
+    Normal
 }

@@ -65,7 +65,7 @@ public class WebSecurityConfig {
     http.csrf(csrf -> csrf.disable())
         .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/home", "/auth/**", "/login/**", "/oauth2/**", "/product/**", "/error").permitAll()
+            .requestMatchers("/home", "/auth/**", "/login/**", "/oauth2/**", "/product/**", "/error", "/feedback").permitAll()
             .requestMatchers("/css/**", "/images/**", "/component/**", "/fonts/**").permitAll()
             .requestMatchers("/clubmanager/**").hasRole("CLUB_MANAGER")
             .requestMatchers("/admin/**").hasRole("ADMIN")

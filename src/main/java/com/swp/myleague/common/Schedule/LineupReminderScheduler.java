@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.swp.myleague.model.entities.User;
-import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.match.Match;
 import com.swp.myleague.model.entities.match.MatchClubStat;
 import com.swp.myleague.model.entities.match.MatchPlayerStat;
