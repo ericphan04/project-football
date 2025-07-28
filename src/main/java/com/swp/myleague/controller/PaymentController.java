@@ -172,6 +172,7 @@ public class PaymentController {
             @RequestParam("cancel") boolean cancel,
             @RequestParam("orderCode") Long orderCode,
             // @RequestParam("amount") BigDecimal amount,
+            Model model,
             Principal principal) {
         Orders orders = orderService.getByOrderCode(orderCode);
         StringBuilder infor = new StringBuilder();
@@ -229,7 +230,7 @@ public class PaymentController {
                     subject,
                     body,
                     qrCodeBytes);
-
+            model.addAttribute("qrCode", base64Image);
             return "PaymentSuccess";
         }
 

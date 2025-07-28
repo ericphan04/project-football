@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.swp.myleague.model.entities.information.Player;
+import com.swp.myleague.payload.CareerPlayer;
 import com.swp.myleague.payload.PlayerStandingAssistDTO;
 import com.swp.myleague.payload.PlayerStandingCleanSheetsDTO;
 import com.swp.myleague.payload.PlayerStandingGoalDTO;
@@ -132,5 +133,23 @@ public interface PlayerRepo extends JpaRepository<Player, UUID> {
             LIMIT 1
             """, nativeQuery = true)
     TopAppearedClub getTopAppearedDTOByClubId(@Param("clubId") UUID clubId);
+
+    @Query(value = """
+                  SELECT
+                ps.player_id AS playerId,
+                p.club_id AS clubId,
+                c.club_name AS clubName,
+                COUNT(ps.match_player_stat_id) AS appeared,
+                SUM(ps.match_player_goal) AS goals,
+                EXTRACT(YEAR FROM m.match_start_time) AS season
+            FROM match_player_stat ps
+            JOIN player p ON ps.player_id = p.player_id
+            JOIN club c ON p.club_id = c.club_id
+            JOIN `'match'` m ON ps.match_id = m.match_id
+            WHERE ps.player_id = :playerId
+            GROUP BY p.club_id, ps.player_id,c.club_name, EXTRACT(YEAR FROM m.match_start_time)
+            ORDER BY season;
+                  """, nativeQuery = true)
+    List<CareerPlayer> findCareerPlayerByPlayerId(@Param("playerId") UUID playerId);
 
 }

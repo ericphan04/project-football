@@ -602,7 +602,7 @@
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form th:action="@{/match/add-highlight}" method="post">
+                <form th:action="@{/match/add-highlight}" method="post" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addHighlightModalLabel">Add Highlight</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -623,6 +623,11 @@
                             <label for="highlightVideo" class="form-label">YouTube Video ID</label>
                             <input type="text" class="form-control" id="highlightVideo" name="vidUrl"
                                 placeholder="e.g. dQw4w9WgXcQ" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="hightlightThumnail" class="form-label">Highlight thumnail</label>
+                            <input class="form-control" type="file" id="hightlightThumnail" name="hightlightThumnail"
+                                accept="image/*">
                         </div>
                     </div>
                     <div class="modal-footer">

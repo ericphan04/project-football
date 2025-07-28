@@ -1,6 +1,5 @@
 package com.swp.myleague.model.service.ticketservice;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,11 +43,7 @@ public class TicketService implements IService<Ticket> {
     }
 
     public List<Ticket> saveAllTickets(List<Ticket> tickets) {
-        List<Ticket> newTickets = new ArrayList<>();
-        tickets.stream().forEach(t -> {
-            newTickets.add(ticketRepo.save(t));
-        });
-        return newTickets;
+        return ticketRepo.saveAll(tickets);
     }
 
 
