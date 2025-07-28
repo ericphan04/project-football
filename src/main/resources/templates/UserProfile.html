@@ -187,13 +187,77 @@
                                     th:text="${#numbers.formatDecimal(order.orderTotalMoney, 0, 'COMMA', 0, 'POINT')} + ' VND'">
                                     23,000,000 VND</td>
                                 <td>
-                                    <a th:href="@{/orders/{id}(id=${order.orderId})}"
-                                        class="btn btn-outline-primary btn-sm">Xem</a>
+                                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                                        th:attr="data-bs-target='#orderModal__' + ${order.orderId}">
+                                        Xem
+                                    </button>
                                 </td>
+                                <!-- Modal chi tiết đơn hàng -->
+                                <div class="modal fade" th:id="'orderModal__' + ${order.orderId}" tabindex="-1"
+                                    aria-hidden="true">
+                                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">
+                                                    Chi tiết đơn hàng #<span th:text="${order.orderCode}">Mã đơn</span>
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Đóng"></button>
+                                            </div>
+
+                                            <div class="modal-body">
+                                                <!-- Thông tin chung -->
+                                                <ul class="list-group mb-3">
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Ngày đặt:</span>
+                                                        <strong th:text="${order.orderDateCreated
+                    .format(T(java.time.format.DateTimeFormatter)
+                    .ofPattern('dd/MM/yyyy HH:mm'))}">
+                                                            01/07/2025 14:30
+                                                        </strong>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Trạng thái:</span>
+                                                        <strong th:text="${order.orderStatus.name()}">COMPLETED</strong>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Người đặt:</span>
+                                                        <strong th:text="${order.user.fullname}">Nguyễn Văn A</strong>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Email:</span>
+                                                        <strong th:text="${order.user.email}">a@gmail.com</strong>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Ghi chú:</span>
+                                                        <strong
+                                                            th:text="${order.orderInfo != null ? order.orderInfo : 'Không có'}">Không
+                                                            có</strong>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Tổng tiền:</span>
+                                                        <strong
+                                                            th:text="${#numbers.formatDecimal(order.orderTotalMoney,0,'COMMA',0,'POINT')} + ' VND'">
+                                                            2,300,000 VND
+                                                        </strong>
+                                                    </li>
+                                                </ul>
+
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Đóng</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </tr>
                             <tr th:if="${#lists.isEmpty(orders)}">
                                 <td colspan="4" class="text-muted">Chưa có giao dịch nào.</td>
                             </tr>
+
                         </tbody>
                     </table>
                 </div>

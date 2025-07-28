@@ -83,30 +83,15 @@
           <div class="mb-4">
             <h5>Latest Club News</h5>
             <div class="row row-cols-2 row-cols-md-4 g-3">
-              <div class="col">
+              <div class="col" th:each="blog : ${blogs}">
                 <div class="card-news p-2 text-center">
-                  <img src="/images/news1.png" class="img-fluid mb-2" />
-                  <div>Kleberson’s message for fans</div>
+                  <img th:src="${blog.blogThumnailPath}" class="img-fluid mb-2" />
+                  <div th:text="${blog.blogTitle}">Kleberson’s message for fans</div>
+                  <p th:text="${#strings.abbreviate(blog.blogContent, 100)}">Preview content</p>
+                  <a th:href="@{'/news/' + ${blog.blogId}}" class="btn btn-sm btn-outline-primary">Read more</a>
                 </div>
               </div>
-              <div class="col">
-                <div class="card-news p-2 text-center">
-                  <img src="/images/news2.png" class="img-fluid mb-2" />
-                  <div>Chido Obi receives praise</div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="card-news p-2 text-center">
-                  <img src="/images/news3.png" class="img-fluid mb-2" />
-                  <div>Summer fixtures released</div>
-                </div>
-              </div>
-              <div class="col">
-                <div class="card-news p-2 text-center">
-                  <img src="/images/news4.png" class="img-fluid mb-2" />
-                  <div>United expand WSL team</div>
-                </div>
-              </div>
+              
             </div>
           </div>
 
@@ -115,19 +100,19 @@
             <div class="row row-cols-1 row-cols-md-3 g-3">
               <div class="col">
                 <div class="card-kit p-2 text-center">
-                  <img src="/images/kit_home.png" class="img-fluid mb-2" />
+                  <img th:src="${club.clubHomeKit}" class="img-fluid mb-2" />
                   <div>Home Kit</div>
                 </div>
               </div>
               <div class="col">
                 <div class="card-kit p-2 text-center">
-                  <img src="/images/kit_away.png" class="img-fluid mb-2" />
+                  <img th:src="${club.clubAwayKit}" class="img-fluid mb-2" />
                   <div>Away Kit</div>
                 </div>
               </div>
               <div class="col">
                 <div class="card-kit p-2 text-center">
-                  <img src="/images/kit_third.png" class="img-fluid mb-2" />
+                  <img th:src="${club.clubThirdKit}" class="img-fluid mb-2" />
                   <div>Third Kit</div>
                 </div>
               </div>
@@ -160,17 +145,17 @@
               <div class="col-12">
                 <div class="card-stat p-3 text-center">
                   <div class="fw-bold">Appearances</div>
-                  <img src="/images/ryan_giggs.png" class="rounded-circle my-2">
-                  <div>Ryan Giggs</div>
-                  <div class="fw-bold">632</div>
+                  <img th:src="${topAppeared.playerImgPath}" class="rounded-circle my-2">
+                  <div th:text="${topAppeared.playerFullName}">Ryan Giggs</div>
+                  <div th:text="${topAppeared.totalAppeared} + ' Appearances'" class="fw-bold">632</div>
                 </div>
               </div>
               <div class="col-12">
                 <div class="card-stat p-3 text-center">
                   <div class="fw-bold">Goals</div>
-                  <img src="/images/wayne_rooney.png" class="rounded-circle my-2">
-                  <div>Wayne Rooney</div>
-                  <div class="fw-bold">183</div>
+                  <img th:src="${topScorer.playerImgPath}" class="rounded-circle my-2">
+                  <div th:text="${topScorer.playerFullName}">Ryan Giggs</div>
+                  <div th:text="${topScorer.totalGoals} + ' Goals'" class="fw-bold">632</div>
                 </div>
               </div>
             </div>

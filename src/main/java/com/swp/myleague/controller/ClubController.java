@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.swp.myleague.model.entities.information.PlayerPosition;
 import com.swp.myleague.model.entities.match.Match;
 import com.swp.myleague.model.entities.match.MatchClubStat;
+import com.swp.myleague.model.service.blogservice.BlogService;
 import com.swp.myleague.model.service.informationservice.ClubService;
 import com.swp.myleague.model.service.informationservice.PlayerService;
 import com.swp.myleague.model.service.matchservice.MatchClubStatService;
+import com.swp.myleague.model.service.matchservice.MatchEventService;
 import com.swp.myleague.model.service.matchservice.MatchService;
 import com.swp.myleague.utils.GoogleMapApiService;
 
@@ -39,6 +41,12 @@ public class ClubController {
     @Autowired
     GoogleMapApiService googleMapApiService;
 
+    @Autowired
+    BlogService blogService;
+
+    @Autowired
+    MatchEventService matchEventService;
+
     @GetMapping("")
     public String getAllClubs(Model model) {
         model.addAttribute("clubs",
@@ -50,6 +58,10 @@ public class ClubController {
     @GetMapping("/{clubId}")
     public String getDetailClub(@PathVariable("clubId") String clubId, Model model) {
         model.addAttribute("club", clubService.getById(clubId));
+        model.addAttribute("blogs", blogService.getByClubId(clubId));
+        model.addAttribute("topScorer", playerService.getTopScorerOfClub(clubId));
+        model.addAttribute("topAppeared", playerService.getTopAppearedOfClub(clubId));
+        // model.addAttribute("hightlight", matchEventService.)
         return "DetailClubOverview";
     }
 
@@ -70,6 +82,7 @@ public class ClubController {
     @GetMapping("/player/{playerId}")
     public String getDetailPlayer(@PathVariable("playerId") String playerId, Model model) {
         model.addAttribute("player", playerService.getById(playerId));
+        model.addAttribute("career", playerService.getCareerByPlayerId(playerId));
         return "DetailPlayer";
     }
 

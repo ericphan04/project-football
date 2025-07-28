@@ -1,61 +1,78 @@
 <!-- fragments/footer.html -->
-<style>
-    .footer {
-        background-color: #37003c;
-        color: white;
-        padding: 3rem 0;
-        margin-top: 3rem;
-    }
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 
-    .footer h6 {
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .footer a {
-        color: #bbb;
-        text-decoration: none;
-    }
-
-    .footer a:hover {
-        color: white;
-    }
-</style>
-
-<footer class="footer text-center" th:fragment="siteFooter">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                <h6>Premier League</h6>
-                <ul class="list-unstyled small">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Fixtures</a></li>
-                    <li><a href="#">Results</a></li>
-                    <li><a href="#">Tables</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h6>Fantasy</h6>
-                <ul class="list-unstyled small">
-                    <li><a href="#">FPL Home</a></li>
-                    <li><a href="#">Stats</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h6>Stats</h6>
-                <ul class="list-unstyled small">
-                    <li><a href="#">Player Stats</a></li>
-                    <li><a href="#">Club Stats</a></li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h6>More</h6>
-                <ul class="list-unstyled small">
-                    <li><a href="#">News</a></li>
-                    <li><a href="#">Videos</a></li>
-                </ul>
-            </div>
+<body>
+    <div class="footer-wrapper" th:fragment="siteFooter">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .footer {
+                background-color: #30003a;
+                color: white;
+                padding: 3rem 0;
+            }
+    
+            .footer h6 {
+                font-weight: 600;
+                margin-bottom: 1rem;
+            }
+    
+            .footer a {
+                color: #bbb;
+                text-decoration: none;
+            }
+    
+            .footer a:hover {
+                color: white;
+            }
+        </style>
+        <!-- Main content placeholder -->
+        <div class="content">
+            <div th:replace="fragments/header :: siteHeader"></div>
+            <!-- Other page content goes here -->
         </div>
-        <p class="mt-4">&copy; Premier League 2025</p>
+
+        <!-- Footer -->
+        <footer class="footer text-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h6>Premier League</h6>
+                        <ul class="list-unstyled small">
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#">Fixtures</a></li>
+                            <li><a href="#">Results</a></li>
+                            <li><a href="#">Tables</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6>Fantasy</h6>
+                        <ul class="list-unstyled small">
+                            <li><a href="#">FPL Home</a></li>
+                            <li><a href="#">Stats</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6>Stats</h6>
+                        <ul class="list-unstyled small">
+                            <li><a href="#">Player Stats</a></li>
+                            <li><a href="#">Club Stats</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6>More</h6>
+                        <ul class="list-unstyled small">
+                            <li><a href="#">News</a></li>
+                            <li><a href="#">Videos</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="mt-4">&copy; Premier League 2025</p>
+            </div>
+        </footer>
     </div>
-</footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

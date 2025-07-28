@@ -89,18 +89,20 @@
 
             <form th:action="@{/payment/create-payment}" method="get">
                 <div class="card-custom">
-                    <label for="email" class="form-label">Your email address:</label>
+                    <label for="email" class="form-label">Email của bạn:</label>
                     <input type="email" name="email" class="form-control" id="email" placeholder="Email" required>
-                    <input type="hidden" name="amount" th:value="${total}" />
-                    <input type="hidden" name="orderInfo" value="Product:626f4ec2-40fd-11f0-8315-862ccfb06c04">
-                    <button type="submit" class="btn btn-purple w-100 mt-3">Save &amp; continue</button>
                 </div>
+                <h5 class="fw-bold mt-4">1. Shipping</h5>
+                <hr />
+                <div class="card-custom">
+                    <label for="shippingAddress" class="form-label">Địa chỉ nhận hàng:</label>
+                    <input type="text" name="shippingAddress" class="form-control" id="shippingAddress"
+                        placeholder="Địa chỉ" required>
+                </div>
+                <input type="hidden" name="amount" th:value="${total}" />
+                <input type="hidden" name="orderInfo" th:value="${'Product' + listProductIds}">
+                <button type="submit" class="btn btn-primary w-100 mt-3">Save &amp; continue</button>
             </form>
-
-            <h5 class="fw-bold mt-4">1. Shipping</h5>
-            <hr />
-            <h5 class="fw-bold mt-4">2. Payment</h5>
-            <hr />
         </div>
 
         <!-- RIGHT SECTION -->
@@ -132,8 +134,8 @@
             <div class="accordion mb-3" id="couponAccordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button collapsed bg-light text-dark" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseOne">
+                        <button class="accordion-button collapsed bg-light text-dark" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseOne">
                             Coupon/Voucher
                         </button>
                     </h2>
@@ -185,4 +187,5 @@
         };
     </script>
 </body>
+
 </html>

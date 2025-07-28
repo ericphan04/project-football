@@ -1,9 +1,12 @@
 package com.swp.myleague.model.service;
 
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import com.swp.myleague.model.entities.match.Match;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -36,6 +39,20 @@ public class EmailService {
             e.printStackTrace();
         }
 
+    }
+
+    public void sendLineupReminder(String toEmail, String clubName, Match match, String timeNotice) {
+        SimpleMailMessage message = new SimpleMailMessage();
+    message.setTo(toEmail);
+    message.setSubject("⚠️ Reminder: Submit Your Lineup - " + timeNotice);
+    message.setText("Dear " + clubName + ",\n\n" +
+            "This is a reminder to submit your **starting lineup** for the upcoming match:\n\n" +
+            "Match: " + match.getMatchTitle() + "\n" +
+            "Kickoff Time: " + match.getMatchStartTime() + "\n" +
+            "Reminder Time: " + timeNotice + "\n\n" +
+            "Please submit the lineup as soon as possible.\n\n" +
+            "Thank you,\nMyLeague Admin");
+    mailSender.send(message);
     }
 
 }

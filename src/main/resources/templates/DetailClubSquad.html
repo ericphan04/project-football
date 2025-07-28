@@ -174,7 +174,7 @@
                             <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
                         </div>
                         <div class="nation">
-                            <img src="/images/flag_england.png" alt="flag" style="height: 16px; margin-right: 6px;">
+                            <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.svg'}" alt="flag" style="height: 16px; margin-right: 6px;">
                             <span th:text="${player.playerNationaly}">England</span>
                         </div>
                         <a class="view-profile" th:href="'/club/player/' + ${player.playerId}">View Profile →</a>
@@ -206,7 +206,7 @@
                             <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
                         </div>
                         <div class="nation">
-                            <img src="/images/flag_england.png" alt="flag" style="height: 16px; margin-right: 6px;">
+                            <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.svg'}" alt="flag" style="height: 16px; margin-right: 6px;">
                             <span th:text="${player.playerNationaly}">England</span>
                         </div>
                         <a class="view-profile" th:href="'/club/player/' + ${player.playerId}">View Profile →</a>
@@ -238,7 +238,7 @@
                             <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
                         </div>
                         <div class="nation">
-                            <img src="/images/flag_england.png" alt="flag" style="height: 16px; margin-right: 6px;">
+                            <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.svg'}" alt="flag" style="height: 16px; margin-right: 6px;">
                             <span th:text="${player.playerNationaly}">England</span>
                         </div>
                         <a class="view-profile" th:href="'/club/player/' + ${player.playerId}">View Profile →</a>
@@ -270,7 +270,7 @@
                             <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
                         </div>
                         <div class="nation">
-                            <img src="/images/flag_england.png" alt="flag" style="height: 16px; margin-right: 6px;">
+                            <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.svg'}" alt="flag" style="height: 16px; margin-right: 6px;">
                             <span th:text="${player.playerNationaly}">England</span>
                         </div>
                         <a class="view-profile" th:href="'/club/player/' + ${player.playerId}">View Profile →</a>

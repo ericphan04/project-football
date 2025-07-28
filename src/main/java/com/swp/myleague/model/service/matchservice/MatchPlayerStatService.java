@@ -7,14 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.swp.myleague.common.IService;
+import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.match.MatchPlayerStat;
 import com.swp.myleague.model.repo.MatchPlayerStatRepo;
+import com.swp.myleague.model.repo.PlayerRepo;
 
 @Service
 public class MatchPlayerStatService implements IService<MatchPlayerStat> {
 
     @Autowired
     MatchPlayerStatRepo matchPlayerStatRepo;
+
+    @Autowired PlayerRepo playerRepo;
 
     @Override
     public List<MatchPlayerStat> getAll() {
@@ -33,7 +37,7 @@ public class MatchPlayerStatService implements IService<MatchPlayerStat> {
     public MatchPlayerStat getAllByPlayerAndMatch(String playerId, String matchId) {
         UUID playerUUID = UUID.fromString(playerId);
         UUID matchUUID = UUID.fromString(matchId);
-    
+
         return matchPlayerStatRepo.findAllByPlayerPlayerId(playerUUID).stream()
                 .filter(mps -> mps.getMatch().getMatchId().equals(matchUUID))
                 .findFirst() // Lấy phần tử đầu tiên phù hợp
@@ -47,6 +51,11 @@ public class MatchPlayerStatService implements IService<MatchPlayerStat> {
 
     @Override
     public MatchPlayerStat save(MatchPlayerStat e) {
+        Player player = playerRepo.findById(e.getPlayer().getPlayerId()).orElseThrow();
+        player.setPlayerAppearances(player.getPlayerAppearances() + 1);
+        player.setPlayerAssist(player.getPlayerAssist() + e.getMatchPlayerAssist());
+        player.setPlayerScores(player.getPlayerScores() + e.getMatchPlayerGoal());
+        playerRepo.save(player);
         return matchPlayerStatRepo.save(e);
     }
 
@@ -54,6 +63,10 @@ public class MatchPlayerStatService implements IService<MatchPlayerStat> {
     public MatchPlayerStat delete(String id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
+
+    public List<MatchPlayerStat> getAllByMatchIdandClubId(String matchId, String clubId) {
+        return matchPlayerStatRepo.findAllByMatchIdAndClubIdNative(UUID.fromString(matchId), UUID.fromString(clubId));
     }
 
 }
