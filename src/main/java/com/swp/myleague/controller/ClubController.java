@@ -1,11 +1,14 @@
 package com.swp.myleague.controller;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.swp.myleague.model.entities.information.PlayerPosition;
 import com.swp.myleague.model.entities.match.Match;
@@ -20,7 +23,6 @@ import com.swp.myleague.utils.GoogleMapApiService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
 
 @Controller
 @RequestMapping(value = { "/club", "/club/" })
@@ -56,12 +58,22 @@ public class ClubController {
     }
 
     @GetMapping("/{clubId}")
-    public String getDetailClub(@PathVariable("clubId") String clubId, Model model) {
+    public String getDetailClub(@RequestParam(name = "season", required = false) String season,
+            @PathVariable("clubId") String clubId, Model model) {
         model.addAttribute("club", clubService.getById(clubId));
         model.addAttribute("blogs", blogService.getByClubId(clubId));
         model.addAttribute("topScorer", playerService.getTopScorerOfClub(clubId));
         model.addAttribute("topAppeared", playerService.getTopAppearedOfClub(clubId));
-        // model.addAttribute("hightlight", matchEventService.)
+
+        if (season == null || season.isBlank()) {
+            season = LocalDate.now().getYear() + "";
+        }
+        model.addAttribute("stats", clubService.getClubStatOverview(clubId.toString(), season));
+        List<Integer> seasons = new ArrayList<>();
+        seasons.add(2025);
+        seasons.add(2024);
+        model.addAttribute("seasons", seasons);
+        model.addAttribute("selectedSeason", season);
         return "DetailClubOverview";
     }
 
@@ -117,6 +129,5 @@ public class ClubController {
         model.addAttribute("club", clubService.getById(clubId));
         return "DetailClubStadium";
     }
-    
 
 }

@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,9 +64,27 @@ public class MatchController {
     PlayerService playerService;
 
     @GetMapping("")
-    public String getAllMatch(Model model) {
-        model.addAttribute("matches", matchService.getAll().stream()
-                .filter(m -> m.getMatchStartTime().compareTo(LocalDateTime.now()) < 0).toList());
+    public String getAllMatch(@RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "searchPlayerName", required = false) String searchPlayerName,
+            @RequestParam(name = "searchClubName", required = false) String searchClubName,
+            Model model) {
+        List<Match> matcheList = matchService.getAll().stream()
+                .filter(m -> m.getMatchStartTime().compareTo(LocalDateTime.now()) < 0).toList();
+        if (search != null && !search.isBlank()) {
+            matcheList = matcheList.stream().filter(m -> m.getMatchDescription().contains(search)).toList();
+        }
+        if (searchPlayerName != null && !searchPlayerName.isBlank()) {
+            matcheList = matcheList.stream().filter(m -> m.getMatchPlayerStats().stream()
+                    .anyMatch(mps -> mps.getPlayer().getPlayerFullName().contains(searchPlayerName))).toList();
+        }
+        if (searchClubName != null && !searchClubName.isBlank()) {
+            matcheList = matcheList.stream().filter(m -> m.getMatchClubStats().stream()
+                    .anyMatch(mcs -> mcs.getClub().getClubName().contains(searchClubName))).toList();
+        }
+        model.addAttribute("matches", matcheList);
+        model.addAttribute("searchPlayerName", searchPlayerName);
+        model.addAttribute("searchClubName", searchClubName);
+        model.addAttribute("search", search);
         return "Match";
     }
 
@@ -90,24 +109,46 @@ public class MatchController {
         model.addAttribute("match", match);
         model.addAttribute("matchPlayerStats", playerStats);
         model.addAttribute("clubStats", clubStats);
-        model.addAttribute("startingLineupHome", matchService.getStartingLineup(matchId, match.getMatchClubStats().get(0).getClub().getClubId().toString()));
-        model.addAttribute("startingLineupAway", matchService.getStartingLineup(matchId, match.getMatchClubStats().get(1).getClub().getClubId().toString()));
-        model.addAttribute("substitueLineupHome", matchService.getSubstitueLineup(matchId, match.getMatchClubStats().get(0).getClub().getClubId().toString()));
-        model.addAttribute("substitueLineupAway", matchService.getSubstitueLineup(matchId, match.getMatchClubStats().get(1).getClub().getClubId().toString()));
+        model.addAttribute("startingLineupHome", matchService.getStartingLineup(matchId,
+                match.getMatchClubStats().get(0).getClub().getClubId().toString()));
+        model.addAttribute("startingLineupAway", matchService.getStartingLineup(matchId,
+                match.getMatchClubStats().get(1).getClub().getClubId().toString()));
+        model.addAttribute("substitueLineupHome", matchService.getSubstitueLineup(matchId,
+                match.getMatchClubStats().get(0).getClub().getClubId().toString()));
+        model.addAttribute("substitueLineupAway", matchService.getSubstitueLineup(matchId,
+                match.getMatchClubStats().get(1).getClub().getClubId().toString()));
 
-        if (match != null && match.getMatchMOM() != null) {
-            MatchPlayerStat motm = matchPlayerStatService.getById(match.getMatchMOM().toString());
-            model.addAttribute("motm", motm);
-        } else {
-            model.addAttribute("motm", null);
-        }
+        MatchPlayerStat mpsMOM = matchPlayerStatService
+                .getAllByMatchId(match.getMatchId().toString())
+                .stream()
+                .max(Comparator.comparing(MatchPlayerStat::getRating))
+                .orElse(null);
+        model.addAttribute("motm", mpsMOM);
         return "DetailMatch";
     }
 
     @GetMapping("/fixture")
-    public String getFixture(Model model) {
-        model.addAttribute("matches", matchService.getAll().stream()
-                .filter(m -> m.getMatchStartTime().compareTo(LocalDateTime.now()) > 0).toList());
+    public String getFixture(@RequestParam(name = "search", required = false) String search,
+            @RequestParam(name = "searchPlayerName", required = false) String searchPlayerName,
+            @RequestParam(name = "searchClubName", required = false) String searchClubName,
+            Model model) {
+        List<Match> matcheList = matchService.getAll().stream()
+                .filter(m -> m.getMatchStartTime().compareTo(LocalDateTime.now()) > 0).toList();
+        if (search != null && !search.isBlank()) {
+            matcheList = matcheList.stream().filter(m -> m.getMatchDescription().contains(search)).toList();
+        }
+        if (searchPlayerName != null && !searchPlayerName.isBlank()) {
+            matcheList = matcheList.stream().filter(m -> m.getMatchPlayerStats().stream()
+                    .anyMatch(mps -> mps.getPlayer().getPlayerFullName().contains(searchPlayerName))).toList();
+        }
+        if (searchClubName != null && !searchClubName.isBlank()) {
+            matcheList = matcheList.stream().filter(m -> m.getMatchClubStats().stream()
+                    .anyMatch(mcs -> mcs.getClub().getClubName().contains(searchClubName))).toList();
+        }
+        model.addAttribute("matches", matcheList);
+        model.addAttribute("searchPlayerName", searchPlayerName);
+        model.addAttribute("searchClubName", searchClubName);
+        model.addAttribute("search", search);
         return "Fixture";
     }
 
@@ -138,7 +179,8 @@ public class MatchController {
                     "src/main/resources/static/images/Storage-Files" + File.separator
                             + matchEventThumnails.getOriginalFilename());
             try {
-                Files.copy(matchEventThumnails.getInputStream(), imageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(matchEventThumnails.getInputStream(), imageFile.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
                 event.setMatchEventThumnails("/images/Storage-Files/" + matchEventThumnails.getOriginalFilename());
             } catch (IOException e) {
                 e.printStackTrace(); // có thể log ra logger
@@ -192,7 +234,5 @@ public class MatchController {
             return "redirect:/match/" + matchId + "?error";
         }
     }
-
-
 
 }

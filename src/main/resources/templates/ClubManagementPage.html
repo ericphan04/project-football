@@ -98,6 +98,21 @@
             <div class="tab-pane fade" id="players" role="tabpanel">
                 <div class="section">
                     <h4><i class="bi bi-people"></i> Players</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="searchPlayerInput"
+                                placeholder="Search by player name...">
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="positionFilter">
+                                <option value="">All Positions</option>
+                                <option value="FW">Forward</option>
+                                <option value="MD">Midfielder</option>
+                                <option value="CB">Center Back</option>
+                                <option value="GK">Goalkeeper</option>
+                            </select>
+                        </div>
+                    </div>
                     <div th:if="${message}" class="alert alert-danger">
                         <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${message}"></span>
                     </div>
@@ -112,7 +127,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="player : ${club.players}">
+                            <tr th:each="player : ${club.players}"
+                                th:attr="data-name=${player.playerFullName}, data-pos=${player.playerPosition.name()}">
                                 <td th:text="${player.playerFullName}">John Smith</td>
                                 <td th:text="${player.playerPosition.name()}">Midfielder</td>
                                 <td th:text="${player.playerNationaly}">England</td>
@@ -306,40 +322,40 @@
                                 </div>
                             </div>
 
-                                <div class="col-md-6">
-                                    <label for="playerNumber" class="form-label">Shirt Number</label>
-                                    <input type="number" class="form-control" id="playerNumber" name="playerNumber"
-                                        required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="playerDob" class="form-label">Date of Birth</label>
-                                    <input type="date" class="form-control" id="playerDob" name="playerDob" required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="playerHeight" class="form-label">Height (cm)</label>
-                                    <input type="number" class="form-control" id="playerHeight" name="playerHeight"
-                                        required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="playerWeight" class="form-label">Weight (kg)</label>
-                                    <input type="number" class="form-control" id="playerWeight" name="playerWeight"
-                                        required>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="playerImage" class="form-label">Player Image</label>
-                                    <input class="form-control" type="file" id="playerImage" name="playerImage"
-                                        accept="image/*">
-                                </div>
+                            <div class="col-md-6">
+                                <label for="playerNumber" class="form-label">Shirt Number</label>
+                                <input type="number" class="form-control" id="playerNumber" name="playerNumber"
+                                    required>
                             </div>
 
-                            <div class="modal-footer mt-4">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Add Player</button>
+                            <div class="col-md-6">
+                                <label for="playerDob" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="playerDob" name="playerDob" required>
                             </div>
+
+                            <div class="col-md-6">
+                                <label for="playerHeight" class="form-label">Height (cm)</label>
+                                <input type="number" class="form-control" id="playerHeight" name="playerHeight"
+                                    required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="playerWeight" class="form-label">Weight (kg)</label>
+                                <input type="number" class="form-control" id="playerWeight" name="playerWeight"
+                                    required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="playerImage" class="form-label">Player Image</label>
+                                <input class="form-control" type="file" id="playerImage" name="playerImage"
+                                    accept="image/*">
+                            </div>
+                        </div>
+
+                        <div class="modal-footer mt-4">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Add Player</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -530,6 +546,29 @@
                 reader.readAsDataURL(file);
             }
         });
+    </script>
+    <script>
+        const searchInput = document.getElementById('searchPlayerInput');
+        const positionFilter = document.getElementById('positionFilter');
+        const rows = document.querySelectorAll('tbody tr');
+
+        function filterPlayers() {
+            const query = searchInput.value.toLowerCase();
+            const position = positionFilter.value;
+
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name').toLowerCase();
+                const pos = row.getAttribute('data-pos');
+
+                const nameMatch = name.includes(query);
+                const posMatch = position === '' || pos === position;
+
+                row.style.display = nameMatch && posMatch ? '' : 'none';
+            });
+        }
+
+        searchInput.addEventListener('input', filterPlayers);
+        positionFilter.addEventListener('change', filterPlayers);
     </script>
 
 
