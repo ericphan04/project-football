@@ -144,7 +144,7 @@
 
     </nav>
 
-    <button class="btn btn-outline-dark position-fixed top-0 end-0 m-3" style="z-index: 1060;"
+    <button id="cartToggleBtn" class="btn btn-outline-dark position-fixed top-0 end-0 m-3" style="z-index: 1060;"
         th:onclick="toggleCart()">
         🛒
     </button>
@@ -165,7 +165,7 @@
                         <div class="flex-grow-1">
                             <small th:text="${item.value.product.productName}">Product Name</small><br />
                             <small class="text-muted"
-                                th:text="'£' + (${item.value.product.productPrice} * ${item.value.productAmount})">£0.00</small><br />
+                                th:text="(${item.value.product.productPrice} * ${item.value.productAmount}) + 'đ'">0.00đ</small><br />
                             <div class="quantity-control mt-1">
                                 <a th:href="@{'/product/ip'(productId=${item.key}, showCart='true')}">+</a>
                                 <span th:text="${item.value.productAmount}">1</span>
@@ -306,15 +306,20 @@
 
         function toggleCart() {
             const cart = document.getElementById('cartOverlay');
+            const toggleBtn = document.getElementById('cartToggleBtn');
+
             if (cart.style.transform === 'translateX(0%)') {
                 cart.style.transform = 'translateX(100%)';
+                toggleBtn.classList.remove('d-none');
             } else {
                 cart.style.transform = 'translateX(0%)';
+                toggleBtn.classList.add('d-none');
             }
         }
 
         function closeCart() {
             document.getElementById('cartOverlay').style.transform = 'translateX(100%)';
+            document.getElementById('cartToggleBtn').classList.remove('d-none');
         }
     </script>
 </body>

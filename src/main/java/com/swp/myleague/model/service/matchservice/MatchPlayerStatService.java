@@ -7,14 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.swp.myleague.common.IService;
+import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.entities.match.MatchPlayerStat;
 import com.swp.myleague.model.repo.MatchPlayerStatRepo;
+import com.swp.myleague.model.repo.PlayerRepo;
 
 @Service
 public class MatchPlayerStatService implements IService<MatchPlayerStat> {
 
     @Autowired
     MatchPlayerStatRepo matchPlayerStatRepo;
+
+    @Autowired PlayerRepo playerRepo;
 
     @Override
     public List<MatchPlayerStat> getAll() {
@@ -47,6 +51,11 @@ public class MatchPlayerStatService implements IService<MatchPlayerStat> {
 
     @Override
     public MatchPlayerStat save(MatchPlayerStat e) {
+        Player player = playerRepo.findById(e.getPlayer().getPlayerId()).orElseThrow();
+        player.setPlayerAppearances(player.getPlayerAppearances() + 1);
+        player.setPlayerAssist(player.getPlayerAssist() + e.getMatchPlayerAssist());
+        player.setPlayerScores(player.getPlayerScores() + e.getMatchPlayerGoal());
+        playerRepo.save(player);
         return matchPlayerStatRepo.save(e);
     }
 

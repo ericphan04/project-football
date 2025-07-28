@@ -1,7 +1,10 @@
 package com.swp.myleague.utils.openai_matchevent;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,30 +25,40 @@ public class OpenAiService {
     @Value("${openai.model}")
     private String model;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    RestTemplate restTemplate;
 
-    public String askChatGPT(String userMessage) {
-        // Tạo prompt
-        ChatMessage user = new ChatMessage("user", userMessage);
-        ChatRequest request = new ChatRequest(model, List.of(user));
+    public String generateResponse(String prompt) {
+        Map<String, Object> message = Map.of(
+                "role", "user",
+                "content", prompt);
 
-        // Header
+        Map<String, Object> body = new HashMap<>();
+        body.put("model", model); // ví dụ: "gpt-3.5-turbo" hoặc "gpt-4o"
+        body.put("messages", List.of(message));
+        body.put("temperature", 0.7);
+        body.put("stream", false); // trả kết quả một lần
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
+        headers.setBearerAuth(apiKey); // ⚠️ Thay bằng OpenAI API Key thực tế
 
-        HttpEntity<ChatRequest> httpEntity = new HttpEntity<>(request, headers);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
-        // Gửi request
-        ResponseEntity<ChatResponse> response = restTemplate.postForEntity(
-            apiUrl, httpEntity, ChatResponse.class
-        );
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, request, Map.class);
 
-        // Trả về kết quả
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            return response.getBody().getChoices().get(0).getMessage().getContent();
-        } else {
-            throw new RuntimeException("Failed to get response from ChatGPT");
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) response.getBody().get("choices");
+            if (choices != null && !choices.isEmpty()) {
+                Map<String, Object> messageObj = (Map<String, Object>) choices.get(0).get("message");
+                return (String) messageObj.get("content");
+            } else {
+                return "❌ Không có phản hồi từ OpenAI.";
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "❌ Lỗi khi gọi OpenAI: " + e.getMessage();
         }
     }
 }
