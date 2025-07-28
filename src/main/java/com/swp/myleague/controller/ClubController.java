@@ -82,6 +82,7 @@ public class ClubController {
     @GetMapping("/player/{playerId}")
     public String getDetailPlayer(@PathVariable("playerId") String playerId, Model model) {
         model.addAttribute("player", playerService.getById(playerId));
+        model.addAttribute("career", playerService.getCareerByPlayerId(playerId));
         return "DetailPlayer";
     }
 

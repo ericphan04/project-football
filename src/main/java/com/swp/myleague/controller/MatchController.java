@@ -1,6 +1,10 @@
 package com.swp.myleague.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -89,7 +93,7 @@ public class MatchController {
         model.addAttribute("startingLineupHome", matchService.getStartingLineup(matchId, match.getMatchClubStats().get(0).getClub().getClubId().toString()));
         model.addAttribute("startingLineupAway", matchService.getStartingLineup(matchId, match.getMatchClubStats().get(1).getClub().getClubId().toString()));
         model.addAttribute("substitueLineupHome", matchService.getSubstitueLineup(matchId, match.getMatchClubStats().get(0).getClub().getClubId().toString()));
-        model.addAttribute("substitueLineupAway", matchService.getStartingLineup(matchId, match.getMatchClubStats().get(1).getClub().getClubId().toString()));
+        model.addAttribute("substitueLineupAway", matchService.getSubstitueLineup(matchId, match.getMatchClubStats().get(1).getClub().getClubId().toString()));
 
         if (match != null && match.getMatchMOM() != null) {
             MatchPlayerStat motm = matchPlayerStatService.getById(match.getMatchMOM().toString());
@@ -119,7 +123,8 @@ public class MatchController {
     public String addHighlight(@RequestParam String matchId,
             @RequestParam int matchEventMinute,
             @RequestParam String matchEventTitle,
-            @RequestParam String vidUrl) {
+            @RequestParam String vidUrl,
+            @RequestParam("hightlightThumnail") MultipartFile matchEventThumnails) {
         Match match = matchService.getById(matchId);
         MatchEvent event = new MatchEvent();
         event.setMatch(match);
@@ -127,6 +132,19 @@ public class MatchController {
         event.setMatchEventTitle(matchEventTitle);
         event.setVidUrl(vidUrl);
         event.setMatchEventType(MatchEventType.Highlight); // Enum
+
+        if (!matchEventThumnails.isEmpty()) {
+            File imageFile = new File(
+                    "src/main/resources/static/images/Storage-Files" + File.separator
+                            + matchEventThumnails.getOriginalFilename());
+            try {
+                Files.copy(matchEventThumnails.getInputStream(), imageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                event.setMatchEventThumnails("/images/Storage-Files/" + matchEventThumnails.getOriginalFilename());
+            } catch (IOException e) {
+                e.printStackTrace(); // có thể log ra logger
+            }
+        }
+
         matchEventService.save(event);
         return "redirect:/match/" + matchId;
     }

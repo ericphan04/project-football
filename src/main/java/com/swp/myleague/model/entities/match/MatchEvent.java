@@ -1,5 +1,6 @@
 package com.swp.myleague.model.entities.match;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
@@ -13,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +38,16 @@ public class MatchEvent {
     private Integer matchEventMinute;
     private String icon;
     private String vidUrl;
+    private String matchEventThumnails;
+
+    private LocalDateTime dateCreated;
+
+    @PrePersist
+    public void prePersist() {
+        if (dateCreated == null) {
+            dateCreated = LocalDateTime.now();
+        }
+    }
     
     @Enumerated(EnumType.STRING)
     private MatchEventType matchEventType;

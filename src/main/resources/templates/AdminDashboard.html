@@ -105,6 +105,44 @@
                                 <small class="text-muted">from 2,913</small>
                             </div>
                         </div>
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white dashboard-card">
+                                    <h6>Total Revenue</h6>
+                                    <h4 class="text-primary"
+                                        th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 2, 'POINT')} + ' ₫'">
+                                        0</h4>
+                                    <small class="text-muted">From successful orders</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white dashboard-card">
+                                    <h6>Top Buyer</h6>
+                                    <h4 class="text-primary" th:text="${topBuyer}">No data</h4>
+                                    <small class="text-muted">Highest total spent</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white dashboard-card">
+                                    <h6>Total Products Sold</h6>
+                                    <h4 class="text-primary" th:text="${totalProductsSold}">0</h4>
+                                    <small class="text-muted">Across all orders</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-white dashboard-card">
+                                    <h6>Best Seller</h6>
+                                    <h4 class="text-primary" th:text="${bestSeller}">None</h4>
+                                    <small class="text-muted">Most ordered product</small>
+                                </div>
+                            </div>
+                            <div class="card mt-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Revenue (Last 6 Months)</h5>
+                                    <canvas id="revenueChart" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -177,9 +215,30 @@
 
                 <div id="matches" class="tab-content d-none">
                     <h3 class="mb-4">Matches</h3>
-                    <button class="btn btn-primary btn-sm" onclick="openAddMatchModal()">
+                    <!-- <button class="btn btn-primary btn-sm" onclick="openAddMatchModal()">
                         <i class="bi bi-plus-circle"></i> Add Match
-                    </button>
+                    </button> -->
+                    <div class="mb-3">
+                        <label for="roundFilter" class="form-label">Filter by Round:</label>
+                        <select id="roundFilter" class="form-select" onchange="filterMatchesByRound()">
+                            <option value="">All Rounds</option>
+                            <option value="Vòng 1">Vòng 1</option>
+                            <option value="Vòng 2">Vòng 2</option>
+                            <option value="Vòng 3">Vòng 3</option>
+                            <option value="Vòng 4">Vòng 4</option>
+                            <option value="Vòng 5">Vòng 5</option>
+                            <option value="Vòng 6">Vòng 6</option>
+                            <option value="Vòng 7">Vòng 7</option>
+                            <option value="Vòng 8">Vòng 8</option>
+                            <option value="Vòng 9">Vòng 9</option>
+                            <option value="Vòng 10">Vòng 10</option>
+                            <option value="Vòng 11">Vòng 11</option>
+                            <option value="Vòng 12">Vòng 12</option>
+                            <option value="Vòng 13">Vòng 13</option>
+                            <option value="Vòng 14">Vòng 14</option>
+                        </select>
+                    </div>
+
                     <div class="card mb-4">
                         <div class="card-body">
                             <table class="table table-hover align-middle">
@@ -194,7 +253,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="match : ${matches}">
+                                    <tr th:each="match : ${matches}" th:attr="data-round=${match.matchDescription}">
                                         <td th:text="${match.matchTitle}">Match Title</td>
                                         <td th:text="${#temporals.format(match.matchStartTime, 'dd/MM/yyyy HH:mm')}">
                                             Time</td>
@@ -332,7 +391,19 @@
                     <button class="btn btn-primary btn-sm" onclick="openAddTicketModal()">
                         <i class="bi bi-plus-circle"></i> Add Ticket
                     </button>
+                    <div th:if="${error != null && !error.isBlank()}"
+                        class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span th:text="${error}">Lỗi!</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
 
+                    <div th:if="${success != null && !success.isBlank()}"
+                        class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <span th:text="${success}">Thành công!</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     <div class="card mt-4">
                         <div class="card-body">
                             <table class="table table-hover">
@@ -453,7 +524,7 @@
                         Now</button>
 
                     <div th:if="${fixtures != null}" th:each="entry : ${fixturesByRound}" class="mb-4">
-                        <h5 class="text-primary" th:text="'Round ' + ${entry.key}">Round 1</h5>
+                        <h5 class="text-primary" th:text="'Vòng ' + ${entry.key}">Vòng 1</h5>
                         <div class="row g-3">
                             <div class="col-md-6" th:each="match : ${entry.value}">
                                 <div class="card">
@@ -494,7 +565,7 @@
                         <form th:action="@{/admin/fixture/save-round}" method="post" class="mt-3">
                             <input type="hidden" name="roundNumber" th:value="${entry.key}" />
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-save"></i> Save Matches for Round <span th:text="${entry.key}">1</span>
+                                <i class="bi bi-save"></i> Save Matches for Vòng <span th:text="${entry.key}">1</span>
                             </button>
                         </form>
                     </div>
@@ -707,7 +778,7 @@
                         ticketArea: area,
                         ticketType: type,
                         ticketPrice: price,
-                        ticketQuantity: quantity
+                        ticketAmount: quantity
                     });
                 }
             }
@@ -818,6 +889,53 @@
 
             function truncate(str, n) {
                 return str.length > n ? str.substring(0, n) + '...' : str;
+            }
+        });
+    </script>
+
+    <script>
+        function filterMatchesByRound() {
+            const selectedRound = document.getElementById("roundFilter").value.toLowerCase();
+            const rows = document.querySelectorAll("#matches tbody tr");
+
+            rows.forEach(row => {
+                const round = row.getAttribute("data-round")?.toLowerCase() || "";
+                if (!selectedRound || round === selectedRound) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script th:inline="javascript">
+        const revenueCtx = document.getElementById("revenueChart").getContext("2d");
+        const revenueChart = new Chart(revenueCtx, {
+            type: "bar", // bạn có thể thay bằng 'line'
+            data: {
+                labels: [[${ revenueMonths }]],
+                datasets: [{
+                    label: "Revenue (VND)",
+                    data: [[${ revenueValues }]],
+                    backgroundColor: "rgba(54, 162, 235, 0.6)",
+                    borderColor: "rgba(54, 162, 235, 1)",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function (value) {
+                                return value.toLocaleString() + " ₫";
+                            }
+                        }
+                    }
+                }
             }
         });
     </script>
