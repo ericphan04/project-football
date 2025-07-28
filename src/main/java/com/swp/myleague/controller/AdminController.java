@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.swp.myleague.common.CommonFunc;
+import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.admin_request.Request;
 import com.swp.myleague.model.entities.admin_request.RequestStatus;
 import com.swp.myleague.model.entities.blog.Blog;
@@ -419,5 +420,14 @@ public class AdminController {
 
         return "redirect:/admin";
     }
+
+    @PostMapping("/user")
+    public String updateBan(@RequestParam(name = "userId") String userId) {
+        User user = userService.getUserById(userId);
+        user.setIsBan(!user.getIsBan());
+        userService.save(user);
+        return "redirect:/admin";
+    }
+    
 
 }

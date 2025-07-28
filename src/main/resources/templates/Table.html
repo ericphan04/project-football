@@ -71,6 +71,17 @@
         <div class="header">
             <h2>Premier League Table</h2>
             <p class="mb-0">2025/26 - Matchweek 1</p>
+            <form method="get" class="d-flex justify-content-center align-items-center mt-3">
+                <label for="seasonSelect" class="me-2">Select Season:</label>
+                <select name="season" id="seasonSelect" class="form-select w-auto" onchange="this.form.submit()">
+                    <option th:each="season : ${seasons}"
+                            th:value="${season}"
+                            th:text="${season}"
+                            th:selected="${season == selectedSeason}">
+                    </option>
+                </select>
+            </form>
+            
         </div>
 
         <div class="table-container">

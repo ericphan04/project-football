@@ -66,23 +66,27 @@
     <div th:replace="fragments/header :: siteHeader"></div>
 
     <div class="club-header">
-        <img src="/images/logoclub/club1.png" alt="Logo">
-        <h1 class="mb-1" th:text="${club.clubName}"></h1>
-        <p class="mb-0">1878 • Rach Tray</p>
+        <img th:src="@{${club.clubLogoPath}}" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;" />
+        <h1 class="mb-1" th:text="${club.clubName}">Club Name</h1>
+        <p class="mb-0">
+            <span th:text="${club.clubFounded}">1878</span> •
+            <span th:text="${club.clubStadium}">Rach Tray</span>
+        </p>
     </div>
 
     <div class="container mt-4">
         <ul class="nav nav-tabs">
-          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId}">Overview</a></li>
-          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/squad'">Squad</a></li>
-          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/fixtures'">Fixtures</a></li>
-          <li class="nav-item"><a class="nav-link active" th:href="'/club/' + ${club.clubId} + '/results'">Results</a></li>
-          <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/stadium'">Stadium</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId}">Overview</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/squad'">Squad</a></li>
+            <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/fixtures'">Fixtures</a></li>
+            <li class="nav-item"><a class="nav-link active" th:href="'/club/' + ${club.clubId} + '/results'">Results</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/stadium'">Stadium</a></li>
 
         </ul>
-      </div>
+    </div>
 
-    
+
 
     <div class="container">
         <div th:each="match : ${matches}" th:if="${!#lists.isEmpty(match.matchClubStats)}">

@@ -57,9 +57,13 @@ public class AuthController {
             HttpServletResponse response,
             Model model) {
         try {
+            User user = userRepository.findByUsername(username).orElseThrow();
+            if (user.getIsBan()) {
+                model.addAttribute("error", "❌ Tài khoản của bạn đã bị khóa");
+                return "LoginPage";
+            }
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password));
-
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
