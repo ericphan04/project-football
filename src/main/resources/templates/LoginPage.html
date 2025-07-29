@@ -6,20 +6,243 @@
         <link th:href="@{/images/favicon.ico}" rel="icon">
         <meta content="width=device-width, initial-scale=1" name="viewport">
         <meta content="#38003C" name="theme-color">
-        <meta content="For all the latest Premier League news, visit the official website of the Premier League."
+        <meta content="For all the latest V.League news, visit the official website of the V.League."
                 name="description">
         <link th:href="@{/css/pluser.css}" rel="stylesheet">
         <link th:href="@{/css/ism.css}" rel="stylesheet">
-        <title>premierleague.com User Portal</title>
+        <title>vleague.vn User Portal</title>
+        
+        <!-- Additional Effects CSS -->
+        <style>
+                /* Smooth animations for existing elements */
+                @keyframes fadeInUp {
+                        from {
+                                opacity: 0;
+                                transform: translateY(30px);
+                        }
+                        to {
+                                opacity: 1;
+                                transform: translateY(0);
+                        }
+                }
+
+                @keyframes slideInLeft {
+                        from {
+                                opacity: 0;
+                                transform: translateX(-30px);
+                        }
+                        to {
+                                opacity: 1;
+                                transform: translateX(0);
+                        }
+                }
+
+                @keyframes pulse {
+                        0%, 100% {
+                                transform: scale(1);
+                        }
+                        50% {
+                                transform: scale(1.02);
+                        }
+                }
+
+                /* Add animations to existing elements */
+                .pageHero {
+                        animation: fadeInUp 0.8s ease-out;
+                }
+
+                .pageTitle {
+                        animation: slideInLeft 1s ease-out 0.3s both;
+                }
+
+                .ism-form__login-box {
+                        animation: fadeInUp 1s ease-out 0.5s both;
+                        transition: all 0.3s ease;
+                }
+
+                .ism-form__login-box:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                }
+
+                .col-6:first-child {
+                        animation: slideInLeft 0.8s ease-out 0.7s both;
+                }
+
+                .col-6:last-child {
+                        animation: slideInLeft 0.8s ease-out 0.9s both;
+                }
+
+                .ism-form__group {
+                        animation: fadeInUp 0.6s ease-out calc(1s + var(--delay, 0s)) both;
+                        transition: all 0.3s ease;
+                }
+
+                .ism-form__group:nth-child(1) { --delay: 0.1s; }
+                .ism-form__group:nth-child(2) { --delay: 0.2s; }
+                .ism-form__group:nth-child(3) { --delay: 0.3s; }
+                .ism-form__group:nth-child(4) { --delay: 0.4s; }
+
+                /* Enhanced input effects */
+                .ism-input-holder input {
+                        transition: all 0.3s ease;
+                }
+
+                .ism-input-holder input:focus {
+                        transform: translateY(-2px);
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                }
+
+                .ism-input-holder:hover {
+                        transform: translateY(-1px);
+                }
+
+                /* Enhanced button effects */
+                .btn {
+                        transition: all 0.3s ease;
+                        position: relative;
+                        overflow: hidden;
+                }
+
+                .btn:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                }
+
+                .btn:active {
+                        transform: translateY(0);
+                        animation: pulse 0.3s ease;
+                }
+
+                .btn-primary:hover {
+                        animation: pulse 0.6s ease-in-out;
+                }
+
+                /* Image hover effects */
+                img {
+                        transition: all 0.3s ease;
+                }
+
+                img:hover {
+                        transform: scale(1.05) rotate(2deg);
+                        filter: brightness(1.1);
+                }
+
+                .ism-google-button img:hover {
+                        transform: scale(1.1) rotate(5deg);
+                }
+
+                /* Well section effects */
+                .ism-well {
+                        animation: fadeInUp 1s ease-out 1.1s both;
+                        transition: all 0.3s ease;
+                }
+
+                .ism-well:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                }
+
+                .ism-well ul li {
+                        animation: slideInLeft 0.5s ease-out calc(1.3s + var(--item-delay, 0s)) both;
+                        transition: all 0.3s ease;
+                }
+
+                .ism-well ul li:nth-child(1) { --item-delay: 0.1s; }
+                .ism-well ul li:nth-child(2) { --item-delay: 0.2s; }
+                .ism-well ul li:nth-child(3) { --item-delay: 0.3s; }
+                .ism-well ul li:nth-child(4) { --item-delay: 0.4s; }
+
+                .ism-well ul li:hover {
+                        transform: translateX(5px);
+                        color: #38003C;
+                }
+
+                /* Link effects */
+                .ism-arrow-link {
+                        transition: all 0.3s ease;
+                }
+
+                .ism-arrow-link:hover {
+                        transform: translateX(5px);
+                }
+
+                /* Social login effects */
+                .ism-social-login {
+                        animation: fadeInUp 0.8s ease-out 1.2s both;
+                }
+
+                .ism-google-button {
+                        transition: all 0.3s ease;
+                }
+
+                .ism-google-button:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+                }
+
+                /* Ripple effect */
+                .ripple {
+                        position: absolute;
+                        border-radius: 50%;
+                        background: rgba(255, 255, 255, 0.3);
+                        transform: scale(0);
+                        animation: ripple-animation 0.6s linear;
+                        pointer-events: none;
+                }
+
+                @keyframes ripple-animation {
+                        to {
+                                transform: scale(4);
+                                opacity: 0;
+                        }
+                }
+
+                /* Password show/hide button effect */
+                .ism-show-password {
+                        transition: all 0.3s ease;
+                }
+
+                .ism-show-password:hover {
+                        transform: scale(1.05);
+                }
+
+                /* Form label effects */
+                label {
+                        transition: all 0.3s ease;
+                }
+
+                .ism-input-holder:focus-within label {
+                        transform: translateY(-2px);
+                        color: #38003C;
+                }
+
+                /* Loading animation for the whole page */
+                body {
+                        animation: fadeInUp 0.5s ease-out;
+                }
+
+                /* Responsive animations */
+                @media (max-width: 768px) {
+                        .col-6:first-child,
+                        .col-6:last-child {
+                                animation: fadeInUp 0.8s ease-out calc(0.8s + var(--mobile-delay, 0s)) both;
+                        }
+                        
+                        .col-6:first-child { --mobile-delay: 0s; }
+                        .col-6:last-child { --mobile-delay: 0.2s; }
+                }
+        </style>
 </head>
 
 <body>
-
+        <div th:replace="fragments/header :: siteHeader"></div>
+        <div th:replace="fragments/chatbox :: chatBoxFragment"></div>
         
         <main class="ism" id="mainContent" tabindex="0">
                 <header class="pageHero">
                         <div class="wrapper col-12">
-                                <h1 class="pageTitle">Your Account</h1>
+                                <h1 class="pageTitle">V.League Account</h1>
                         </div>
                 </header>
 
@@ -86,10 +309,10 @@
                                                         <div class="col-6">
                                                                 <h1 class="ism-hide--mobile">Register</h1>
                                                                 <div class="ism-well ism-well__reg-spacer">
-                                                                        <h2>Don't have a Premier League account?</h2>
+                                                                        <h2>Don't have a V.League account?</h2>
                                                                         <p>In that case, you are missing out on:</p>
                                                                         <ul>
-                                                                                <li>Fantasy Premier League football game
+                                                                                <li>Fantasy V.League football game
                                                                                 </li>
                                                                                 <li>Exclusive fan services</li>
                                                                                 <li>Customised site content</li>
@@ -110,6 +333,101 @@
         <script th:src="@{/component/jquery-3.4.1.slim.js}"></script>
         <script th:src="@{/component/header.js}"></script>
         <script th:src="@{/component/load-components.js}"></script>
+        
+        <!-- Enhanced JavaScript Effects -->
+        <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                        // Add ripple effect to buttons
+                        const buttons = document.querySelectorAll('.btn');
+                        buttons.forEach(button => {
+                                button.addEventListener('click', function(e) {
+                                        const ripple = document.createElement('span');
+                                        const rect = button.getBoundingClientRect();
+                                        const size = Math.max(rect.width, rect.height);
+                                        const x = e.clientX - rect.left - size / 2;
+                                        const y = e.clientY - rect.top - size / 2;
+                                        
+                                        ripple.style.width = ripple.style.height = size + 'px';
+                                        ripple.style.left = x + 'px';
+                                        ripple.style.top = y + 'px';
+                                        ripple.classList.add('ripple');
+                                        
+                                        button.appendChild(ripple);
+                                        
+                                        setTimeout(() => {
+                                                ripple.remove();
+                                        }, 600);
+                                });
+                        });
+
+                        // Enhanced input focus effects
+                        const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+                        inputs.forEach(input => {
+                                input.addEventListener('focus', function() {
+                                        this.parentElement.style.transform = 'translateY(-2px)';
+                                        this.parentElement.style.transition = 'all 0.3s ease';
+                                });
+                                
+                                input.addEventListener('blur', function() {
+                                        this.parentElement.style.transform = 'translateY(0)';
+                                });
+                        });
+
+                        // Enhanced password show/hide functionality
+                        const showPasswordBtn = document.getElementById('ismjs-show-password');
+                        const passwordInput = document.getElementById('ism-password');
+                        const showHideText = document.getElementById('ismjs-show-hide-text');
+                        
+                        if (showPasswordBtn && passwordInput && showHideText) {
+                                showPasswordBtn.addEventListener('click', function() {
+                                        const isPassword = passwordInput.type === 'password';
+                                        passwordInput.type = isPassword ? 'text' : 'password';
+                                        showHideText.textContent = isPassword ? 'Hide' : 'Show';
+                                        
+                                        // Add click animation
+                                        this.style.transform = 'scale(0.95)';
+                                        setTimeout(() => {
+                                                this.style.transform = 'scale(1)';
+                                        }, 150);
+                                });
+                        }
+
+                        // Add hover effects to list items
+                        const listItems = document.querySelectorAll('.ism-well ul li');
+                        listItems.forEach(item => {
+                                item.addEventListener('mouseenter', function() {
+                                        this.style.paddingLeft = '20px';
+                                });
+                                
+                                item.addEventListener('mouseleave', function() {
+                                        this.style.paddingLeft = '0';
+                                });
+                        });
+
+                        // Add smooth scroll behavior
+                        document.documentElement.style.scrollBehavior = 'smooth';
+
+                        // Add loading animation to images
+                        const images = document.querySelectorAll('img');
+                        images.forEach(img => {
+                                img.addEventListener('load', function() {
+                                        this.style.opacity = '0';
+                                        this.style.animation = 'fadeInUp 0.5s ease-out forwards';
+                                });
+                        });
+                });
+
+                // Add parallax effect to header on scroll
+                window.addEventListener('scroll', function() {
+                        const header = document.querySelector('.pageHero');
+                        const scrolled = window.pageYOffset;
+                        const rate = scrolled * -0.5;
+                        
+                        if (header) {
+                                header.style.transform = `translateY(${rate}px)`;
+                        }
+                });
+        </script>
 </body>
 
 </html>

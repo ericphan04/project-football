@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.admin_request.Request;
 import com.swp.myleague.model.entities.admin_request.RequestStatus;
@@ -36,6 +38,7 @@ import com.swp.myleague.model.service.UserService;
 import com.swp.myleague.model.service.blogservice.BlogService;
 import com.swp.myleague.model.service.informationservice.ClubService;
 import com.swp.myleague.model.service.informationservice.PlayerService;
+import com.swp.myleague.model.service.matchservice.MatchEventService;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -63,6 +66,12 @@ public class ClubManagementController {
 
     @Autowired
     BlogRepo blogRepo;
+
+    @Autowired
+    MatchEventService matchEventService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @GetMapping("")
     public String getClub(Model model, Principal principal) {
@@ -111,7 +120,8 @@ public class ClubManagementController {
 
         List<Player> getPlayers = playerService.getPlayersByClubId(club.getClubId().toString());
 
-        if (getPlayers.stream().anyMatch(p -> p.getPlayerFullName().equals(playerName) || p.getPlayerNumber() == Integer.parseInt(playerNumber))) {
+        if (getPlayers.stream().anyMatch(p -> p.getPlayerFullName().equals(playerName)
+                || p.getPlayerNumber() == Integer.parseInt(playerNumber))) {
             redirectAttributes.addFlashAttribute("message", "The player is existed");
             return "redirect:/clubmanager";
         }
@@ -196,13 +206,22 @@ public class ClubManagementController {
         }
 
         blog.setBlogTitle(blogTitle);
-        blog.setBlogContent(blogContent);
+        String htmlContent = blogContent.replace("\n", "<br/>");
+        blog.setBlogContent(htmlContent);
         blog.setClub(club);
         blog.setBlogDateCreated(LocalDateTime.now());
-
+        blog.setBlogCategory(BlogCategory.Hotnews);
         Request request = new Request();
-        request.setRequestTitle("CREATE_BLOG_FROM" + club.getClubName());
-        request.setRequestInfor(blog.toString());
+        request.setRequestTitle("CREATE_BLOG_FROM_" + club.getClubName());
+        try {
+            String json = objectMapper.writeValueAsString(blog);
+            request.setRequestInfor(json);
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+
         request.setRequestStatus(RequestStatus.PENDING);
         requestService.save(request);
 
@@ -264,7 +283,5 @@ public class ClubManagementController {
         workbook.write(response.getOutputStream());
         workbook.close();
     }
-
-    
 
 }

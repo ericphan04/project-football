@@ -1,75 +1,284 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MyLeague Clubs</title>
+    <title>Clubs</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        .pl-header {
+            background-color: #37003c;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .pl-header a {
+            color: white;
+            text-decoration: none;
+        }
         body {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            color: #fff;
+            padding-top: 60px;
+        }
+        body {
+            background: #f8f9fa;
+            color: #212529;
+            font-family: 'Segoe UI', sans-serif;
+        }
+.stadium-info{
+    margin: 10px;
+}
+        /* Navbar Styling */
+        .navbar {
+            background: #6a11cb;
+            color: white;
         }
 
+        .navbar .navbar-brand, .navbar .navbar-nav .nav-link {
+            color: white;
+        }
+
+        .navbar .navbar-nav .nav-link:hover {
+            color: #f8f9fa;
+        }
+
+        /* Main Container */
+        .container {
+    
+        }
+
+        /* Updated Clubs Title */
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 18px;
+            margin-top: 10px;
+            color: #37003c;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Search Bar Styling */
+        .search-bar {
+            width: 440px;
+            max-width: 95vw;
+            margin: 24px 0 24px 0;
+            border-radius: 18px;
+            padding: 8px 16px;
+            border: 1.5px solid #6a11cb;
+            background-color: #fff;
+            color: #6a11cb;
+            font-size: 1rem;
+            box-shadow: 0 2px 8px rgba(106,17,203,0.06);
+            display: block;
+        }
+
+        .search-bar:focus {
+            border-color: #37003c;
+            outline: none;
+            box-shadow: 0 0 0 2px #af86dc33;
+        }
+
+        /* Club Card Styling */
         .club-card {
             background: #fff;
-            color: #000;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px;
+            border-radius: 12px;
+            padding: 25px;
             text-align: center;
-            transition: 0.3s;
+            color: #000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 300px;
+            width: 250px;
+            margin: 0 auto 30px;
         }
 
         .club-card:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
 
         .club-logo {
-            height: 50px;
+            height: 100px; /* Increased logo size */
+            margin-bottom: 15px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
         }
 
-        .section-header {
-            font-size: 2rem;
-            margin: 30px 0 10px;
+        .club-logo:hover {
+            transform: scale(1.1);
+        }
+
+        .club-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #000;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .club-name:hover {
+            color: #6a11cb;
+        }
+
+        .club-card-footer {
+            margin-top: auto;
+        }
+
+        /* Modern View Club Button */
+        .view-club-btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #af86dc;
+            color: #fff;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .view-club-btn:hover {
+            background-color: #4e0db3;
+            transform: scale(1.05);
+        }
+
+        /* Adjusting grid layout for clubs */
+        .row-cols-lg-6 .col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Stadium section styling */
+        .stadium-info {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px; /* Increased padding for more space */
+            margin-top: 10px;
+            margin-bottom: 30px; /* Added margin to the bottom for spacing */
+            display: flex;
+            flex-direction: row; /* Align logo and text horizontally */
+            justify-content: flex-start;
+            align-items: center; /* Center vertically */
+            font-size: 1rem;
+            color: #212529;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stadium-info img {
+            width: 35px; /* Increased icon size for visibility */
+            height: 35px;
+            margin-right: 15px; /* Increased space between icon and text */
+        }
+
+        .stadium-info span {
+            font-weight: 600;
+            color: #6a11cb;
+        }
+
+        .stadium-info strong {
+            margin-right: 8px;
+        }
+
+        /* Added gap for responsive layout */
+        @media (max-width: 768px) {
+            .search-bar {
+                width: 98vw;
+                min-width: 0;
+            }
+
+            .club-logo {
+                height: 80px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            /* Align stadium info properly on smaller screens */
+            .stadium-info {
+                flex-direction: column; /* Stack logo and text vertically */
+                align-items: flex-start;
+            }
+        }
+        .search-header-row {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            max-width: 900px;
+            margin: 0 auto 24px auto;
+            padding-top: 18px;
+            width: 100%;
+            justify-content: flex-start;
+        }
+        .clubs-title {
+            margin-bottom: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #37003c;
+            letter-spacing: 3px;
+            text-shadow: 1px 1px 6px rgba(0,0,0,0.08);
+            min-width: 120px;
+        }
+        @media (max-width: 768px) {
+            .search-header-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                max-width: 98vw;
+            }
+            .clubs-title {
+                text-align: left;
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
-
 <body>
     <div th:replace="fragments/header :: siteHeader"></div>
 
-    <div class="container py-4">
-        <!-- Search Header -->
-        <div class="text-center mb-4">
-            <h1>MyLeague Clubs</h1>
-            <input type="text" class="form-control w-50 mx-auto" placeholder="Search Clubs" />
+    <div th:replace="fragments/chatbox :: chatBoxFragment"></div>
+    <div class="container"> 
+        <!-- Search Header Flex Row -->
+        <div class="search-header-row">
+            <h1 class="clubs-title">Clubs</h1>
+            <input type="text" class="search-bar" placeholder="Search Clubs" />
         </div>
 
-        <!-- Current Season Clubs -->
-        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
+        <!-- Clubs Grid (populated from database using Thymeleaf) -->
+        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
             <div class="col" th:each="club : ${clubs}">
-                <a th:href="'http://localhost:8080/club/' + ${club.clubId} ">
+                <a th:href="'/club/' + ${club.clubId}" class="text-decoration-none">
                     <div class="club-card">
-                        <img th:src="@{{img}(img=${club.clubLogoPath})}" class="club-logo mb-2" alt="Logo" />
-                        <div th:text="${club.clubName}"></div>
+                        <img th:src="@{{img}(img=${club.clubLogoPath})}" class="club-logo mb-3" alt="Logo" />
+                        <div class="club-name" th:text="${club.clubName}"></div>
+                        <div class="club-card-footer">
+                            <a th:href="'/club/' + ${club.clubId}" class="view-club-btn">View Club</a>
+                        </div>
                     </div>
                 </a>
-
             </div>
         </div>
 
-        <!-- All-time Premier League Clubs -->
-        <div class="section-header text-white">All-time Premier League Clubs</div>
+        <!-- All-time Clubs -->
         <div class="row row-cols-1 row-cols-md-2 g-4">
             <div class="col" th:each="entry : ${allTimeClubs}">
-                <div class="p-3 bg-light text-dark rounded">
-                    <strong th:text="${entry.clubName}"></strong><br />
+                <div class="stadium-info">
                     <img th:src="@{{img}(img=${entry.clubLogoPath})}" class="club-logo mb-2" alt="Logo" />
-                    Stadium:
-                    <span th:text="${entry.clubStadium}"></span>
+                    <strong th:text="${entry.clubName}"></strong>
+                    <span>: </span>
+                    <span th:text="${entry.clubStadium}">   </span>
                 </div>
             </div>
         </div>
@@ -77,5 +286,4 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

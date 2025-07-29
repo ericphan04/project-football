@@ -6,12 +6,15 @@ import java.util.UUID;
 
 import org.hibernate.annotations.UuidGenerator;
 
+import com.swp.myleague.model.entities.Comment;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +37,8 @@ public class Match {
     private String matchDescription;
     private String matchLinkLivestream;
 
+    private String matchReferenceInformation;
+
     private UUID matchMOM;
 
     @OneToMany(mappedBy = "match", fetch = FetchType.EAGER)
@@ -45,6 +50,9 @@ public class Match {
     @OneToMany(mappedBy = "match", fetch = FetchType.EAGER)
     private List<MatchClubStat> matchClubStats;
 
+    @OneToMany(mappedBy = "match", fetch = FetchType.LAZY)
+    private List<Comment> comments;
+
     @Override
     public String toString() {
         return "Match{matchId=" + this.matchId +
@@ -52,5 +60,11 @@ public class Match {
                 ", statsCount=" + (matchClubStats != null ? matchClubStats.size() : 0) +
                 "}";
     }
+
+    @Transient
+    private int totalTickets;
+
+    @Transient
+    private int soldTickets;
 
 }

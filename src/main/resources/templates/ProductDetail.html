@@ -77,7 +77,7 @@
 
 <body>
   <div th:replace="fragments/header :: siteHeader"></div>
-
+  <div th:replace="fragments/chatbox :: chatBoxFragment"></div>
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg">
     <div class="container">
@@ -175,7 +175,7 @@
 
           <h5 class="text-muted">Premier League</h5>
           <h3 th:text="${product.productName}"></h3>
-          <p class="product-price" th:text="'£' + ${product.productPrice}"></p>
+          <p class="product-price" th:text="${product.productPrice} + 'đ'"></p>
 
           <p class="mt-2">Color: <span>black</span></p>
           <div class="d-flex align-items-center mb-2">
@@ -187,7 +187,8 @@
           <div class="mb-2">Sizes:</div>
           <div class="mb-3 d-flex flex-wrap">
             <div class="me-2" th:each="size : ${productSizes}">
-              <input type="radio" class="btn-check" name="size" th:id="${size.name()}" th:value="${size.name()}" />
+              <input type="radio" class="btn-check" name="size" th:id="${size.name()}" th:value="${size.name()}"
+                required />
               <label class="btn btn-outline-dark size-button" th:for="${size.name()}" th:text="${size.name()}"></label>
             </div>
           </div>
@@ -240,14 +241,35 @@
     <!-- Related Products -->
     <div class="mt-5">
       <h5 class="mb-3">You may also like</h5>
+
+      <!-- Same Category Products -->
+      <h6 class="mb-3">Similar Products</h6>
       <div class="row row-cols-2 row-cols-md-4 g-4 mt-2">
-        <div class="col" th:each="item : ${relatedProducts}">
-          <div class="card h-100 recommend-card p-3 text-center">
-            <img th:src="@{${item.productImgPath}}" class="img-fluid" />
-            <div class="fw-bold" th:text="${item.productName}">Training Jersey</div>
-            <div class="text-muted small">1 Colour</div>
-            <div class="fw-bold" th:text="'£' + ${item.productPrice}">£30.00</div>
-          </div>
+        <div class="col" th:each="item : ${relatedProduct['categoryProduct']}">
+          <a th:href="@{/product/{id}(id=${item.productId})}" class="text-decoration-none text-dark">
+            <div class="card h-100 recommend-card p-3 text-center">
+              <img th:src="@{${item.productImgPath}}" class="img-fluid" />
+              <div class="fw-bold" th:text="${item.productName}">Product Name</div>
+              <div class="text-muted small">1 Colour</div>
+              <div class="fw-bold" th:text="${item.productPrice + 'đ'}">0đ</div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Top 10 Most Sale -->
+      <h6 class="mt-5 mb-3">Top 10 Bestsellers</h6>
+      <div class="row row-cols-2 row-cols-md-4 g-4 mt-2">
+        <div class="col" th:each="item : ${relatedProduct['top10MostSale']}">
+          <a th:href="@{/product/{id}(id=${item.productId})}" class="text-decoration-none text-dark">
+            <div class="card h-100 recommend-card p-3 text-center">
+              <img th:src="@{${item.productImgPath}}" class="img-fluid" />
+              <div class="fw-bold" th:text="${item.productName}">Product Name</div>
+              <div class="text-muted small">1 Colour</div>
+              <div class="fw-bold" th:text="${item.productPrice + 'đ'}">0đ</div>
+            </div>
+          </a>
         </div>
       </div>
     </div>

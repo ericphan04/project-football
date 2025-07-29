@@ -46,6 +46,16 @@ public class TicketService implements IService<Ticket> {
         return ticketRepo.saveAll(tickets);
     }
 
+    public int getTotalTickets(String matchId) {
+        Integer total = ticketRepo.findAllByMatchMatchId(UUID.fromString(matchId)).size();
+        return total != null ? total : 0;
+    }
+
+    public int getSoldTickets(String matchId) {
+        Integer sold = ticketRepo.findAllSoldByMatch(UUID.fromString(matchId)).size();
+        return sold != null ? sold : 0;
+    }
+
 
     
 }

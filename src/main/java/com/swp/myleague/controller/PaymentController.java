@@ -92,7 +92,7 @@ public class PaymentController {
             @RequestParam("amount") Double amount,
             @RequestParam("email") String email,
             @RequestParam("orderInfo") String orderInfo,
-            @RequestParam("shippingAddress") String shippingAddress,
+            @RequestParam(name = "shippingAddress", required = false) String shippingAddress,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception {
         // 1️⃣ Lấy baseUrl cho return/cancel

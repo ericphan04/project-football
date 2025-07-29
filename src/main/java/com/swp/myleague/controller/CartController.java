@@ -86,9 +86,9 @@ public class CartController {
 
     @PostMapping(value = { "", "/" })
     public String addProductToCart(Model model, HttpServletRequest request, @RequestParam("productId") String productId,
-            @RequestParam("productAmount") String productAmount,
-            @RequestParam("size") String size,
-            @RequestParam("url") String url, HttpSession session) {
+            @RequestParam(name = "productAmount", required = false) String productAmount,
+            @RequestParam(name = "size", required = false) String size,
+            @RequestParam(name = "url", required = false) String url, HttpSession session) {
         Object o = session.getAttribute("cart");
 
         if (o == null) {

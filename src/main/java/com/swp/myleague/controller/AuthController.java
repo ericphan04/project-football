@@ -126,6 +126,7 @@ public class AuthController {
         }
 
         User user = new User(signup.getUsername(), signup.getEmail(), encoder.encode(signup.getPassword()));
+        user.setIsBan(false);
         switch (signup.getRole()) {
             case "admin":
                 user.setRole(Role.ADMIN);

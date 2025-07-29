@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.swp.myleague.model.entities.Comment;
 import com.swp.myleague.model.entities.Role;
 import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.information.Player;
@@ -31,6 +32,7 @@ import com.swp.myleague.model.entities.match.MatchClubStat;
 import com.swp.myleague.model.entities.match.MatchEvent;
 import com.swp.myleague.model.entities.match.MatchEventType;
 import com.swp.myleague.model.entities.match.MatchPlayerStat;
+import com.swp.myleague.model.service.CommentService;
 import com.swp.myleague.model.service.UserService;
 import com.swp.myleague.model.service.informationservice.PlayerService;
 import com.swp.myleague.model.service.matchservice.MatchClubStatService;
@@ -63,6 +65,9 @@ public class MatchController {
     @Autowired
     PlayerService playerService;
 
+    @Autowired
+    CommentService commentService;
+
     @GetMapping("")
     public String getAllMatch(@RequestParam(name = "search", required = false) String search,
             @RequestParam(name = "searchPlayerName", required = false) String searchPlayerName,
@@ -85,14 +90,20 @@ public class MatchController {
         model.addAttribute("searchPlayerName", searchPlayerName);
         model.addAttribute("searchClubName", searchClubName);
         model.addAttribute("search", search);
+
         return "Match";
     }
 
     @GetMapping("/{matchId}")
     public String getMatchById(@PathVariable(name = "matchId") String matchId, Model model, Principal principal) {
-        String username = principal.getName();
-        User user = userService.findByUsername(username);
-        Boolean isAdmin = user.getRole() == Role.ADMIN;
+        Boolean isAdmin = false;
+        if (principal != null) {
+            String username = principal.getName();
+            User user = userService.findByUsername(username);
+            isAdmin = user.getRole() == Role.ADMIN;
+        }
+
+        
 
         List<MatchPlayerStat> playerStats = matchPlayerStatService.getAllByMatchId(matchId);
         List<MatchClubStat> clubStats = new ArrayList<>();
@@ -104,6 +115,10 @@ public class MatchController {
         }
 
         Match match = matchService.getById(matchId);
+
+        if (match.getMatchStartTime().isBefore(LocalDateTime.now())) {
+            model.addAttribute("isFixture", true);
+        }
 
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("match", match);
@@ -124,6 +139,7 @@ public class MatchController {
                 .max(Comparator.comparing(MatchPlayerStat::getRating))
                 .orElse(null);
         model.addAttribute("motm", mpsMOM);
+        model.addAttribute("comments", commentService.getAllCommentsByMatchId(matchId));
         return "DetailMatch";
     }
 
@@ -149,6 +165,7 @@ public class MatchController {
         model.addAttribute("searchPlayerName", searchPlayerName);
         model.addAttribute("searchClubName", searchClubName);
         model.addAttribute("search", search);
+        
         return "Fixture";
     }
 
@@ -233,6 +250,21 @@ public class MatchController {
             e.printStackTrace();
             return "redirect:/match/" + matchId + "?error";
         }
+    }
+
+    @PostMapping("/comment/{matchId}")
+    public String postComment(@RequestParam(name = "commentContent") String commentContent,
+            @PathVariable(name = "matchId") String matchId, Principal principal) {
+        String username = principal.getName();
+        User user = userService.findByUsername(username);
+        Comment comment = new Comment();
+        comment.setMatch(matchService.getById(matchId));
+        comment.setCommentContent(commentContent);
+        comment.setUser(user);
+        comment.setCommentDateCreated(LocalDateTime.now());
+        commentService.save(comment);
+
+        return "redirect:/match/" + matchId;
     }
 
 }

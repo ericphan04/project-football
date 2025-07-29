@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.swp.myleague.model.entities.information.Club;
 import com.swp.myleague.model.entities.information.PlayerPosition;
 import com.swp.myleague.model.entities.match.Match;
 import com.swp.myleague.model.entities.match.MatchClubStat;
@@ -60,10 +61,13 @@ public class ClubController {
     @GetMapping("/{clubId}")
     public String getDetailClub(@RequestParam(name = "season", required = false) String season,
             @PathVariable("clubId") String clubId, Model model) {
-        model.addAttribute("club", clubService.getById(clubId));
+        Club club = clubService.getById(clubId);
+        model.addAttribute("club", club);
         model.addAttribute("blogs", blogService.getByClubId(clubId));
         model.addAttribute("topScorer", playerService.getTopScorerOfClub(clubId));
         model.addAttribute("topAppeared", playerService.getTopAppearedOfClub(clubId));
+        model.addAttribute("highlights", matchEventService.getAllHighlightByClubId(club.getClubId().toString()));
+
 
         if (season == null || season.isBlank()) {
             season = LocalDate.now().getYear() + "";

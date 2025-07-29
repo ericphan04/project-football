@@ -56,7 +56,7 @@ public class MatchService implements IService<Match> {
 
     @Override
     public Match save(Match e) {
-        e.setMatchStartTime(LocalDateTime.now());
+        
         return matchRepo.save(e);
     }
 
