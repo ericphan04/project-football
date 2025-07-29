@@ -37,6 +37,7 @@
                     <a th:href="@{/news}">News</a>
                     <a th:href="@{/club}">Clubs</a>
                     <a th:href="@{/product}">Product</a>
+                    <a th:href="@{/stastics(year=${#dates.format(#dates.createNow(), 'yyyy')})}">Ranking</a>
                     <a th:href="@{/feedback}">Feedback</a>
                 </nav>
 

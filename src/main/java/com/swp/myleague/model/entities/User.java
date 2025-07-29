@@ -7,6 +7,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 import com.swp.myleague.model.entities.saleproduct.Orders;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,7 +26,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Entity
 public class User {
-    
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
@@ -43,6 +44,9 @@ public class User {
     private String phonenumber;
     private String fullname;
     private String imgPath;
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isBan;
 
     @Enumerated(EnumType.STRING)
     private Role role;

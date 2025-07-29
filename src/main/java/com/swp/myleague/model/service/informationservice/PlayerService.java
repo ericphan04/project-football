@@ -12,10 +12,13 @@ import org.springframework.stereotype.Service;
 import com.swp.myleague.common.IService;
 import com.swp.myleague.model.entities.information.Player;
 import com.swp.myleague.model.repo.PlayerRepo;
+import com.swp.myleague.payload.CareerPlayer;
 import com.swp.myleague.payload.PlayerStandingAssistDTO;
 import com.swp.myleague.payload.PlayerStandingCleanSheetsDTO;
 import com.swp.myleague.payload.PlayerStandingGoalDTO;
 import com.swp.myleague.payload.PlayerStandingPlayedMinutesDTO;
+import com.swp.myleague.payload.TopAppearedClub;
+import com.swp.myleague.payload.TopScorerClub;
 
 @Service
 public class PlayerService implements IService<Player> {
@@ -135,6 +138,18 @@ public class PlayerService implements IService<Player> {
         }
 
         return result;
+    }
+
+    public TopScorerClub getTopScorerOfClub(String clubId) {
+        return playerRepo.getTopScorerDTOByClubId(UUID.fromString(clubId));
+    }
+
+    public TopAppearedClub getTopAppearedOfClub(String clubId) {
+        return playerRepo.getTopAppearedDTOByClubId(UUID.fromString(clubId));
+    }
+
+    public List<CareerPlayer> getCareerByPlayerId(String playerId) {
+        return playerRepo.findCareerPlayerByPlayerId(UUID.fromString(playerId));
     }
 
 }

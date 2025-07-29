@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.swp.myleague.common.IService;
 import com.swp.myleague.model.entities.information.Club;
 import com.swp.myleague.model.repo.ClubRepo;
+import com.swp.myleague.payload.ClubStatOverview;
 
 @Service
 public class ClubService implements IService<Club> {
@@ -38,6 +39,10 @@ public class ClubService implements IService<Club> {
     public Club delete(String id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'delete'");
+    }
+
+    public ClubStatOverview getClubStatOverview(String clubId, String season) {
+        return clubRepo.getClubStatOverview(UUID.fromString(clubId), Integer.parseInt(season));
     }
     
 }

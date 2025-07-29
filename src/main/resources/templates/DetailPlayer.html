@@ -110,12 +110,13 @@
                 <p><strong>Position:</strong> <span th:text="${player.playerPosition.name()}">Goalkeeper</span></p>
                 <p>
                     <strong>Nationality:</strong>
-                    <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.png'}"
-                        alt="flag" style="height: 16px; margin-right: 4px;">
+                    <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.svg'}" alt="flag"
+                        style="height: 16px; margin-right: 4px;">
                     <span th:text="${player.playerNationaly}">Turkey</span>
                 </p>
-                <p><strong>Date of Birth:</strong> <span>14/04/1998</span> (<span>27</span>)</p>
-                <p><strong>Height:</strong> <span>198cm</span></p>
+                <p id="dobLine"><strong>Date of Birth:</strong> <span></span> (<span></span>)</p>
+                <p id="heightLine"><strong>Height:</strong> <span></span></p>
+                <p id="weightLine"><strong>Weight:</strong> <span></span></p>
             </div>
             <div class="col-md-4">
                 <h5>Premier League Record</h5>
@@ -152,27 +153,52 @@
                         <th>More</th>
                     </tr>
                 </thead>
-                <!-- <tbody>
-          <tr th:each="record : ${player.career}">
-            <td th:text="${record.season}">2025/2026</td>
-            <td th:text="${record.clubName}">Manchester United</td>
-            <td th:text="${record.appearances} + ' (' + ${record.subs} + ')'">4 (0)</td>
-            <td th:text="${record.goals}">0</td>
-            <td>→</td>
-          </tr>
-        </tbody> -->
                 <tbody>
-                    <tr>
-                        <td>2025/2026</td>
-                        <td>Manchester United</td>
-                        <td>4 (0)</td>
-                        <td>0</td>
+
+                    <tr th:each="seasonCareer : ${career}">
+                        <td th:text="${seasonCareer.season}">2025/2026</td>
+                        <td th:text="${seasonCareer.clubName}">Manchester United</td>
+                        <td th:text="${seasonCareer.appeared}">4</td>
+                        <td th:text="${seasonCareer.goals}">0</td>
                         <td>→</td>
                     </tr>
+
                 </tbody>
             </table>
         </div>
     </div>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            let infoText = /*[[${player.playerInformation}]]*/ 'dob: 1998-04-14\nheight: 198\nweight: 80';
+
+            if (!infoText || infoText === 'null') {
+                infoText = 'dob: 2000-01-01\nheight: 180\nweight: 75';
+            }
+
+            const infoLines = infoText.split('\n').reduce((acc, line) => {
+                const [key, value] = line.split(':').map(s => s.trim());
+                acc[key] = value;
+                return acc;
+            }, {});
+
+            const dob = new Date(infoLines['dob']);
+            const today = new Date();
+            const age = today.getFullYear() - dob.getFullYear() -
+                ((today.getMonth() < dob.getMonth() || (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) ? 1 : 0);
+
+            const dobSpans = document.querySelectorAll('#dobLine span');
+            if (dobSpans.length === 2) {
+                dobSpans[0].textContent = dob.toLocaleDateString('en-GB');
+                dobSpans[1].textContent = age;
+            }
+
+            const heightSpan = document.querySelector('#heightLine span');
+            if (heightSpan) heightSpan.textContent = infoLines['height'] + ' cm';
+
+            const weightSpan = document.querySelector('#weightLine span');
+            if (weightSpan) weightSpan.textContent = infoLines['weight'] + ' kg';
+        });
+    </script>
 </body>
 
 </html>

@@ -127,72 +127,96 @@
             color: #30003a;
         }
 
-        .stats-table {
-            width: 100%;
+        .formation-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .formation-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .player {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-weight: bold;
+            font-size: 14px;
+            max-width: 220px;
+        }
+
+        .player img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            margin-right: 8px;
+            object-fit: cover;
+            border: 1px solid #aaa;
+        }
+
+        .player .info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .player small {
+            font-size: 11px;
+            color: #6c757d;
+            font-weight: 400;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #30003a;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .highlight-box {
+            background: #fffbea;
+            border: 2px solid gold;
         }
 
         .stat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 6px 0;
+            margin: 10px 0;
+            font-size: 15px;
         }
 
-        .team-stat {
-            width: 30%;
-            text-align: center;
+        .team-title {
+            font-size: 18px;
             font-weight: bold;
-            color: #fff;
+            margin-top: 10px;
         }
 
-        .stat-name {
-            width: 40%;
-            text-align: center;
-            color: #ddd;
-        }
-
-        .left {
-            color: #c00;
-            /* đỏ */
-        }
-
-        .right {
-            color: #000;
-            /* đen hoặc tuỳ team */
-        }
-
-        .formation-line {
-            display: flex;
+        .substitutes {
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 10px;
+            flex-wrap: wrap;
             justify-content: center;
-            margin: 20px 0;
         }
 
-        .home-side {
-            transform: rotate(-90deg);
+        .substitutes .player {
+            background-color: #fff9e6;
+            /* vàng nhạt */
+            border: 1px solid #ffd966;
         }
 
-        .away-side {
-            transform: rotate(90deg);
+        .stat-item {
+            transition: all 0.3s ease;
         }
 
-        .home-side .player-box {
-            text-align: center;
-            margin: 0 10px;
-            transform: rotate(90deg)
-        }
-
-        .away-side .player-box {
-            text-align: center;
-            margin: 0 10px;
-            transform: rotate(-90deg)
-        }
-
-        .player-box img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 2px solid #fff;
-            object-fit: cover;
+        .stat-item:hover {
+            background-color: #e9ecef;
+            transform: scale(1.01);
         }
     </style>
 </head>
@@ -230,9 +254,7 @@
             <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addHighlightModal">
                 <i class="bi bi-plus-circle"></i> Add Highlight
             </button>
-            <button class="btn btn-secondary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addMOTMModal">
-                <i class="bi bi-plus-circle"></i> Add Man of the match
-            </button>
+            
         </div>
 
         <div class="d-flex justify-content-end mb-3"
@@ -360,186 +382,319 @@
 
         <!-- LINEUP -->
         <!-- LINEUP -->
-        <div class="section slide-up">
-            <!-- <h5 class="text-center mb-4">Starting Lineups (Formation: 4-2-3-1)</h5> -->
-            <div class="row">
-                <!-- Home Team -->
-                <div class="col-md-6 ">
-                    <h6 class="text-center text-primary" th:text="${match.matchClubStats[0].club.clubName}">Home Team
-                    </h6>
-                    <div class="formation-wrapper home-side">
-                        <!-- GK -->
-                        <div class="formation-line gk">
-                            <div th:each="p : ${startingLineupHome}" th:if="${p.playerPosition.name() == 'GK'}"
-                                class="player-box">
-                                <img th:src="@{${p.playerImgPath}}" />
-                                <div th:text="${p.playerFullName}">GK</div>
+        <div class="section lineup-box slide-up">
+            <ul class="nav nav-tabs mb-3" id="teamTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#homeTeam"
+                        type="button" role="tab">🏠 Đội sân nhà</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="away-tab" data-bs-toggle="tab" data-bs-target="#awayTeam" type="button"
+                        role="tab">🚗 Đội sân khách</button>
+                </li>
+            </ul>
+
+
+            <div class="tab-content" id="teamTabsContent">
+
+                <!-- 🏠 HOME TEAM -->
+                <div class="tab-pane fade show active" id="homeTeam" role="tabpanel">
+                    <h5 class="text-primary text-center team-title" th:text="${match.matchClubStats[0].club.clubName}">
+                        Đội
+                        nhà</h5>
+
+                    <!-- Sub-tabs: Lineup / Stat -->
+                    <ul class="nav nav-pills mb-3 justify-content-center">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#home-lineup">Đội
+                                hình</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#home-stat">Thống kê</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Đội hình ra sân -->
+                        <!-- Đội hình ra sân -->
+                        <div class="tab-pane fade show active" id="home-lineup">
+                            <div class="formation-grid">
+
+                                <!-- GK -->
+                                <div class="formation-row">
+                                    <div class="player" th:each="p : ${startingLineupHome}"
+                                        th:if="${p.playerPosition.name() == 'GK'}">
+                                        <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                        <div class="info">
+                                            <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Player</span>
+                                            <small>GK</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CB -->
+                                <div class="formation-row">
+                                    <div class="player" th:each="p : ${startingLineupHome}"
+                                        th:if="${p.playerPosition.name() == 'CB'}">
+                                        <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                        <div class="info">
+                                            <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Player</span>
+                                            <small>CB</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- MD -->
+                                <div class="formation-row">
+                                    <div class="player" th:each="p : ${startingLineupHome}"
+                                        th:if="${p.playerPosition.name() == 'MD'}">
+                                        <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                        <div class="info">
+                                            <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Player</span>
+                                            <small>MD</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FW -->
+                                <div class="formation-row">
+                                    <div class="player" th:each="p : ${startingLineupHome}"
+                                        th:if="${p.playerPosition.name() == 'FW'}">
+                                        <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                        <div class="info">
+                                            <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Player</span>
+                                            <small>FW</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DỰ BỊ -->
+                            <h6 class="text-center mt-4 fw-bold text-muted">DỰ BỊ</h6>
+                            <div class="formation-row substitutes">
+                                <div class="player" th:each="p : ${substitueLineupHome}">
+                                    <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                    <div class="info">
+                                        <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Sub</span>
+                                        <small th:text="${p.playerPosition.name()}">Sub</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <!-- DEF -->
-                        <div class="formation-line df">
-                            <div th:each="p : ${startingLineupHome}" th:if="${p.playerPosition.name() == 'CB'}"
-                                class="player-box">
-                                <img th:src="@{${p.playerImgPath}}" />
-                                <div th:text="${p.playerFullName}">DF</div>
-                            </div>
-                        </div>
-                        <!-- DM -->
-                        <div class="formation-line dm">
-                            <div th:each="p : ${startingLineupHome}" th:if="${'MD' == p.playerPosition.name()}"
-                                class="player-box">
-                                <img th:src="@{${p.playerImgPath}}" />
-                                <div th:text="${p.playerFullName}">DM</div>
-                            </div>
-                        </div>
-                        <!-- FW -->
-                        <div class="formation-line fw">
-                            <div th:each="p : ${startingLineupHome}" th:if="${'FW' == p.playerPosition.name()}"
-                                class="player-box">
-                                <img th:src="@{${p.playerImgPath}}" />
-                                <div th:text="${p.playerFullName}">FW</div>
+
+
+                        <!-- Thống kê -->
+                        <div class="tab-pane fade" id="home-stat">
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i class="bi bi-pie-chart-fill text-primary me-1"></i>
+                                            Kiểm soát bóng:</span>
+                                        <span class="float-end fw-bold text-primary"
+                                            th:text="${clubStats[0].matchClubStatBallTimes + '%'}">46%</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i class="bi bi-bullseye text-danger me-1"></i>
+                                            Sút:</span>
+                                        <span class="float-end fw-bold"
+                                            th:text="${clubStats[0].matchClubStatShoots}">8</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i
+                                                class="bi bi-arrow-left-right text-success me-1"></i> Chuyền:</span>
+                                        <span class="float-end fw-bold"
+                                            th:text="${clubStats[0].matchClubStatPass}">390</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i class="bi bi-flag-fill text-warning me-1"></i> Phạt
+                                            góc:</span>
+                                        <span class="float-end fw-bold"
+                                            th:text="${clubStats[0].matchClubStatCorners}">6</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i
+                                                class="bi bi-exclamation-triangle-fill text-warning me-1"></i> Thẻ
+                                            vàng:</span>
+                                        <span class="float-end fw-bold text-warning"
+                                            th:text="${clubStats[0].matchClubStatYellowCard}">3</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i class="bi bi-x-octagon-fill text-danger me-1"></i>
+                                            Thẻ đỏ:</span>
+                                        <span class="float-end fw-bold text-danger"
+                                            th:text="${clubStats[0].matchClubStatRedCard}">0</span>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Away Team -->
-                <div class="col-md-6">
-                    <h6 class="text-center text-danger" th:text="${match.matchClubStats[1].club.clubName}">Away Team
-                    </h6>
-                    <div class="formation-wrapper   away-side">
-                        <!-- GK -->
-                        <div class="formation-line gk">
-                            <div th:each="p : ${startingLineupAway}" th:if="${p.playerPosition.name() == 'GK'}"
-                                class="player-box">
-                                <img th:src="@{${p.playerImgPath}}" />
-                                <div th:text="${p.playerFullName}">GK</div>
+                <!-- 🚗 AWAY TEAM -->
+                <div class="tab-pane fade" id="awayTeam" role="tabpanel">
+                    <h5 class="text-danger text-center team-title" th:text="${match.matchClubStats[1].club.clubName}">
+                        Đội
+                        khách</h5>
+
+                    <!-- Sub-tabs -->
+                    <ul class="nav nav-pills mb-3 justify-content-center">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#away-lineup">Đội
+                                hình</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#away-stat">Thống kê</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Đội hình ra sân -->
+                        <!-- Đội hình ra sân -->
+                        <div class="tab-pane fade show active" id="away-lineup">
+                            <div class="formation-grid">
+
+                                <!-- GK -->
+                                <div class="formation-row">
+                                    <div class="player" th:each="p : ${startingLineupAway}"
+                                        th:if="${p.playerPosition.name() == 'GK'}">
+                                        <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                        <div class="info">
+                                            <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Player</span>
+                                            <small>GK</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CB -->
+                                <div class="formation-row">
+                                    <div class="player" th:each="p : ${startingLineupAway}"
+                                        th:if="${p.playerPosition.name() == 'CB'}">
+                                        <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                        <div class="info">
+                                            <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Player</span>
+                                            <small>CB</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- MD -->
+                                <div class="formation-row">
+                                    <div class="player" th:each="p : ${startingLineupAway}"
+                                        th:if="${p.playerPosition.name() == 'MD'}">
+                                        <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                        <div class="info">
+                                            <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Player</span>
+                                            <small>MD</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- FW -->
+                                <div class="formation-row">
+                                    <div class="player" th:each="p : ${startingLineupAway}"
+                                        th:if="${p.playerPosition.name() == 'FW'}">
+                                        <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                        <div class="info">
+                                            <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Player</span>
+                                            <small>FW</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DỰ BỊ -->
+                            <h6 class="text-center mt-4 fw-bold text-muted">DỰ BỊ</h6>
+                            <div class="formation-row substitutes">
+                                <div class="player" th:each="p : ${substitueLineupAway}">
+                                    <img th:src="@{${p.playerImgPath}}" alt="Player">
+                                    <div class="info">
+                                        <span th:text="${p.playerNumber + '. ' + p.playerFullName}">Sub</span>
+                                        <small th:text="${p.playerPosition.name()}">Sub</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <!-- DEF -->
-                        <div class="formation-line df">
-                            <div th:each="p : ${startingLineupAway}" th:if="${'CB' == p.playerPosition.name()}"
-                                class="player-box">
-                                <img th:src="@{${p.playerImgPath}}" />
-                                <div th:text="${p.playerFullName}">CB</div>
+
+
+                        <!-- Thống kê -->
+                        <div class="tab-pane fade" id="away-stat">
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i class="bi bi-pie-chart-fill text-primary me-1"></i>
+                                            Kiểm soát bóng:</span>
+                                        <span class="float-end fw-bold text-primary"
+                                            th:text="${clubStats[1].matchClubStatBallTimes + '%'}">46%</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i class="bi bi-bullseye text-danger me-1"></i>
+                                            Sút:</span>
+                                        <span class="float-end fw-bold"
+                                            th:text="${clubStats[1].matchClubStatShoots}">8</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i
+                                                class="bi bi-arrow-left-right text-success me-1"></i> Chuyền:</span>
+                                        <span class="float-end fw-bold"
+                                            th:text="${clubStats[1].matchClubStatPass}">390</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i class="bi bi-flag-fill text-warning me-1"></i> Phạt
+                                            góc:</span>
+                                        <span class="float-end fw-bold"
+                                            th:text="${clubStats[1].matchClubStatCorners}">6</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i
+                                                class="bi bi-exclamation-triangle-fill text-warning me-1"></i> Thẻ
+                                            vàng:</span>
+                                        <span class="float-end fw-bold text-warning"
+                                            th:text="${clubStats[1].matchClubStatYellowCard}">3</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="stat-item border rounded p-3 bg-light">
+                                        <span class="fw-semibold"><i class="bi bi-x-octagon-fill text-danger me-1"></i>
+                                            Thẻ đỏ:</span>
+                                        <span class="float-end fw-bold text-danger"
+                                            th:text="${clubStats[1].matchClubStatRedCard}">0</span>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
-                        <!-- DM -->
-                        <div class="formation-line dm">
-                            <div th:each="p : ${startingLineupAway}" th:if="${'MD' == p.playerPosition.name()}"
-                                class="player-box">
-                                <img th:src="@{${p.playerImgPath}}" />
-                                <div th:text="${p.playerFullName}">MD</div>
-                            </div>
-                        </div>
-                        <!-- FW -->
-                        <div class="formation-line fw">
-                            <div th:each="p : ${startingLineupAway}" th:if="${'FW' == p.playerPosition.name()}"
-                                class="player-box">
-                                <img th:src="@{${p.playerImgPath}}" />
-                                <div th:text="${p.playerFullName}">FW</div>
-                            </div>
-                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="row mt-4">
-                <!-- Home Substitutes -->
-                <div class="col-md-6">
-                    <h6 class="text-center text-primary">Substitutes - <span th:text="${match.matchClubStats[0].club.clubName}">Home Team</span></h6>
-                    <div class="d-flex flex-wrap justify-content-center">
-                        <div class="player-box m-2" th:each="p : ${substitueLineupHome}">
-                            <img th:src="@{${p.playerImgPath}}" alt="Player" />
-                            <div th:text="${p.playerFullName}">Sub</div>
-                        </div>
-                    </div>
-                </div>
-            
-                <!-- Away Substitutes -->
-                <div class="col-md-6">
-                    <h6 class="text-center text-danger">Substitutes - <span th:text="${match.matchClubStats[1].club.clubName}">Away Team</span></h6>
-                    <div class="d-flex flex-wrap justify-content-center">
-                        <div class="player-box m-2" th:each="p : ${substitueLineupAway}">
-                            <img th:src="@{${p.playerImgPath}}" alt="Player" />
-                            <div th:text="${p.playerFullName}">Sub</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-
-
-
-        <!-- MatchStat -->
-        <div class="section stats slide-up">
-            <h5 class="mb-3">Match Stats</h5>
-            <div class="stats-table">
-                <!-- Possession -->
-                <div class="stat-row">
-                    <div class="team-stat left" th:text="${clubStats[0].matchClubStatBallTimes * 100 / 90 + '%'}">55.4%
-                    </div>
-                    <div class="stat-name">Possession</div>
-                    <div class="team-stat right" th:text="${clubStats[1].matchClubStatBallTimes * 100 / 90 + '%'}">44.6%
-                    </div>
-                </div>
-
-                <!-- Total Shots -->
-                <div class="stat-row">
-                    <div class="team-stat left" th:text="${clubStats[0].matchClubStatShoots}">14</div>
-                    <div class="stat-name">Total Shots</div>
-                    <div class="team-stat right" th:text="${clubStats[1].matchClubStatShoots}">10</div>
-                </div>
-
-                <!-- Shots on Target (không có trong DB, tạm hardcode hoặc N/A) -->
-                <div class="stat-row">
-                    <div class="team-stat left">5</div> <!-- hoặc th:text="${clubStats[0].shotsOnTarget ?: 'N/A'}" -->
-                    <div class="stat-name">Shots On Target</div>
-                    <div class="team-stat right">2</div> <!-- hoặc th:text="${clubStats[1].shotsOnTarget ?: 'N/A'}" -->
-                </div>
-
-                <!-- Passes + Pass accuracy (không có matchClubStatPassAccuracy, tạm hardcode) -->
-                <div class="stat-row">
-                    <div class="team-stat left" th:text="${clubStats[0].matchClubStatPass + ' (85%)'}">482 (85%)</div>
-                    <div class="stat-name">Passes</div>
-                    <div class="team-stat right" th:text="${clubStats[1].matchClubStatPass + ' (80%)'}">384 (80%)</div>
-                </div>
-
-                <!-- Average Chances (không có, tạm hardcode hoặc N/A) -->
-                <div class="stat-row">
-                    <div class="team-stat left">1.61</div>
-                    <!-- hoặc th:text="${clubStats[0].averageChances ?: 'N/A'}" -->
-                    <div class="stat-name">Average Chances</div>
-                    <div class="team-stat right">2.12</div>
-                    <!-- hoặc th:text="${clubStats[1].averageChances ?: 'N/A'}" -->
-                </div>
-
-                <!-- Corners -->
-                <div class="stat-row">
-                    <div class="team-stat left" th:text="${clubStats[0].matchClubStatCorners}">7</div>
-                    <div class="stat-name">Corners</div>
-                    <div class="team-stat right" th:text="${clubStats[1].matchClubStatCorners}">8</div>
-                </div>
-
-                <!-- Saves (không có, tạm hardcode hoặc N/A) -->
-                <div class="stat-row">
-                    <div class="team-stat left">2</div> <!-- hoặc th:text="${clubStats[0].saves ?: 'N/A'}" -->
-                    <div class="stat-name">Saves</div>
-                    <div class="team-stat right">4</div> <!-- hoặc th:text="${clubStats[1].saves ?: 'N/A'}" -->
-                </div>
-
-                <!-- Yellow Cards -->
-                <div class="stat-row">
-                    <div class="team-stat left" th:text="${clubStats[0].matchClubStatYellowCard}">2</div>
-                    <div class="stat-name">Yellow Cards</div>
-                    <div class="team-stat right" th:text="${clubStats[1].matchClubStatYellowCard}">4</div>
-                </div>
-
-                <!-- Red Cards (nếu muốn thêm) -->
-                <div class="stat-row">
-                    <div class="team-stat left" th:text="${clubStats[0].matchClubStatRedCard}">1</div>
-                    <div class="stat-name">Red Cards</div>
-                    <div class="team-stat right" th:text="${clubStats[1].matchClubStatRedCard}">0</div>
                 </div>
             </div>
         </div>
@@ -602,7 +757,7 @@
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form th:action="@{/match/add-highlight}" method="post">
+                <form th:action="@{/match/add-highlight}" method="post" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addHighlightModalLabel">Add Highlight</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -624,6 +779,11 @@
                             <input type="text" class="form-control" id="highlightVideo" name="vidUrl"
                                 placeholder="e.g. dQw4w9WgXcQ" required />
                         </div>
+                        <div class="col-md-6">
+                            <label for="hightlightThumnail" class="form-label">Highlight thumnail</label>
+                            <input class="form-control" type="file" id="hightlightThumnail" name="hightlightThumnail"
+                                accept="image/*">
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -634,33 +794,7 @@
         </div>
     </div>
 
-    <!-- Add Man of the Match Modal -->
-    <div class="modal fade" id="addMOTMModal" tabindex="-1" aria-labelledby="addMOTMModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form th:action="@{/match/add-motm}" method="post">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addMOTMModalLabel">Add Man of the Match</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="matchId" th:value="${match.matchId}" />
-                        <div class="mb-3">
-                            <label for="motmSelect" class="form-label">Select Player</label>
-                            <select class="form-select" name="manOfTheMatch" id="motmSelect" required>
-                                <option th:each="stat : ${matchPlayerStats}" th:value="${stat.matchPlayerStatId}"
-                                    th:text="${stat.player.playerFullName}">Player Name</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Add</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

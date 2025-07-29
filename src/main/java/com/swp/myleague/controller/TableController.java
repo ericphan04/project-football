@@ -1,5 +1,6 @@
 package com.swp.myleague.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,17 @@ public class TableController {
     MatchClubStatService matchClubStatService;
 
     @GetMapping("")
-    public String getTableClubs(@RequestParam(name = "season") String seasonStr ,Model model) {
+    public String getTableClubs(@RequestParam(name = "season", required = false, defaultValue = "2025") String seasonStr ,Model model) {
         Integer season = Integer.parseInt(seasonStr);
         List<ClubStandingDTO> clubStandingDTOs = matchClubStatService.getClubStandings(season);
+
+        List<String> seasons = new ArrayList<>();
+        seasons.add("2024");
+        seasons.add("2025");
+
         model.addAttribute("teams", clubStandingDTOs);
+        model.addAttribute("seasons", seasons);
+        model.addAttribute("selectedSeason", seasonStr); 
         return "Table";
     }
     

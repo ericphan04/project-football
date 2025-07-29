@@ -10,10 +10,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.swp.myleague.model.entities.information.Player;
+import com.swp.myleague.payload.CareerPlayer;
 import com.swp.myleague.payload.PlayerStandingAssistDTO;
 import com.swp.myleague.payload.PlayerStandingCleanSheetsDTO;
 import com.swp.myleague.payload.PlayerStandingGoalDTO;
 import com.swp.myleague.payload.PlayerStandingPlayedMinutesDTO;
+import com.swp.myleague.payload.TopAppearedClub;
+import com.swp.myleague.payload.TopScorerClub;
 
 @Repository
 public interface PlayerRepo extends JpaRepository<Player, UUID> {
@@ -90,5 +93,63 @@ public interface PlayerRepo extends JpaRepository<Player, UUID> {
             LIMIT 10;
                         """, nativeQuery = true)
     List<PlayerStandingCleanSheetsDTO> findTop10PlayersByCleanSheets(@Param("season") Integer season);
+
+    @Query(value = """
+            SELECT
+                p.player_id AS playerId,
+                p.player_full_name AS playerFullName,
+                p.player_img_path AS playerImgPath,
+                p.player_number AS playerNumber,
+                p.player_nationaly AS playerNationaly,
+                c.club_name AS clubName,
+                SUM(s.match_player_goal) AS totalGoals
+            FROM match_player_stat s
+            JOIN player p ON s.player_id = p.player_id
+            JOIN club c ON p.club_id = c.club_id
+            WHERE p.club_id = :clubId
+            GROUP BY p.player_id, p.player_full_name, p.player_img_path, p.player_number, p.player_nationaly, c.club_name
+            ORDER BY totalGoals DESC
+            LIMIT 1
+            """, nativeQuery = true)
+    TopScorerClub getTopScorerDTOByClubId(@Param("clubId") UUID clubId);
+
+    @Query(value = """
+            SELECT
+                p.player_id AS playerId,
+                p.player_full_name AS playerFullName,
+                p.player_img_path AS playerImgPath,
+                p.player_number AS playerNumber,
+                p.player_nationaly AS playerNationaly,
+                c.club_name AS clubName,
+                COUNT(s.match_id) AS totalAppeared
+            FROM match_player_stat s
+            JOIN player p ON s.player_id = p.player_id
+            JOIN club c ON p.club_id = c.club_id
+            WHERE p.club_id = :clubId
+            GROUP BY
+                p.player_id, p.player_full_name, p.player_img_path,
+                p.player_number, p.player_nationaly, c.club_name
+            ORDER BY totalAppeared DESC
+            LIMIT 1
+            """, nativeQuery = true)
+    TopAppearedClub getTopAppearedDTOByClubId(@Param("clubId") UUID clubId);
+
+    @Query(value = """
+                  SELECT
+                ps.player_id AS playerId,
+                p.club_id AS clubId,
+                c.club_name AS clubName,
+                COUNT(ps.match_player_stat_id) AS appeared,
+                SUM(ps.match_player_goal) AS goals,
+                EXTRACT(YEAR FROM m.match_start_time) AS season
+            FROM match_player_stat ps
+            JOIN player p ON ps.player_id = p.player_id
+            JOIN club c ON p.club_id = c.club_id
+            JOIN `'match'` m ON ps.match_id = m.match_id
+            WHERE ps.player_id = :playerId
+            GROUP BY p.club_id, ps.player_id,c.club_name, EXTRACT(YEAR FROM m.match_start_time)
+            ORDER BY season;
+                  """, nativeQuery = true)
+    List<CareerPlayer> findCareerPlayerByPlayerId(@Param("playerId") UUID playerId);
 
 }

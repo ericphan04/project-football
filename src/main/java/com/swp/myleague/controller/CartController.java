@@ -25,12 +25,18 @@ public class CartController {
     @Autowired
     ProductService productService;
 
+    String listProductIds = "";
+
     @GetMapping(value = { "/", "" })
     public String getCart(Model model, HttpServletRequest request, HttpSession session) {
         HashMap<String, CartItem> cart = (HashMap<String, CartItem>) session.getAttribute("cart");
         if (cart == null)
             cart = new HashMap<>();
-
+        
+        cart.values().stream().forEach(item -> {
+            listProductIds += ":" + item.getProduct().getProductId();
+        });
+        model.addAttribute("listProductIds", listProductIds);
         model.addAttribute("cartProducts", cart);
         return "Checkout";
     }

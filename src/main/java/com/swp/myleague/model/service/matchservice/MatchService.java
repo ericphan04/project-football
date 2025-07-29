@@ -85,16 +85,22 @@ public class MatchService implements IService<Match> {
 
         for (int round = 0; round < numRounds; round++) {
             String roundDescription = "Vòng " + (round + 1);
-            List<Match> existingMatches = matchRepo.findByMatchDescription(roundDescription);
+            List<Match> existingMatches = matchRepo.findByMatchDescription(roundDescription).stream()
+                    .filter(m -> m.getMatchStartTime().getYear() == LocalDate.now().getYear()).toList();
+            List<Match> roundMatches = new ArrayList<>();
+            Set<Club> usedClubs = new HashSet<>();
             if (!existingMatches.isEmpty()) {
                 matches.addAll(existingMatches); // đã có → lấy từ DB
-                continue;
+                existingMatches.forEach(m -> {
+                    usedClubs.add(m.getMatchClubStats().get(0).getClub());
+                    usedClubs.add(m.getMatchClubStats().get(1).getClub());
+                });
+                if (existingMatches.size() == halfSize) {
+                    continue;
+                }
             }
 
             Collections.shuffle(rotation); // xáo vị trí mỗi vòng
-
-            List<Match> roundMatches = new ArrayList<>();
-            Set<Club> usedClubs = new HashSet<>();
 
             for (int i = 0; i < halfSize; i++) {
                 Club home = (i == 0) ? fixed : rotation.get(i - 1);
@@ -160,7 +166,7 @@ public class MatchService implements IService<Match> {
 
             });
             matchClubStatRepo.saveAll(match.getMatchClubStats());
-
+            
         }
         return newMatches;
 

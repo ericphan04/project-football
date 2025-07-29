@@ -17,8 +17,7 @@ public class MatchEventService implements IService<MatchEvent> {
 
     @Override
     public List<MatchEvent> getAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAll'");
+        return matchEventRepo.findAll();
     }
 
     public List<MatchEvent> getAllByMatchId(String matchId){
