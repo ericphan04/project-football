@@ -39,7 +39,7 @@
             transition: transform 0.3s;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            height: 400px; /* Fixed height for all cards */
         }
 
         .player-card:hover {
@@ -49,6 +49,7 @@
         .player-card-inner {
             display: flex;
             flex-direction: row;
+            flex: 1;
         }
 
         .player-stats {
@@ -75,36 +76,38 @@
         }
 
         .player-img {
-            background-color: #c70101;
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background-color: #ffffff;
+            flex-shrink: 0;
+    width: 150px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
         }
 
         .player-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    width: auto;      /* Quan trọng: không ép đầy ngang hoàn toàn */
+    height: 100%;     /* Chiều cao luôn bằng khung chứa */
+    object-fit: contain; /* Hiển thị toàn bộ ảnh, không crop mép */
+    background: transparent;
+}
 
         .player-details {
             padding: 1rem;
             text-align: left;
+            flex-shrink: 0;
         }
 
-        .player-details .name {
+        .player-details .player-name {
             font-weight: 700;
-            font-size: 1.2rem;
-            margin-bottom: 0;
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
             color: #2d004d;
-        }
-
-        .player-details .surname {
-            font-weight: 900;
-            font-size: 1.6rem;
-            margin-bottom: 0.3rem;
-            color: #2d004d;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
         }
 
         .player-details .role {
@@ -127,12 +130,22 @@
             display: inline-block;
             margin-top: 6px;
         }
+
+        /* Ensure equal height columns */
+        .row-cols-2 > *, .row-cols-md-4 > * {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .col.player-card-wrapper {
+            display: flex;
+        }
     </style>
 </head>
 
 <body>
     <div th:replace="fragments/header :: siteHeader"></div>
-
+    <div th:replace="fragments/chatbox :: chatBoxFragment"></div>
     <div class="club-header">
         <img th:src="@{${club.clubLogoPath}}" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;" />
         <h1 class="mb-1" th:text="${club.clubName}">Club Name</h1>
@@ -150,9 +163,9 @@
             <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/fixtures'">Fixtures</a></li>
             <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/results'">Results</a></li>
             <li class="nav-item"><a class="nav-link" th:href="'/club/' + ${club.clubId} + '/stadium'">Stadium</a></li>
-
         </ul>
     </div>
+    
     <div class="container mt-4">
         <div class="row mb-3">
             <div class="col-md-6">
@@ -160,10 +173,10 @@
             </div>
         </div>
     </div>
+    
     <div class="container">
         <h4>Goalkeepers</h4>
         <div class="row row-cols-2 row-cols-md-4 g-4">
-
             <div class="col player-card-wrapper" th:each="player : ${goalkeepers}"
                 th:attr="data-name=${player.playerFullName}">
                 <div class="player-card">
@@ -179,11 +192,10 @@
                         </div>
                     </div>
                     <div class="player-details">
-                        <div class="name" th:text="${player.playerFullName}">Ayden</div>
-                        <div class="surname" th:text="${player.playerFullName}">Heaven</div>
+                        <div class="player-name" th:text="${player.playerFullName}">Ayden Heaven</div>
                         <div class="role">
                             <span th:text="${player.playerNumber}">26</span>
-                            <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
+                            <span th:text="${player.playerPosition.name()}" class="ms-1">Goalkeeper</span>
                         </div>
                         <div class="nation">
                             <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.svg'}" alt="flag"
@@ -213,8 +225,7 @@
                         </div>
                     </div>
                     <div class="player-details">
-                        <div class="name" th:text="${player.playerFullName}">Ayden</div>
-                        <div class="surname" th:text="${player.playerFullName}">Heaven</div>
+                        <div class="player-name" th:text="${player.playerFullName}">Ayden Heaven</div>
                         <div class="role">
                             <span th:text="${player.playerNumber}">26</span>
                             <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
@@ -247,11 +258,10 @@
                         </div>
                     </div>
                     <div class="player-details">
-                        <div class="name" th:text="${player.playerFullName}">Ayden</div>
-                        <div class="surname" th:text="${player.playerFullName}">Heaven</div>
+                        <div class="player-name" th:text="${player.playerFullName}">Ayden Heaven</div>
                         <div class="role">
                             <span th:text="${player.playerNumber}">26</span>
-                            <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
+                            <span th:text="${player.playerPosition.name()}" class="ms-1">Midfielder</span>
                         </div>
                         <div class="nation">
                             <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.svg'}" alt="flag"
@@ -281,11 +291,10 @@
                         </div>
                     </div>
                     <div class="player-details">
-                        <div class="name" th:text="${player.playerFullName}">Ayden</div>
-                        <div class="surname" th:text="${player.playerFullName}">Heaven</div>
+                        <div class="player-name" th:text="${player.playerFullName}">Ayden Heaven</div>
                         <div class="role">
                             <span th:text="${player.playerNumber}">26</span>
-                            <span th:text="${player.playerPosition.name()}" class="ms-1">Defender</span>
+                            <span th:text="${player.playerPosition.name()}" class="ms-1">Forward</span>
                         </div>
                         <div class="nation">
                             <img th:src="@{'/images/flags/' + ${player.playerNationaly} + '.svg'}" alt="flag"

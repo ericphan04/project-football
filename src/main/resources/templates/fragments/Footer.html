@@ -5,69 +5,213 @@
 <body>
     <div class="footer-wrapper" th:fragment="siteFooter">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <style>
             .footer {
-                background-color: #30003a;
+                background: linear-gradient(135deg, #37003c 0%, #5a1a5a 50%, #764ba2 100%);
                 color: white;
-                padding: 3rem 0;
+                padding: 3rem 0 1.5rem;
+                position: relative;
+                overflow: hidden;
+                font-family: 'Roboto', sans-serif;
             }
-    
-            .footer h6 {
+
+            .footer::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #ffffff, #37003c, #5a1a5a, #764ba2, #ffffff);
+                animation: shimmer 3s ease-in-out infinite;
+            }
+
+            @keyframes shimmer {
+                0%, 100% { opacity: 0.7; }
+                50% { opacity: 1; }
+            }
+
+            .footer-brand {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            .footer-brand h3 {
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+                background: linear-gradient(45deg, #ffffff, #e9ecef);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .footer-brand p {
+                font-size: 1rem;
+                opacity: 0.9;
+                font-weight: 300;
+                margin: 0;
+            }
+
+            .footer-section h6 {
                 font-weight: 600;
                 margin-bottom: 1rem;
+                font-size: 1.1rem;
+                position: relative;
+                padding-bottom: 0.5rem;
+                color: #ffffff;
             }
-    
-            .footer a {
-                color: #bbb;
+
+            .footer-section h6::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 25px;
+                height: 2px;
+                background: linear-gradient(90deg, #ffffff, transparent);
+                border-radius: 2px;
+            }
+
+            .footer-section ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            .footer-section li {
+                margin-bottom: 0.6rem;
+            }
+
+            .footer-section a {
+                color: rgba(255, 255, 255, 0.8);
                 text-decoration: none;
+                font-weight: 400;
+                transition: all 0.3s ease;
+                position: relative;
+                display: inline-block;
+                padding: 0.1rem 0;
+                font-size: 0.95rem;
             }
-    
-            .footer a:hover {
+
+            .footer-section a::before {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 0;
+                height: 1px;
+                background: white;
+                transition: width 0.3s ease;
+            }
+
+            .footer-section a:hover {
                 color: white;
+                transform: translateX(3px);
+            }
+
+            .footer-section a:hover::before {
+                width: 100%;
+            }
+
+            .footer-bottom {
+                text-align: center;
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .footer-bottom p {
+                margin: 0;
+                opacity: 0.8;
+                font-weight: 300;
+                font-size: 0.9rem;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .footer {
+                    padding: 2rem 0 1rem;
+                }
+
+                .footer-brand h3 {
+                    font-size: 1.8rem;
+                }
+
+                .footer-section {
+                    margin-bottom: 1.5rem;
+                    text-align: center;
+                }
+
+                .footer-section h6::after {
+                    left: 50%;
+                    transform: translateX(-50%);
+                }
+
+                .footer-bottom {
+                    margin-top: 1.5rem;
+                    padding-top: 1rem;
+                }
+            }
+
+            @media (max-width: 576px) {
+                .footer-brand p {
+                    font-size: 0.9rem;
+                }
+
+                .footer-section a {
+                    font-size: 0.9rem;
+                }
+
+                .footer-bottom p {
+                    font-size: 0.8rem;
+                }
             }
         </style>
-        <!-- Main content placeholder -->
-        <div class="content">
-            <div th:replace="fragments/header :: siteHeader"></div>
-            <!-- Other page content goes here -->
-        </div>
 
         <!-- Footer -->
-        <footer class="footer text-center">
+        <footer class="footer">
             <div class="container">
+                <!-- Footer Brand -->
+                <div class="footer-brand">
+                    <h3>V-League</h3>
+                    <p>Giải Vô Địch Quốc Gia Việt Nam</p>
+                </div>
+
+                <!-- Footer Links -->
                 <div class="row">
-                    <div class="col-md-3">
-                        <h6>Premier League</h6>
-                        <ul class="list-unstyled small">
-                            <li><a href="#">Home</a></li>
-                            <li><a href="#">Fixtures</a></li>
-                            <li><a href="#">Results</a></li>
-                            <li><a href="#">Tables</a></li>
+                    <div class="col-md-4 footer-section">
+                        <h6>Giải Đấu</h6>
+                        <ul>
+                            <li><a href="/">Trang Chủ</a></li>
+                            <li><a href="/fixtures">Lịch Thi Đấu</a></li>
+                            <li><a href="/match">Kết Quả</a></li>
                         </ul>
                     </div>
-                    <div class="col-md-3">
-                        <h6>Fantasy</h6>
-                        <ul class="list-unstyled small">
-                            <li><a href="#">FPL Home</a></li>
-                            <li><a href="#">Stats</a></li>
+                    <div class="col-md-4 footer-section">
+                        <h6>Thông Tin</h6>
+                        <ul>
+                            <li><a href="/club">Câu Lạc Bộ</a></li>
+                            <li><a href="/news">Tin Tức</a></li>
+                            <li><a href="/ranking">Bảng Xếp Hạng</a></li>
                         </ul>
                     </div>
-                    <div class="col-md-3">
-                        <h6>Stats</h6>
-                        <ul class="list-unstyled small">
-                            <li><a href="#">Player Stats</a></li>
-                            <li><a href="#">Club Stats</a></li>
-                        </ul>
-                    </div>
-                    <div class="col-md-3">
-                        <h6>More</h6>
-                        <ul class="list-unstyled small">
-                            <li><a href="#">News</a></li>
-                            <li><a href="#">Videos</a></li>
+                    <div class="col-md-4 footer-section">
+                        <h6>Liên Hệ</h6>
+                        <ul>
+                            <li><a href="/home">Giới Thiệu</a></li>
+                            <li><a href="/home">Liên Hệ</a></li>
+                            <li><a href="/home">Điều Khoản</a></li>
+                            <li><a href="/home">Bảo Mật</a></li>
                         </ul>
                     </div>
                 </div>
-                <p class="mt-4">&copy; Premier League 2025</p>
+
+                <!-- Footer Bottom -->
+                <div class="footer-bottom">
+                    <p>&copy; 2025 V-League. Tất cả quyền được bảo lưu.</p>
+                </div>
             </div>
         </footer>
     </div>

@@ -36,4 +36,7 @@ public class Product {
     private Integer productAmount;
     private String productImgPath;
 
+    @Enumerated(EnumType.STRING)
+    private CategoryProduct categoryProduct;
+
 }

@@ -1,6 +1,9 @@
 package com.swp.myleague.controller;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +22,10 @@ import com.swp.myleague.model.service.matchservice.MatchService;
 import com.swp.myleague.model.service.ticketservice.TicketService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,23 +63,53 @@ public class TicketController {
     public String getTicketByMatchId(@PathVariable(name = "matchId") String matchId, Model model)
             throws JsonProcessingException {
         model.addAttribute("match", matchService.getById(matchId));
+        List<Ticket> tickets = ticketService.getByMatchId(matchId);
 
         ObjectMapper mapper = new ObjectMapper();
         String ticketsJson = mapper.writeValueAsString(ticketService.getByMatchId(matchId));
 
         model.addAttribute("ticketsJson", ticketsJson);
 
+        Map<String, SeatStats> areaDetails = new HashMap<>();
+        for (Ticket ticket : tickets) {
+            String area = ticket.getTicketArea().toString();
+            String type = ticket.getTicketType().toString();
+            long amount = ticket.getTicketAmount();
+
+            areaDetails.putIfAbsent(area, new SeatStats());
+
+            SeatStats stats = areaDetails.get(area);
+            if ("VIP".equalsIgnoreCase(type)) {
+                stats.setVip(stats.getVip() + amount);
+            } else {
+                stats.setStandard(stats.getStandard() + amount);
+            }
+        }
+
+        model.addAttribute("areaDetails", areaDetails);
+
         return "Ticket";
     }
 
     @PostMapping("/bookingticket")
-    public String postMethodName(HttpServletRequest req, @RequestParam(name = "ticketId") String ticketId, Model model, Principal principal)
+    public String postMethodName(HttpServletRequest req, @RequestParam(name = "ticketId") String ticketId, Model model,
+            Principal principal)
             throws Exception {
         User user = userService.findByUsername(principal.getName());
         Ticket ticket = ticketService.getById(ticketId);
         Double amount = ticket.getTicketPrice();
 
-        return "redirect:/payment/create-payment?amount=" + amount + "&orderInfo=Ticket:" + ticketId + "&email=" + user.getEmail();
+        return "redirect:/payment/create-payment?amount=" + amount + "&orderInfo=Ticket:" + ticketId + "&email="
+                + user.getEmail();
     }
 
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+class SeatStats {
+    private long vip;
+    private long standard;
 }

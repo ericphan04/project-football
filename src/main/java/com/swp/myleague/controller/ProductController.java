@@ -2,6 +2,7 @@ package com.swp.myleague.controller;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,6 +57,10 @@ public class ProductController {
 
         String currentUrl = request.getRequestURL().toString();
         model.addAttribute("url", currentUrl);
+
+        Map<String, List<Product>> relatedProduct = productService.getRelatedProduct(product);
+        model.addAttribute("relatedProduct", relatedProduct);
+
         return "ProductDetail";
     }
 

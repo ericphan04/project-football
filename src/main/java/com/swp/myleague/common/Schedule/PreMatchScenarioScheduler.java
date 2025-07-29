@@ -161,7 +161,7 @@ public class PreMatchScenarioScheduler {
                 System.err.println("❌ Lỗi khi xử lý dòng: " + line);
                 e.printStackTrace();
             }
-            
+
         }
 
         match.setMatchEvents(events);
@@ -188,18 +188,19 @@ public class PreMatchScenarioScheduler {
     }
 
     private MatchEventType determineEventType(String content) {
-        if (content.toLowerCase().contains("YellowCard"))
+        if (content.toLowerCase().contains("Thẻ vàng"))
             return MatchEventType.YellowCard;
-        if (content.toLowerCase().contains("RedCard"))
-            return MatchEventType.YellowCard;
-        if (content.toLowerCase().contains("Shoot"))
+        if (content.contains("thẻ đỏ") || content.contains("truất quyền thi đấu"))
+            return MatchEventType.RedCard;
+        if (content.contains("dứt điểm") || content.contains("cú sút") || content.contains("sút bóng")
+                || content.contains("vô lê")
+                || content.contains("đánh đầu") || content.contains("cú đá"))
             return MatchEventType.Shoot;
-        if (content.toLowerCase().contains("Goal"))
+        if (content.contains("ghi bàn") || content.contains("lập công") || content.contains("mở tỷ số")
+                || content.contains("nâng tỷ số") || content.contains("gỡ hòa") || content.contains("ấn định")
+                || content.contains("rút ngắn")
+                || content.contains("phản lưới"))
             return MatchEventType.Goal;
-        if (content.toLowerCase().contains("tắc bóng"))
-            return MatchEventType.Highlight;
-        if (content.toLowerCase().contains("phản công"))
-            return MatchEventType.Highlight;
         return MatchEventType.Highlight;
     }
 
@@ -262,7 +263,6 @@ public class PreMatchScenarioScheduler {
                    - `Shoot` (dứt điểm)
                    - `YellowCard` (thẻ vàng)
                    - `RedCard` (thẻ đỏ)
-                   - `Highlight` (diễn biến đáng chú ý)
 
                    ⚠️ Bạn không cần ghi loại này vào dòng, chỉ cần giúp mô tả chi tiết rõ để hệ thống có thể hiểu được thuộc loại nào.
 

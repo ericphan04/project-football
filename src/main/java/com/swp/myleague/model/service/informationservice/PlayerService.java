@@ -1,5 +1,6 @@
 package com.swp.myleague.model.service.informationservice;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,16 @@ public class PlayerService implements IService<Player> {
             }
         }
 
-        return result;
+        Map<Player, PlayerStandingGoalDTO> sortedResult = result.entrySet().stream()
+                .sorted(Map.Entry.<Player, PlayerStandingGoalDTO>comparingByValue(
+                        Comparator.comparing(PlayerStandingGoalDTO::getTotalGoals)))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new));
+
+        return sortedResult;
     }
 
     public Map<Player, PlayerStandingAssistDTO> getTop10PlayerAssistByYear(String year) {
@@ -95,11 +105,22 @@ public class PlayerService implements IService<Player> {
             }
         }
 
-        return result;
+        Map<Player, PlayerStandingAssistDTO> sortedResult = result.entrySet().stream()
+                .sorted(Map.Entry.<Player, PlayerStandingAssistDTO>comparingByValue(
+                        Comparator.comparing(PlayerStandingAssistDTO::getTotalAssists)).reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new));
+
+        return sortedResult;
+
     }
 
     public Map<Player, PlayerStandingCleanSheetsDTO> getTop10PlayerCleanSheetByYear(String year) {
-        List<PlayerStandingCleanSheetsDTO> topCleansheet = playerRepo.findTop10PlayersByCleanSheets(Integer.parseInt(year));
+        List<PlayerStandingCleanSheetsDTO> topCleansheet = playerRepo
+                .findTop10PlayersByCleanSheets(Integer.parseInt(year));
 
         Map<UUID, PlayerStandingCleanSheetsDTO> dtoMap = topCleansheet.stream()
                 .collect(Collectors.toMap(
@@ -116,11 +137,21 @@ public class PlayerService implements IService<Player> {
             }
         }
 
-        return result;
+        Map<Player, PlayerStandingCleanSheetsDTO> sortedResult = result.entrySet().stream()
+                .sorted(Map.Entry.<Player, PlayerStandingCleanSheetsDTO>comparingByValue(
+                        Comparator.comparing(PlayerStandingCleanSheetsDTO::getCleanSheets)).reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new));
+
+        return sortedResult;
     }
 
     public Map<Player, PlayerStandingPlayedMinutesDTO> getTop10PlayerMinutePlayedByYear(String year) {
-        List<PlayerStandingPlayedMinutesDTO> topPlayedMinutes = playerRepo.findTop10PlayersByMinutesPlayed(Integer.parseInt(year));
+        List<PlayerStandingPlayedMinutesDTO> topPlayedMinutes = playerRepo
+                .findTop10PlayersByMinutesPlayed(Integer.parseInt(year));
 
         Map<UUID, PlayerStandingPlayedMinutesDTO> dtoMap = topPlayedMinutes.stream()
                 .collect(Collectors.toMap(
@@ -137,7 +168,16 @@ public class PlayerService implements IService<Player> {
             }
         }
 
-        return result;
+        Map<Player, PlayerStandingPlayedMinutesDTO> sortedResult = result.entrySet().stream()
+                .sorted(Map.Entry.<Player, PlayerStandingPlayedMinutesDTO>comparingByValue(
+                        Comparator.comparing(PlayerStandingPlayedMinutesDTO::getTotalMinutes)).reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new));
+
+        return sortedResult;
     }
 
     public TopScorerClub getTopScorerOfClub(String clubId) {

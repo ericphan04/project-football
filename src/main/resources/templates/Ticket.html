@@ -6,62 +6,196 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Available Tickets</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-purple: #6f42c1;
+            --dark-purple: #4a2c7a;
+            --light-purple: #8b5cf6;
+            --purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --stadium-green: #2d5016;
+            --field-green: #228b22;
+            --vip-gold: #ffd700;
+            --premium-silver: #c0c0c0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(to right, #f8f9fa, #e9ecef);
-            /* Thêm background gradient */
-            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(111, 66, 193, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(74, 44, 122, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundFloat {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(1deg);
+            }
         }
 
         .ticket-header {
-            background-color: #30003a;
+            background: linear-gradient(135deg, #4b007d, #7a1fa0) !important;
             color: white;
-            padding: 2rem;
+            padding: 3rem 2rem;
             text-align: center;
-            border-radius: 12px;
-            /* Thêm border radius để mềm mại hơn */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            /* Thêm bóng đổ */
-            margin-bottom: 2rem;
-            /* Khoảng cách dưới */
+            border-radius: 20px;
+            box-shadow:
+                0 20px 40px rgba(164, 115, 255, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticket-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+
+        .ticket-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .ticket-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+
+        .team.text-end {
+            margin-left: auto;
+            justify-content: flex-end;
+            text-align: right;
+            flex: 1;
         }
 
         .match-info {
-            max-width: 900px;
-            background-color: #ffffff;
-            margin: 1rem auto;
-            padding: 1.5rem 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            /* Thêm bóng đổ */
-            background-color: #fff;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 2rem auto;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow:
+                0 15px 35px rgba(0, 0, 0, 0.1),
+                0 5px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .match-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--purple-gradient);
+            border-radius: 20px 20px 0 0;
         }
 
         .match-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 1rem;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .team {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
+            flex: 1;
         }
 
         .team img {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
             border-radius: 50%;
-            background-color: #eee;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .team img:hover {
+            transform: scale(1.1);
+        }
+
+        .team span {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--dark-purple);
         }
 
         .score {
-            font-weight: bold;
-            font-size: 2rem;
-            color: #30003a;
+            font-weight: 800;
+            font-size: 3rem;
+            background: var(--purple-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex: 0 0 auto;
+        }
+
+        .venue {
+            font-size: 1rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background: rgba(111, 66, 193, 0.1);
+            border-radius: 10px;
+            margin-top: 1rem;
         }
 
         .stadium-wrapper {
@@ -69,179 +203,536 @@
             justify-content: center;
             align-items: flex-start;
             flex-wrap: wrap;
-            gap: 2rem;
-            padding: 1rem;
+            gap: 3rem;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stadium-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stadium-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--dark-purple);
+            font-weight: 700;
+            font-size: 1.3rem;
         }
 
         canvas {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+            border-radius: 15px;
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        canvas:hover {
+            transform: scale(1.02);
         }
 
         .legend {
-            min-width: 200px;
-            padding: 1rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0, 0, 0, 0.08);
+            min-width: 280px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .legend h5 {
+            color: var(--dark-purple);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
         }
 
         .legend-item {
-            display: block;
-            margin: 10px 0;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.95rem;
-            color: #fff;
-            font-weight: 500;
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
+        .legend-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: rgba(255, 255, 255, 0.2);
+            transition: width 0.3s ease;
+        }
+
+        .legend-item:hover::before {
+            width: 100%;
+        }
+
+        .legend-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 15px;
+        }
+
+        .area-info {
+            flex: 1;
+            margin-left: 8px;
+        }
+
+        .area-name {
+            font-weight: 600;
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .ticket-details {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .vip-count,
+        .std-count {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 8px;
+            min-width: 60px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .vip-count {
+            background: rgba(255, 215, 0, 0.8);
+            color: #8b4513;
+        }
+
+        .std-count {
+            background: rgba(255, 255, 255, 0.3);
+            color: inherit;
+        }
+
+        /* Color coding for ticket availability */
+        .vip-count.high-stock,
+        .std-count.high-stock {
+            background: rgba(34, 197, 94, 0.8);
+            color: white;
+        }
+
+        .vip-count.medium-stock,
+        .std-count.medium-stock {
+            background: rgba(251, 191, 36, 0.8);
+            color: white;
+        }
+
+        .vip-count.low-stock,
+        .std-count.low-stock {
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            animation: pulse-warning 2s infinite;
+        }
+
+        .vip-count.no-stock,
+        .std-count.no-stock {
+            background: rgba(107, 114, 128, 0.8);
+            color: white;
+            opacity: 0.6;
+        }
+
+        @keyframes pulse-warning {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* Stadium-like colors */
         .area-A {
-            background-color: #f94144;
+            background: linear-gradient(135deg, #8b5a3c, #a0522d);
+            color: white;
         }
 
         .area-B {
-            background-color: #f3722c;
+            background: linear-gradient(135deg, #4682b4, #5f9ea0);
+            color: white;
         }
 
         .area-C {
-            background-color: #f9c74f;
-            color: #000;
+            background: linear-gradient(135deg, #32cd32, #228b22);
+            color: white;
         }
 
         .area-D {
-            background-color: #90be6d;
-            color: #000;
+            background: linear-gradient(135deg, #ff6347, #dc143c);
+            color: white;
         }
 
         .area-E {
-            background-color: #43aa8b;
+            background: linear-gradient(135deg, #9370db, #663399);
+            color: white;
         }
 
         .area-F {
-            background-color: #577590;
+            background: linear-gradient(135deg, #ffd700, #daa520);
+            color: #333;
         }
 
-        .venue {
-            font-size: 0.95rem;
-            color: #666;
-            margin-top: 1rem;
-            /* Khoảng cách trên */
+        .instruction {
+            text-align: center;
+            color: var(--dark-purple);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(111, 66, 193, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid var(--primary-purple);
         }
 
-        /* Thêm border-radius và padding cho modal */
+        /* Modal improvements */
         .modal-content {
-            border-radius: 12px;
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--purple-gradient);
+            color: white;
+            border: none;
+            padding: 1.5rem 2rem;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        .btn-close {
+            filter: invert(1);
+        }
+
+        .modal-body {
             padding: 2rem;
+        }
+
+        .table th {
+            color: var(--dark-purple);
+            font-weight: 600;
+            border: none;
+            padding: 12px 8px;
+        }
+
+        .table td {
+            border: none;
+            padding: 12px 8px;
+            color: #555;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid rgba(111, 66, 193, 0.1);
+        }
+
+        #ticketBenefits {
+            background: rgba(111, 66, 193, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        #ticketBenefits h6 {
+            color: var(--dark-purple);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        #benefitsList li {
+            margin-bottom: 0.5rem;
+            color: #555;
+        }
+
+        .modal-footer {
+            border: none;
+            padding: 1.5rem 2rem;
+            background: rgba(248, 249, 250, 0.5);
+        }
+
+        .btn-primary {
+            background: var(--purple-gradient);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(111, 66, 193, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .stadium-wrapper {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .match-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .score {
+                font-size: 2.5rem;
+            }
+
+            .legend {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
 
 <body>
     <div th:replace="fragments/header :: siteHeader"></div>
+    <div th:replace="fragments/chatbox :: chatBoxFragment"></div>
+    <div class="container-fluid px-4">
+        <div class="ticket-header">
+            <h2 th:text="${match.matchTitle}">Premier League Championship</h2>
+            <p><i class="fas fa-calendar-alt me-2"></i><span
+                    th:text="${#temporals.format(match.matchStartTime, 'dd MMM yyyy, HH:mm')}">25 Dec 2024, 20:00</span>
+            </p>
+        </div>
 
+        <div class="match-info">
+            <div class="match-row">
+                <div class="team">
+                    <img th:src="@{{logo}(logo=${match.matchClubStats[0].club.clubLogoPath})}" alt="Home Logo">
+                    <span th:text="${match.matchClubStats[0].club.clubName}">Manchester United</span>
+                </div>
 
-    <div class="ticket-header">
-        <h2 th:text="${match.matchTitle}">Match Title</h2>
-        <p th:text="${#temporals.format(match.matchStartTime, 'dd MMM yyyy, HH:mm')}">Match Time</p>
-    </div>
+                <div class="score"
+                    th:text="${match.matchClubStats[0].matchClubStatScore} + ' - ' + ${match.matchClubStats[1].matchClubStatScore}">
+                    2 - 1
+                </div>
 
-    <div class="match-info text-center">
-        <div class="match-row">
-            <div class="team">
-                <img th:src="@{{logo}(logo=${match.matchClubStats[0].club.clubLogoPath})}" alt="Home Logo">
-                <span th:text="${match.matchClubStats[0].club.clubName}">Home Club</span>
+                <div class="team text-end">
+                    <span th:text="${match.matchClubStats[1].club.clubName}">Liverpool FC</span>
+                    <img th:src="@{{logo}(logo=${match.matchClubStats[1].club.clubLogoPath})}" alt="Away Logo">
+                </div>
             </div>
-
-            <div class="score"
-                th:text="${match.matchClubStats[0].matchClubStatScore} + ' - ' + ${match.matchClubStats[1].matchClubStatScore}">
-                1 - 2
-            </div>
-
-            <div class="team text-end">
-                <span th:text="${match.matchClubStats[1].club.clubName}">Away Club</span>
-                <img th:src="@{{logo}(logo=${match.matchClubStats[1].club.clubLogoPath})}" alt="Away Logo">
+            <div class="venue">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                <span th:text="${match.matchDescription}">Old Trafford Stadium</span>
+                <span class="mx-2">•</span>
+                <span th:text="${match.matchClubStats[0].club.clubStadium}">Manchester, England</span>
             </div>
         </div>
-        <div class="venue mt-3" th:text="${match.matchDescription}">Venue Name</div>
-        <div class="venue" th:text="${match.matchClubStats[0].club.clubStadium}">National Stadium</div>
-    </div>
 
-    
+        <div class="instruction">
+            <i class="fas fa-info-circle me-2"></i>
+            Nhấp vào khu vực trên sơ đồ sân vận động hoặc chọn khu bên phải để xem chi tiết vé
+        </div>
 
-    <div class="stadium-wrapper">
-        <p class="text-center text-muted">
-            Nhấp vào khu vực trên sơ đồ sân vận động hoặc chọn khu bên phải để xem chi tiết vé.
-        </p>
-        <canvas id="stadiumCanvas" width="1000" height="700">
-            
-        </canvas>
-       
-        <div class="legend">
-            <span class="legend-item area-A">Area A</span>
-            <span class="legend-item area-B">Area B</span>
-            <span class="legend-item area-C">Area C</span>
-            <span class="legend-item area-D">Area D</span>
-            <span class="legend-item area-E">Area E</span>
-            <span class="legend-item area-F">Area F</span>
+        <div class="stadium-wrapper">
+            <div class="stadium-container">
+                <div class="stadium-title">
+                    <i class="fas fa-futbol me-2"></i>
+                    Sơ đồ sân vận động
+                </div>
+                <canvas id="stadiumCanvas" width="1000" height="700"></canvas>
+            </div>
+
+            <div class="legend">
+                <h5><i class="fas fa-list me-2"></i>Khu vực ghế ngồi</h5>
+                <div class="legend-item area-A">
+                    <i class="fas fa-chair me-2"></i>
+                    <div class="area-info">
+                        <span class="area-name">Khu A</span>
+                        <div class="ticket-details">
+                            <span class="vip-count" id="vip-A" th:text="'VIP: ' + ${areaDetails['A'].vip}">VIP: 0</span>
+                            <span class="std-count" id="std-A"
+                                th:text="'Standard: ' + ${areaDetails['A'].standard}">Standard: 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="legend-item area-B">
+                    <i class="fas fa-chair me-2"></i>
+                    <div class="area-info">
+                        <span class="area-name">Khu B</span>
+                        <div class="ticket-details">
+                            <span class="vip-count" id="vip-B" th:text="'VIP: ' + ${areaDetails['B'].vip}">VIP: 0</span>
+                            <span class="std-count" id="std-B"
+                                th:text="'Standard: ' + ${areaDetails['B'].standard}">Standard: 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="legend-item area-C">
+                    <i class="fas fa-chair me-2"></i>
+                    <div class="area-info">
+                        <span class="area-name">Khu C</span>
+                        <div class="ticket-details">
+                            <span class="vip-count" id="vip-C" th:text="'VIP: ' + ${areaDetails['C'].vip}">VIP: 0</span>
+                            <span class="std-count" id="std-C"
+                                th:text="'Standard: ' + ${areaDetails['C'].standard}">Standard: 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="legend-item area-D">
+                    <i class="fas fa-chair me-2"></i>
+                    <div class="area-info">
+                        <span class="area-name">Khu D</span>
+                        <div class="ticket-details">
+                            <span class="vip-count" id="vip-D" th:text="'VIP: ' + ${areaDetails['D'].vip}">VIP: 0</span>
+                            <span class="std-count" id="std-D"
+                                th:text="'Standard: ' + ${areaDetails['D'].standard}">Standard: 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="legend-item area-E">
+                    <i class="fas fa-chair me-2"></i>
+                    <div class="area-info">
+                        <span class="area-name">Khu E</span>
+                        <div class="ticket-details">
+                            <span class="vip-count" id="vip-E" th:text="'VIP: ' + ${areaDetails['E'].vip}">VIP: 0</span>
+                            <span class="std-count" id="std-E"
+                                th:text="'Standard: ' + ${areaDetails['E'].standard}">Standard: 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="legend-item area-F">
+                    <i class="fas fa-chair me-2"></i>
+                    <div class="area-info">
+                        <span class="area-name">Khu F</span>
+                        <div class="ticket-details">
+                            <span class="vip-count" id="vip-F" th:text="'VIP: ' + ${areaDetails['F'].vip}">VIP: 0</span>
+                            <span class="std-count" id="std-F"
+                                th:text="'Standard: ' + ${areaDetails['F'].standard}">Standard: 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Modal -->
     <div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <form method="post" action="http://localhost:8080/ticket/bookingticket">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="ticketModalLabel">Ticket Details</h5>
+                        <h5 class="modal-title" id="ticketModalLabel">
+                            <i class="fas fa-ticket-alt me-2"></i>
+                            Chi tiết vé xem đấu
+                        </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-sm">
+                        <table class="table table-hover">
                             <tbody>
                                 <tr>
-                                    <th>Title</th>
+                                    <th><i class="fas fa-tag me-2"></i>Tiêu đề</th>
                                     <td id="modalTicketTitle"></td>
                                 </tr>
                                 <tr>
-                                    <th>Type</th>
+                                    <th><i class="fas fa-star me-2"></i>Loại vé</th>
                                     <td id="modalTicketType"></td>
                                 </tr>
                                 <tr>
-                                    <th>Area</th>
+                                    <th><i class="fas fa-map me-2"></i>Khu vực</th>
                                     <td id="modalTicketArea"></td>
                                 </tr>
                                 <tr>
-                                    <th>Remaining</th>
+                                    <th><i class="fas fa-users me-2"></i>Còn lại</th>
                                     <td id="modalTicketAmount"></td>
                                 </tr>
                                 <tr>
-                                    <th>Price</th>
+                                    <th><i class="fas fa-dollar-sign me-2"></i>Giá vé</th>
                                     <td id="modalTicketPrice"></td>
                                 </tr>
                                 <tr>
-                                    <th>Note</th>
+                                    <th><i class="fas fa-sticky-note me-2"></i>Ghi chú</th>
                                     <td id="modalTicketNote"></td>
                                 </tr>
-
                             </tbody>
                         </table>
                         <input type="hidden" name="ticketId" id="hiddenTicketId">
-                    </div>
-                    <div id="ticketBenefits" class="mt-3">
-                        <h6>Benefits:</h6>
-                        <ul id="benefitsList" class="mb-0 ps-3"></ul>
+
+                        <div id="ticketBenefits" class="mt-3">
+                            <h6><i class="fas fa-gift me-2"></i>Quyền lợi đi kèm:</h6>
+                            <ul id="benefitsList" class="mb-0 ps-3"></ul>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Book Now</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            Đặt vé ngay
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>
+                            Đóng
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
 
     <script th:inline="javascript">
         const tickets = JSON.parse(/*[[${ticketsJson}]]*/ '[]');
@@ -251,14 +742,19 @@
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
+        // Stadium-like colors with purple theme
         const baseColors = {
-            'A': '#f94144', 'B': '#f3722c', 'C': '#f9c74f',
-            'D': '#90be6d', 'E': '#43aa8b', 'F': '#577590'
+            'A': '#8b5a3c', // Brown - Premium leather seats
+            'B': '#4682b4', // Steel blue - Corporate seats  
+            'C': '#32cd32', // Green - Standard seats
+            'D': '#ff6347', // Red - General admission
+            'E': '#9370db', // Purple - Family section
+            'F': '#ffd700'  // Gold - Student section
         };
 
         const typeShades = {
-            'VIP': 0.9,
-            'Standard': 1.3
+            'VIP': 1.2,      // Brighter for VIP
+            'Standard': 0.8   // Darker for Standard
         };
 
         const positionMap = {};
@@ -267,32 +763,71 @@
             let r = parseInt(hex.substring(1, 3), 16);
             let g = parseInt(hex.substring(3, 5), 16);
             let b = parseInt(hex.substring(5, 7), 16);
-            r = Math.min(255, Math.floor(r * factor));
-            g = Math.min(255, Math.floor(g * factor));
-            b = Math.min(255, Math.floor(b * factor));
+
+            r = Math.min(255, Math.max(0, Math.floor(r * factor)));
+            g = Math.min(255, Math.max(0, Math.floor(g * factor)));
+            b = Math.min(255, Math.max(0, Math.floor(b * factor)));
+
             return `rgb(${r}, ${g}, ${b})`;
         }
 
-        function drawOvalStadiumField() {
+        function drawStadiumField() {
+            // Stadium background
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 300);
+            gradient.addColorStop(0, '#228b22');
+            gradient.addColorStop(0.7, '#2d5016');
+            gradient.addColorStop(1, '#1a3009');
+
             ctx.beginPath();
             ctx.ellipse(centerX, centerY, 180, 100, 0, 0, 2 * Math.PI);
-            ctx.fillStyle = '#4CAF50';
+            ctx.fillStyle = gradient;
             ctx.fill();
-            ctx.strokeStyle = '#2e7d32';
-            ctx.lineWidth = 4;
+
+            // Field border
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
             ctx.stroke();
+
+            // Center circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 30, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Center dot
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 2, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+
+            // Goals
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(centerX - 15, centerY - 100 - 5, 30, 10);
+            ctx.fillRect(centerX - 15, centerY + 100 - 5, 30, 10);
         }
 
         function drawTicketRings() {
+            // Clear and redraw field
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawOvalStadiumField();
+
+            // Stadium outer structure
+            const outerGradient = ctx.createRadialGradient(centerX, centerY, 200, centerX, centerY, 350);
+            outerGradient.addColorStop(0, 'rgba(108, 117, 125, 0.1)');
+            outerGradient.addColorStop(1, 'rgba(52, 58, 64, 0.3)');
+
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY, 320, 200, 0, 0, 2 * Math.PI);
+            ctx.fillStyle = outerGradient;
+            ctx.fill();
+
+            drawStadiumField();
 
             const vipTickets = tickets.filter(t => t.ticketType === 'VIP');
             const stdTickets = tickets.filter(t => t.ticketType === 'Standard');
 
-            const drawRing = (ticketList, innerA, outerA, innerB, outerB) => {
-                const step = (2 * Math.PI) / ticketList.length;
-                // Nhóm theo ticketArea
+            const drawRing = (ticketList, innerA, outerA, innerB, outerB, ringName) => {
+                // Group by area
                 const grouped = {};
                 ticketList.forEach(ticket => {
                     const area = ticket.ticketArea;
@@ -300,9 +835,8 @@
                     grouped[area].push(ticket);
                 });
 
-                // Vẽ từng nhóm ticketArea
                 let currentAngle = 0;
-                const areasOrder = ['A', 'B', 'C', 'D', 'E', 'F']; // Thứ tự cố định
+                const areasOrder = ['A', 'B', 'C', 'D', 'E', 'F'];
                 const totalAreas = areasOrder.length;
                 const anglePerArea = (2 * Math.PI) / totalAreas;
 
@@ -310,14 +844,13 @@
                     const ticketsInArea = grouped[area] || [];
                     const startAngle = index * anglePerArea;
                     const endAngle = startAngle + anglePerArea;
-
                     const anglePerTicket = (endAngle - startAngle) / (ticketsInArea.length || 1);
 
-
-                    ticketsInArea.forEach(ticket => {
+                    ticketsInArea.forEach((ticket, ticketIndex) => {
                         const start = currentAngle;
                         const end = start + anglePerTicket;
 
+                        // Draw seat section
                         ctx.beginPath();
                         for (let angle = start; angle <= end; angle += 0.01) {
                             const x = centerX + outerA * Math.cos(angle);
@@ -332,34 +865,80 @@
                         }
                         ctx.closePath();
 
+                        // Color based on area and type
                         const baseColorKey = ticket.ticketArea;
-                        const base = baseColors[baseColorKey] || '#999';
-                        ctx.fillStyle = shadeColor(base, typeShades[ticket.ticketType] || 1);
+                        const baseColor = baseColors[baseColorKey] || '#6c757d';
+                        const shadeFactor = typeShades[ticket.ticketType] || 1;
+
+                        // Create gradient for realistic seat appearance
+                        const sectionGradient = ctx.createRadialGradient(
+                            centerX + ((outerA + innerA) / 2) * Math.cos((start + end) / 2),
+                            centerY + ((outerB + innerB) / 2) * Math.sin((start + end) / 2),
+                            0,
+                            centerX + ((outerA + innerA) / 2) * Math.cos((start + end) / 2),
+                            centerY + ((outerB + innerB) / 2) * Math.sin((start + end) / 2),
+                            30
+                        );
+
+                        const mainColor = shadeColor(baseColor, shadeFactor);
+                        const lightColor = shadeColor(baseColor, shadeFactor * 1.3);
+                        const darkColor = shadeColor(baseColor, shadeFactor * 0.7);
+
+                        sectionGradient.addColorStop(0, lightColor);
+                        sectionGradient.addColorStop(0.7, mainColor);
+                        sectionGradient.addColorStop(1, darkColor);
+
+                        ctx.fillStyle = sectionGradient;
                         ctx.fill();
-                        ctx.strokeStyle = '#333';
+
+                        // Section border
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.lineWidth = 1;
                         ctx.stroke();
 
-                        // text label
+
+
+                        // Area label
                         const mid = (start + end) / 2;
                         const labelX = centerX + ((outerA + innerA) / 2) * Math.cos(mid);
                         const labelY = centerY + ((outerB + innerB) / 2) * Math.sin(mid);
-                        ctx.fillStyle = '#000';
-                        ctx.font = 'bold 10px sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(`${ticket.ticketType}`, labelX, labelY);
 
-                        positionMap[ticket.ticketId] = { start, end, innerA, outerA, innerB, outerB, ticket };
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                        ctx.font = 'bold 12px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                        ctx.shadowBlur = 2;
+                        ctx.fillText(area, labelX, labelY - 5);
+                        ctx.fillText(ticket.ticketType, labelX, labelY + 8);
+                        ctx.shadowBlur = 0;
+
+                        // Store position for click detection
+                        positionMap[ticket.ticketId] = {
+                            start, end, innerA, outerA, innerB, outerB, ticket
+                        };
 
                         currentAngle += anglePerTicket;
                     });
                 });
+            };
 
+            // Draw rings (VIP closer to field, Standard further out)
+            drawRing(vipTickets, 120, 170, 70, 100, 'VIP');
+            drawRing(stdTickets, 200, 260, 130, 160, 'Standard');
+
+            // Draw stadium roof structure
+            ctx.strokeStyle = 'rgba(108, 117, 125, 0.4)';
+            ctx.lineWidth = 3;
+            for (let i = 0; i < 8; i++) {
+                const angle = (i * Math.PI) / 4;
+                ctx.beginPath();
+                ctx.moveTo(centerX + 280 * Math.cos(angle), centerY + 170 * Math.sin(angle));
+                ctx.lineTo(centerX + 320 * Math.cos(angle), centerY + 200 * Math.sin(angle));
+                ctx.stroke();
             }
-
-            drawRing(vipTickets, 120, 170, 70, 100);
-            drawRing(stdTickets, 200, 260, 130, 160);
         }
 
+        // Click handler
         canvas.addEventListener('click', function (e) {
             const rect = canvas.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -373,63 +952,180 @@
                 const xA = dx / pos.outerA;
                 const yB = dy / pos.outerB;
                 const r = Math.sqrt(xA * xA + yB * yB);
-                if (angle >= pos.start && angle <= pos.end && r >= pos.innerA / pos.outerA && r <= 1) {
-                    const t = pos.ticket;
-                    showTicketModal(t);
+
+                if (angle >= pos.start && angle <= pos.end &&
+                    r >= pos.innerA / pos.outerA && r <= 1) {
+                    showTicketModal(pos.ticket);
                     break;
                 }
             }
         });
 
+        // Hover effect
+        canvas.addEventListener('mousemove', function (e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const dx = x - centerX;
+            const dy = y - centerY;
+            const angle = (Math.atan2(dy, dx) + 2 * Math.PI) % (2 * Math.PI);
+
+            let hovered = false;
+            for (let ticketId in positionMap) {
+                const pos = positionMap[ticketId];
+                const xA = dx / pos.outerA;
+                const yB = dy / pos.outerB;
+                const r = Math.sqrt(xA * xA + yB * yB);
+
+                if (angle >= pos.start && angle <= pos.end &&
+                    r >= pos.innerA / pos.outerA && r <= 1) {
+                    hovered = true;
+                    break;
+                }
+            }
+
+            canvas.style.cursor = hovered ? 'pointer' : 'default';
+        });
+
+        // Initialize stadium drawing
         drawTicketRings();
 
+        // Legend click handlers
         document.querySelectorAll('.legend-item').forEach(item => {
             item.addEventListener('click', () => {
-                const area = item.textContent.split(' ')[1]; // "Area A" => "A"
-                const ticket = tickets.find(t => t.ticketArea === area);
+                const areaLetter = item.textContent.includes('Khu A') ? 'A' :
+                    item.textContent.includes('Khu B') ? 'B' :
+                        item.textContent.includes('Khu C') ? 'C' :
+                            item.textContent.includes('Khu D') ? 'D' :
+                                item.textContent.includes('Khu E') ? 'E' : 'F';
+
+                const ticket = tickets.find(t => t.ticketArea === areaLetter);
                 if (ticket) {
                     showTicketModal(ticket);
                 }
             });
         });
 
-        function showTicketModal(t) {
-            document.getElementById('modalTicketTitle').textContent = t.ticketTitle;
-            document.getElementById('modalTicketType').textContent = t.ticketType;
-            document.getElementById('modalTicketArea').textContent = t.ticketArea;
-            document.getElementById('modalTicketAmount').textContent = t.ticketAmount;
-            document.getElementById('modalTicketPrice').textContent = t.ticketPrice || 'N/A';
-            document.getElementById('modalTicketNote').textContent = t.ticketNote || '-';
-            document.getElementById('hiddenTicketId').value = t.ticketId;
+        function showTicketModal(ticket) {
+            // Populate modal with ticket information
+            document.getElementById('modalTicketTitle').textContent = ticket.ticketTitle || 'N/A';
+            document.getElementById('modalTicketType').innerHTML = `
+                <span class="badge ${ticket.ticketType === 'VIP' ? 'bg-warning text-dark' : 'bg-info'} me-2">
+                    ${ticket.ticketType}
+                </span>
+                ${ticket.ticketType === 'VIP' ? '<i class="fas fa-star text-warning"></i>' : ''}
+            `;
+            document.getElementById('modalTicketArea').innerHTML = `
+                <strong>Khu ${ticket.ticketArea}</strong>
+            `;
+            document.getElementById('modalTicketAmount').innerHTML = `
+                <span class="badge ${ticket.ticketAmount > 10 ? 'bg-success' : ticket.ticketAmount > 5 ? 'bg-warning' : 'bg-danger'}">
+                    ${ticket.ticketAmount} vé
+                </span>
+            `;
+            document.getElementById('modalTicketPrice').innerHTML = `
+                <strong class="text-primary fs-5">${ticket.ticketPrice || 'Liên hệ'}</strong> VNĐ
+            `;
+            document.getElementById('modalTicketNote').textContent = ticket.ticketNote || 'Không có ghi chú đặc biệt';
+            document.getElementById('hiddenTicketId').value = ticket.ticketId;
 
-            // Benefits logic
+            // Benefits based on ticket type and area
             const vipBenefits = [
-                "Lối vào khu vực VIP",
-                "Được phục vụ đồ ăn và nước uống miễn phí",
-                "Vị trí ghế ngồi cao cấp",
-                "Lối đi riêng biệt dành cho khách VIP"
+                "<i class='fas fa-crown text-warning me-2'></i>Lối vào khu vực VIP riêng biệt",
+                "<i class='fas fa-utensils text-success me-2'></i>Buffet cao cấp và đồ uống miễn phí",
+                "<i class='fas fa-chair text-info me-2'></i>Ghế ngồi da thật cao cấp có tựa lưng",
+                "<i class='fas fa-car text-primary me-2'></i>Bãi đỗ xe riêng và dịch vụ đưa đón",
+                "<i class='fas fa-wifi text-secondary me-2'></i>WiFi tốc độ cao miễn phí",
+                "<i class='fas fa-concierge-bell text-warning me-2'></i>Dịch vụ hỗ trợ cá nhân 24/7"
             ];
 
             const standardBenefits = [
-                "Khu vực ghế ngồi tiêu chuẩn",
-                "Có thể mua đồ ăn và nước uống"
+                "<i class='fas fa-door-open text-primary me-2'></i>Lối vào tiêu chuẩn, không xếp hàng lâu",
+                "<i class='fas fa-shopping-cart text-success me-2'></i>Được mua đồ ăn và nước uống tại quầy",
+                "<i class='fas fa-restroom text-info me-2'></i>Sử dụng các tiện ích cơ bản của sân vận động",
+                "<i class='fas fa-camera text-secondary me-2'></i>Được chụp ảnh lưu niệm (không flash)"
             ];
 
+            // Area-specific benefits
+            const areaBenefits = {
+                'A': ["<i class='fas fa-eye text-primary me-2'></i>Tầm nhìn tuyệt vời nhất, gần sân nhất"],
+                'B': ["<i class='fas fa-binoculars text-info me-2'></i>Góc nhìn rộng, quan sát toàn bộ sân"],
+                'C': ["<i class='fas fa-users text-success me-2'></i>Khu vực gia đình, an toàn và thoải mái"],
+                'D': ["<i class='fas fa-heart text-danger me-2'></i>Không khí sôi động, gần khu cổ động viên"],
+                'E': ["<i class='fas fa-baby text-pink me-2'></i>Khu vực gia đình, phù hợp mang trẻ em"],
+                'F': ["<i class='fas fa-graduation-cap text-info me-2'></i>Giá ưu đãi cho học sinh, sinh viên"]
+            };
 
             const benefitsList = document.getElementById('benefitsList');
-            benefitsList.innerHTML = ''; // clear old
+            benefitsList.innerHTML = '';
 
-            const benefits = t.ticketType === 'VIP' ? vipBenefits : standardBenefits;
-            benefits.forEach(b => {
+            const benefits = ticket.ticketType === 'VIP' ? vipBenefits : standardBenefits;
+            const specificBenefits = areaBenefits[ticket.ticketArea] || [];
+
+            [...benefits, ...specificBenefits].forEach(benefit => {
                 const li = document.createElement('li');
-                li.textContent = b;
+                li.innerHTML = benefit;
+                li.className = 'mb-2';
                 benefitsList.appendChild(li);
             });
 
+            // Show modal with animation
             const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
             modal.show();
+
+            // Add entrance animation to modal
+            setTimeout(() => {
+                document.querySelector('.modal-content').style.transform = 'scale(1)';
+                document.querySelector('.modal-content').style.opacity = '1';
+            }, 100);
         }
 
+        // Add some interactive animations
+        document.querySelectorAll('.legend-item').forEach(item => {
+            item.addEventListener('mouseenter', function () {
+                this.style.transform = 'translateX(8px) scale(1.02)';
+            });
+
+            item.addEventListener('mouseleave', function () {
+                this.style.transform = 'translateX(0) scale(1)';
+            });
+        });
+
+        // Loading animation for canvas
+        function showLoadingAnimation() {
+            ctx.fillStyle = 'rgba(111, 66, 193, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#6f42c1';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Đang tải sơ đồ sân vận động...', centerX, centerY);
+        }
+
+        // Simulate loading
+        showLoadingAnimation();
+        setTimeout(() => {
+            drawTicketRings();
+        }, 1000);
+
+        // Add resize handler for responsive design
+        function handleResize() {
+            const container = document.querySelector('.stadium-container');
+            const containerWidth = container.offsetWidth - 40; // padding
+
+            if (window.innerWidth < 768) {
+                canvas.style.width = '100%';
+                canvas.style.height = 'auto';
+                canvas.style.maxWidth = `${containerWidth}px`;
+            } else {
+                canvas.style.width = '';
+                canvas.style.height = '';
+                canvas.style.maxWidth = '';
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Call on load
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

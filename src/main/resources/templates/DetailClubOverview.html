@@ -78,15 +78,26 @@
 
 <body>
   <div th:replace="fragments/header :: siteHeader"></div>
-
+  <div th:replace="fragments/chatbox :: chatBoxFragment"></div>
   <div class="club-header">
     <img th:src="@{${club.clubLogoPath}}" alt="Logo" style="width: 80px; height: 80px; object-fit: contain;" />
+
     <h1 class="mb-1" th:text="${club.clubName}">Club Name</h1>
     <p class="mb-0">
       <span th:text="${club.clubFounded}">1878</span> •
       <span th:text="${club.clubStadium}">Rach Tray</span>
     </p>
+    <button type="button" class="btn btn-outline-light btn-sm mt-3" data-bs-toggle="modal"
+      data-bs-target="#subscribeModal">
+      Đăng ký theo dõi CLB
+    </button>
+    <div class="container">
+      <div th:if="${param.subscribed}" class="alert alert-success mt-4" role="alert">
+        Bạn đã đăng ký theo dõi CLB thành công!
+      </div>
+    </div>
   </div>
+
 
   <div class="container mt-4">
     <ul class="nav nav-tabs">
@@ -143,21 +154,16 @@
         <div class="mb-4">
           <h5>Videos</h5>
           <div class="row row-cols-1 row-cols-md-2 g-4">
-            <div class="col">
+            <div class="col" th:each="highlight : ${highlights}">
               <div class="card-video">
-                <iframe class="w-100" height="200" src="https://www.youtube.com/embed/abcd1234" frameborder="0"
-                  allowfullscreen></iframe>
-                <div class="p-2">Every FREE-KICK of the season</div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="card-video">
-                <iframe class="w-100" height="200" src="https://www.youtube.com/embed/efgh5678" frameborder="0"
-                  allowfullscreen></iframe>
-                <div class="p-2">Beckham’s best Premier League goals</div>
+                <iframe class="w-100" height="200" th:src="'https://www.youtube.com/embed/' + ${highlight.vidUrl}"
+                  frameborder="0" allowfullscreen>
+                </iframe>
+                <div class="p-2" th:text="${highlight.matchEventTitle}">Video title</div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -226,7 +232,42 @@
         </div>
       </div>
     </div>
+    <div class="modal fade" id="subscribeModal" tabindex="-1" aria-labelledby="subscribeModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form th:action="@{/subscriber/subscribe}" method="post">
+            <div class="modal-header">
+              <h5 class="modal-title" id="subscribeModalLabel">Theo dõi CLB</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+              <input type="hidden" name="clubId" th:value="${club.clubId}" />
+              <div class="mb-3">
+                <label for="email" class="form-label">Nhập email của bạn:</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="you@example.com"
+                  required />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Đăng ký</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
 
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        console.log(urlParams);
+        if (urlParams.has("subscribed=true")) {
+          const toast = new bootstrap.Modal(document.getElementById("subscribeModal"));
+          toast.show();
+        }
+      });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

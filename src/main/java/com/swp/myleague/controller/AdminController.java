@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swp.myleague.common.CommonFunc;
 import com.swp.myleague.model.entities.User;
 import com.swp.myleague.model.entities.admin_request.Request;
@@ -38,6 +43,9 @@ import com.swp.myleague.model.entities.saleproduct.Orders;
 import com.swp.myleague.model.entities.saleproduct.Product;
 import com.swp.myleague.model.entities.saleproduct.ProductSize;
 import com.swp.myleague.model.entities.ticket.Ticket;
+import com.swp.myleague.model.entities.ticket.TicketArea;
+import com.swp.myleague.model.entities.ticket.TicketType;
+import com.swp.myleague.model.repo.ClubSubscriberRepo;
 import com.swp.myleague.model.service.EmailService;
 import com.swp.myleague.model.service.RequestService;
 import com.swp.myleague.model.service.UserService;
@@ -50,8 +58,13 @@ import com.swp.myleague.model.service.saleproductservice.ProductService;
 import com.swp.myleague.model.service.ticketservice.TicketService;
 
 import jakarta.servlet.http.HttpSession;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -89,13 +102,21 @@ public class AdminController {
     @Autowired
     OrderService orderService;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+    @Autowired
+    ClubSubscriberRepo clubSubscriberRepo;
+
     @GetMapping("")
     public String getAdminDashboard(Model model, HttpSession session,
             @RequestParam(name = "error", required = false) String error,
             @RequestParam(name = "success", required = false) String success) {
         model.addAttribute("users", userService.getUser());
         model.addAttribute("products", productService.getAll());
-        model.addAttribute("matches", matchService.getAll());
+        
+        model.addAttribute("matchFixture", matchService.getAll().stream()
+                .filter(m -> m.getMatchStartTime().compareTo(LocalDateTime.now()) > 0).toList());
 
         model.addAttribute("tickets", ticketService.getAll());
 
@@ -128,8 +149,8 @@ public class AdminController {
                     Player player = CommonFunc.parse(req.getRequestInfor(), Player.class);
                     clubName = player.getClub().getClubName();
                 } else if ("BLOG".equals(type)) {
-                    Blog blog = CommonFunc.parse(req.getRequestInfor(), Blog.class);
-                    clubName = blog.getClub().getClubName();
+                    // Blog blog = objectMapper.readValue(req.getRequestInfor(), Blog.class);
+                    clubName = parts[3];
                 }
 
             } catch (Exception e) {
@@ -244,29 +265,74 @@ public class AdminController {
         model.addAttribute("revenueMonths", revenueByMonth.keySet());
         model.addAttribute("revenueValues", revenueByMonth.values());
 
+        List<Match> matches = matchService.getAll();
+        for (Match match : matches) {
+            int total = ticketService.getTotalTickets(match.getMatchId().toString());
+            int sold = ticketService.getSoldTickets(match.getMatchId().toString());
+    
+            match.setTotalTickets(total); // tạo field nếu cần
+            match.setSoldTickets(sold);
+        }
+        model.addAttribute("matches", matches);
+
+        
         return "AdminDashboard";
     }
 
     @PostMapping("/requests")
     public String updateRequest(@RequestParam(name = "requestId") String requestId,
-            @RequestParam(name = "status") String status) {
+            @RequestParam(name = "status") String status,
+            @RequestParam(name = "requestTitle", required = false) String requestTitle) {
         Request request = requestService.getById(requestId);
         String emailClub = "";
+        List<String> emaList = new ArrayList<>();
+        String textForSubscriber = "";
         if (status.equals("CONFIRM")) {
             switch (request.getRequestTitle().split("_")[1]) {
                 case "PLAYER":
                     Player player = CommonFunc.parse(request.getRequestInfor(), Player.class);
                     player = playerService.save(player);
                     emailClub = userService.getUserById(player.getClub().getUserId().toString()).getEmail();
+                    clubSubscriberRepo.findByClubClubId(player.getClub().getClubId()).stream().forEach(cs -> {
+                        emaList.add(cs.getEmail());
+                    });
+                    textForSubscriber = "YOU HAVE NEW FROM " + player.getClub().getClubName();
                     break;
                 case "BLOG":
-                    Blog blog = CommonFunc.parse(request.getRequestInfor(), Blog.class);
-                    blog = blogService.save(blog);
-                    blog.setBlogCategory(BlogCategory.Hotnews);
-                    emailClub = userService.getUserById(blog.getClub().getUserId().toString()).getEmail();
+                    Blog blog;
+                    try {
+
+                        blog = objectMapper.readValue(request.getRequestInfor(), Blog.class);
+                        blog.setBlogDateCreated(LocalDateTime.now());
+                        blog.setClub(clubService.getAll().stream()
+                                .filter(c -> c.getClubName().equals(requestTitle.split("_")[3])).toList().get(0));
+                        blog = blogService.save(blog);
+                        blog.setBlogCategory(BlogCategory.Hotnews);
+                        emailClub = userService.getUserById(clubService.getAll().stream()
+                                .filter(c -> c.getClubName().equals(requestTitle.split("_")[3])).toList().get(0)
+                                .getUserId().toString())
+                                .getEmail();
+                        clubSubscriberRepo.findByClubClubId(clubService.getAll().stream()
+                                .filter(c -> c.getClubName().equals(requestTitle.split("_")[3])).toList().get(0)
+                                .getClubId()).stream().forEach(cs -> {
+                                    emaList.add(cs.getEmail());
+                                });
+
+                        textForSubscriber = "YOU HAVE NEW FROM " + requestTitle.split("_")[3];
+                    } catch (JsonMappingException e) {
+                        e.printStackTrace();
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+
                     break;
                 default:
                     break;
+            }
+            for (String email : emaList) {
+                emailService.sendMail("chumlu2102@gmail.com", email,
+                        "[NEW FROM ]" + requestTitle.split("_")[3],
+                        textForSubscriber, null);
             }
 
         }
@@ -276,6 +342,7 @@ public class AdminController {
 
         emailService.sendMail("chumlu2102@gmail.com", emailClub, "[RESULT OF REQUEST ]" + request.getRequestTitle(),
                 text, null);
+
         switch (status.toLowerCase()) {
             case "confirm":
                 request.setRequestStatus(RequestStatus.CONFIRM);
@@ -428,6 +495,57 @@ public class AdminController {
         userService.save(user);
         return "redirect:/admin";
     }
+
+    @PostMapping("/matches/update")
+    public String updateMatch(@ModelAttribute Match match) {
+        matchService.save(match);
+
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/tickets/update")
+    public String updateTicket(@ModelAttribute TicketDTO ticketDTO) {
+        Ticket ticket = new Ticket();
+        ticket.setTicketId(ticketDTO.getTicketId());
+        ticket.setTicketPrice(ticketDTO.getTicketPrice());
+        ticket.setTicketArea(ticketDTO.getTicketArea());
+        ticket.setTicketAmount(ticketDTO.getTicketAmount());
+        ticket.setTicketTitle(ticketDTO.getTicketTitle());
+        ticket.setTicketType(ticketDTO.getTicketType());
+        ticket.setMatch(matchService.getById(ticketDTO.getMatchId()));
+        ticket = ticketService.save(ticket);
+        System.out.println();
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/product/update")
+    public String updateProduct(@ModelAttribute Product product, @RequestParam(name = "newProductImgPath", required = false) String newProductImgPath) {
+        if (newProductImgPath != null && !newProductImgPath.isBlank()) {
+            product.setProductImgPath(newProductImgPath);
+        }
+        product.setProductSize(ProductSize.L);
+        System.out.println();
+        productService.save(product);
+        return "redirect:/admin";
+    }
+    
     
 
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+class TicketDTO  {
+    UUID ticketId;
+    String ticketTitle;
+    Double ticketPrice;
+    Integer ticketAmount;
+    TicketType ticketType;
+
+    TicketArea ticketArea;
+
+    String matchId;
+    
 }

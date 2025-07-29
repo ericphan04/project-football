@@ -7,25 +7,198 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         <style>
             .pl-header {
-                background-color: #37003c;
+                background: linear-gradient(135deg, #37003c 0%, #2d0030 50%, #37003c 100%);
                 color: white;
                 position: fixed;
                 top: 0;
                 left: 0;
                 right: 0;
                 z-index: 1000;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 4px 20px rgba(55, 0, 60, 0.3);
+                transition: all 0.3s ease;
             }
 
             .pl-header a {
                 color: white;
                 text-decoration: none;
+                position: relative;
+                transition: all 0.3s ease;
+            }
+
+            .pl-header .fs-4 {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+                transition: transform 0.3s ease;
+            }
+
+            .pl-header .fs-4:hover {
+                transform: scale(1.05);
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            }
+
+            .pl-header nav a {
+                padding: 8px 16px;
+                border-radius: 20px;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .pl-header nav a::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transition: left 0.5s;
+            }
+
+            .pl-header nav a:hover::before {
+                left: 100%;
+            }
+
+            .pl-header nav a:hover {
+                background: rgba(255, 255, 255, 0.1);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+
+            .pl-header nav a::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                width: 0;
+                height: 2px;
+                background: #fff;
+                transition: all 0.3s ease;
+                transform: translateX(-50%);
+            }
+
+            .pl-header nav a:hover::after {
+                width: 80%;
+            }
+
+            .btn-primary {
+                background: linear-gradient(45deg, #007bff, #0056b3);
+                border: none;
+                border-radius: 25px;
+                padding: 8px 20px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+                background: linear-gradient(45deg, #0056b3, #004085);
+            }
+
+            /* Fixed dropdown button styles */
+            .dropdown-toggle {
+                background: rgba(255, 255, 255, 0.1) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                border-radius: 25px !important;
+                padding: 8px 16px !important;
+                transition: all 0.3s ease !important;
+                backdrop-filter: blur(5px);
+                color: white !important;
+                text-decoration: none !important;
+            }
+
+            .dropdown-toggle:hover,
+            .dropdown-toggle:focus,
+            .dropdown-toggle.show {
+                background: rgba(255, 255, 255, 0.2) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+                color: white !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+            }
+
+            /* Remove Bootstrap's default focus styles */
+            .dropdown-toggle:focus {
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+            }
+
+            .dropdown-menu {
+                background: linear-gradient(145deg, #37003c, #2d0030) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 15px !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+                backdrop-filter: blur(10px);
+                margin-top: 10px !important;
+                animation: dropdownFade 0.3s ease;
+            }
+
+            @keyframes dropdownFade {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .dropdown-item {
+                color: white !important;
+                padding: 12px 20px !important;
+                transition: all 0.3s ease !important;
+                border-radius: 8px !important;
+                margin: 4px 8px !important;
+            }
+
+            .dropdown-item:hover,
+            .dropdown-item:focus {
+                background: rgba(255, 255, 255, 0.1) !important;
+                transform: translateX(5px);
+                color: white !important;
             }
 
             body {
                 padding-top: 60px;
-                /* để tránh nội dung bị che bởi header */
+            }
+
+            /* Responsive effects */
+            @media (max-width: 768px) {
+                .pl-header nav {
+                    flex-wrap: wrap;
+                    gap: 2px !important;
+                }
+                
+                .pl-header nav a {
+                    padding: 6px 12px;
+                    font-size: 0.9rem;
+                }
+            }
+
+            /* Pulse effect for active page */
+            .pl-header nav a.active {
+                background: rgba(255, 255, 255, 0.15);
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+            }
+
+            /* Smooth scroll behavior */
+            html {
+                scroll-behavior: smooth;
+            }
+
+            /* Loading animation for buttons */
+            .btn:active {
+                transform: scale(0.98);
             }
         </style>
+        
         <!-- Header -->
         <header class="pl-header py-3">
             <div class="container d-flex justify-content-between align-items-center">
@@ -44,14 +217,14 @@
                 <!-- Nếu chưa đăng nhập -->
                 <a sec:authorize="isAnonymous()" th:href="@{/auth/login}" class="btn btn-primary btn-sm">Sign In</a>
 
-                <!-- Nếu đã đăng nhập -->
-                <div class="dropdown" sec:authorize="isAuthenticated()">
-                    <a class="btn dropdown-toggle btn-sm" href="#" role="button" id="dropdownMenuLink"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                <!-- Nếu đã đăng nhập - Fixed dropdown -->
+                <div class="dropdown ms-3" sec:authorize="isAuthenticated()">
+                    <button class="btn btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
                         Hello, <span sec:authentication="name"></span>
-                    </a>
+                    </button>
 
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink" style="background-color: #37003c;">
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <li sec:authorize="hasRole('CLUB_MANAGER')">
                             <a class="dropdown-item" th:href="@{/clubmanager}">Club Information</a>
                         </li>
@@ -71,6 +244,8 @@
                 </div>
             </div>
         </header>
+
+        <!-- Bootstrap JS for dropdown functionality -->
     </div>
 </body>
 
